@@ -1,0 +1,12 @@
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
+        <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <mapping class="academic.kme.model.Note"/>
+        <mapping class="academic.kme.model.Measure"/>
+        <mapping class="academic.kme.model.Staff"/>
+        <mapping class="academic.kme.model.Document"/>
+    </session-factory>
+</hibernate-configuration>
