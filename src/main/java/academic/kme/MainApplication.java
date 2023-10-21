@@ -13,8 +13,9 @@ public class MainApplication extends Application {
     private static SessionFactory factory;
     @Override
     public void start(Stage stage) throws IOException {
+        String databasePath = "src/main/java/academic/kme/sandbox/sandbox.db";
         try {
-            factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", "jdbc:sqlite:C:/Users/marcg/Downloads/sandbox.db").buildSessionFactory();
+            factory = new Configuration().configure("hibernate.cfg.xml").setProperty("hibernate.connection.url", "jdbc:sqlite:" + databasePath).buildSessionFactory();
         } catch (Throwable ex) {
             System.err.println("Failed to create factory object." + ex);
             throw new ExceptionInInitializerError(ex);
