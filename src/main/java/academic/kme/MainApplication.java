@@ -1,11 +1,14 @@
 package academic.kme;
 
+import academic.kme.controllers.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
+import com.dansoftware.pdfdisplayer.PDFDisplayer;
 
 import java.io.IOException;
 
@@ -22,7 +25,7 @@ public class MainApplication extends Application {
         }
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        Scene scene = new Scene(fxmlLoader.load(), 640, 480);
         stage.setTitle("KME");
         stage.setScene(scene);
         stage.show();

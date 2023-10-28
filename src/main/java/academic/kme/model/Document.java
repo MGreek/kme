@@ -9,19 +9,9 @@ public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(nullable = false)
-    private Integer tabNumber;
     @OneToMany(mappedBy = "document", cascade = CascadeType.PERSIST)
     @OrderColumn
     private List<Staff> staves;
-
-    public Integer getTabNumber() {
-        return tabNumber;
-    }
-
-    public void setTabNumber(Integer tabNumber) {
-        this.tabNumber = tabNumber;
-    }
 
     public List<Staff> getStaves() {
         return staves;

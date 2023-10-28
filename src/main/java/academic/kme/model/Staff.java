@@ -12,7 +12,6 @@ public class Staff {
     @OneToMany(mappedBy = "staff", cascade = CascadeType.PERSIST)
     @OrderColumn
     private List<Measure> measures;
-
     @ManyToOne
     private Document document;
 
