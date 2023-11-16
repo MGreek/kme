@@ -1,7 +1,9 @@
 package academic.kme.model;
 
+import academic.kme.model.Note.Note;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,6 +34,20 @@ public class Measure {
     private List<Note> notes;
     @ManyToOne
     private Staff staff;
+
+    // default empty c-tor for hibernate
+    public Measure()
+    { }
+
+    public Measure(Clef clef, TimeSignature timeSignature, Integer armor, List<Note> notes) {
+        this.clef = clef;
+        this.timeSignature = timeSignature;
+        this.armor = armor;
+        this.notes = new ArrayList<>();
+        for (Note note : notes) {
+            addNote(note);
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -65,11 +81,21 @@ public class Measure {
         return notes;
     }
 
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
+    public void addNote(Note note) {
+        notes.add(note);
+        note.setMeasure(this);
+    }
+
+    public void removeNote(Note note) {
+        notes.remove(note);
+        note.setMeasure(null);
     }
 
     public Staff getStaff() {
         return staff;
+    }
+
+    public void setStaff(Staff staff) {
+        this.staff = staff;
     }
 }

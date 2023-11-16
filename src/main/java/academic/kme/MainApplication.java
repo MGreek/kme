@@ -1,19 +1,24 @@
 package academic.kme;
 
-import academic.kme.controllers.MainController;
+import academic.kme.controller.MainController;
+import academic.kme.model.Document.Document;
+import jakarta.persistence.Query;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import com.dansoftware.pdfdisplayer.PDFDisplayer;
-
 import java.io.IOException;
+import java.util.List;
 
 public class MainApplication extends Application {
-    private static SessionFactory factory;
+    private SessionFactory factory;
+    private MainController controller;
+
     @Override
     public void start(Stage stage) throws IOException {
         String databasePath = "src/main/java/academic/kme/sandbox/sandbox.db";
@@ -23,19 +28,55 @@ public class MainApplication extends Application {
             System.err.println("Failed to create factory object." + ex);
             throw new ExceptionInInitializerError(ex);
         }
+        List<Document> documents;
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            String hql = "FROM Document";
+            Query query = session.createQuery(hql, Document.class);
+            documents = query.getResultList();
+
+            session.getTransaction().commit();
+        }
+        if (documents.size() == 0) {
+            documents.add(Document.EmptyDocument);
+        }
+        else if (documents.size() > 1) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Corrupt File");
+            alert.setContentText("Cannot open file because it is corrupted.");
+            alert.show();
+            return;
+        }
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 640, 480);
         stage.setTitle("KME");
         stage.setScene(scene);
         stage.show();
+
+        controller = fxmlLoader.getController();
+        controller.getGraphicsController().setDocument(documents.get(0));
+        controller.UpdateUpperAnchorPane();
     }
 
     @Override
     public void stop() {
-        if (factory != null) {
-            factory.close();
+        try (Session session = factory.openSession()) {
+            session.beginTransaction();
+
+            Document document = controller.getGraphicsController().getDocument();
+            if (session.get(Document.class, document.getId()) != null) {
+                session.merge(document);
+            }
+            else {
+                session.persist(document);
+            }
+
+            session.getTransaction().commit();
         }
+
+        factory.close();
     }
 
     public static void main(String[] args) {

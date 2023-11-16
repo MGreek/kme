@@ -4,9 +4,9 @@
         <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <mapping class="academic.kme.model.Note"/>
+        <mapping class="academic.kme.model.Note.Note"/>
         <mapping class="academic.kme.model.Measure"/>
         <mapping class="academic.kme.model.Staff"/>
-        <mapping class="academic.kme.model.Document"/>
+        <mapping class="academic.kme.model.Document.Document"/>
     </session-factory>
 </hibernate-configuration>

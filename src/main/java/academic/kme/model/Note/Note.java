@@ -1,9 +1,22 @@
-package academic.kme.model;
+package academic.kme.model.Note;
 
+import academic.kme.model.Measure;
 import jakarta.persistence.*;
+
+import java.util.UUID;
 
 @Entity
 public class Note {
+    // default empty c-tor for hibernate
+    public Note()
+    { }
+
+    public Note(Length length, Accidental accidental, Integer offset) {
+        this.length = length;
+        this.accidental = accidental;
+        this.offset = offset;
+    }
+
     public enum Length {
         Whole,
         Half,
@@ -23,22 +36,24 @@ public class Note {
         DoubleSharp
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private UUID id = UUID.randomUUID();
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Length length;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Accidental accidental;
-    @Column(nullable = false)
-    private Integer offset; // 0 is on the first bottom to top
+    @Column
+    private Integer offset; // 0 is on the first line (bottom to top); null means this note is a rest
     @ManyToOne
     private Measure measure;
+    @Embedded
+    private NoteSettings settings;
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
+    public void setId(UUID id) { this.id = id; }
 
     public Length getLength() {
         return length;
@@ -66,5 +81,9 @@ public class Note {
 
     public Measure getMeasure() {
         return measure;
+    }
+
+    public void setMeasure(Measure measure) {
+        this.measure = measure;
     }
 }

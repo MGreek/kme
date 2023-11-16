@@ -11,12 +11,12 @@ module academic.kme {
     requires java.naming;
     requires java.sql;
     requires jakarta.persistence;
-    requires org.apache.pdfbox;
-    requires PDFViewerFX;
 
     opens academic.kme.model to org.hibernate.orm.core;
     opens academic.kme to javafx.fxml;
-    opens academic.kme.controllers to javafx.fxml;
-    opens academic.kme.controllers.Graphics to javafx.fxml;
+    opens academic.kme.controller to javafx.fxml;
+    opens academic.kme.controller.Graphics to javafx.fxml;
     exports academic.kme;
+    opens academic.kme.model.Document to org.hibernate.orm.core;
+    opens academic.kme.model.Note to org.hibernate.orm.core;
 }
