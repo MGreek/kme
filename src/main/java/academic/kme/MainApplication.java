@@ -38,8 +38,8 @@ public class MainApplication extends Application {
 
             session.getTransaction().commit();
         }
-        if (documents.size() == 0) {
-            documents.add(Document.EmptyDocument);
+        if (documents.isEmpty()) {
+            documents.add(Document.DefaultDocument);
         }
         else if (documents.size() > 1) {
             Alert alert = new Alert(Alert.AlertType.ERROR);

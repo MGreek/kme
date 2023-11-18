@@ -18,5 +18,7 @@ module academic.kme {
     opens academic.kme.controller.Graphics to javafx.fxml;
     exports academic.kme;
     opens academic.kme.model.Document to org.hibernate.orm.core;
-    opens academic.kme.model.Note to org.hibernate.orm.core;
+    opens academic.kme.model.NoteCluster to org.hibernate.orm.core;
+    opens academic.kme.model.Measure to org.hibernate.orm.core;
+    opens academic.kme.model.Staff to org.hibernate.orm.core;
 }
