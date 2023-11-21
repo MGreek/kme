@@ -1,7 +1,6 @@
 module academic.kme {
     requires javafx.controls;
     requires javafx.fxml;
-    requires javafx.web;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -12,13 +11,20 @@ module academic.kme {
     requires java.sql;
     requires jakarta.persistence;
 
-    opens academic.kme.model to org.hibernate.orm.core;
+    opens academic.kme.model.Voice to org.hibernate.orm.core;
+    opens academic.kme.model.NoteCluster to org.hibernate.orm.core;
+    opens academic.kme.model.Measure to org.hibernate.orm.core;
+    opens academic.kme.model.Staff to org.hibernate.orm.core;
+    opens academic.kme.model.Document to org.hibernate.orm.core;
+
     opens academic.kme to javafx.fxml;
     opens academic.kme.controller to javafx.fxml;
     opens academic.kme.controller.Graphics to javafx.fxml;
     exports academic.kme;
-    opens academic.kme.model.Document to org.hibernate.orm.core;
-    opens academic.kme.model.NoteCluster to org.hibernate.orm.core;
-    opens academic.kme.model.Measure to org.hibernate.orm.core;
-    opens academic.kme.model.Staff to org.hibernate.orm.core;
+
+    exports academic.kme.model.Voice;
+    exports academic.kme.model.NoteCluster;
+    exports academic.kme.model.Measure;
+    exports academic.kme.model.Staff;
+    exports academic.kme.model.Document;
 }

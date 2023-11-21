@@ -5,6 +5,7 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <mapping class="academic.kme.model.NoteCluster.NoteCluster"/>
+        <mapping class="academic.kme.model.Voice.Voice"/>
         <mapping class="academic.kme.model.Measure.Measure"/>
         <mapping class="academic.kme.model.Staff.Staff"/>
         <mapping class="academic.kme.model.Document.Document"/>

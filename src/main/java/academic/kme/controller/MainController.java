@@ -10,6 +10,9 @@ public class MainController {
     private final GraphicsController graphicsController = new GraphicsController();
 
     public void UpdateUpperAnchorPane() {
+        graphicsController.DrawCanvas();
+        upperAnchorPane.getChildren().removeAll();
+        upperAnchorPane.getChildren().add(graphicsController.getCanvas());
     }
 
     public GraphicsController getGraphicsController() {

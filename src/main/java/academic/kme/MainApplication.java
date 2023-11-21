@@ -66,11 +66,12 @@ public class MainApplication extends Application {
             session.beginTransaction();
 
             Document document = controller.getGraphicsController().getDocument();
-            if (session.get(Document.class, document.getId()) != null) {
-                session.merge(document);
-            }
-            else {
-                session.persist(document);
+            if (document != null) {
+                if (session.get(Document.class, document.getId()) != null) {
+                    session.merge(document);
+                } else {
+                    session.persist(document);
+                }
             }
 
             session.getTransaction().commit();

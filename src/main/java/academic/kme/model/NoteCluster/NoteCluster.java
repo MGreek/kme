@@ -1,7 +1,10 @@
 package academic.kme.model.NoteCluster;
 
 import academic.kme.model.Voice.Voice;
-import jakarta.persistence.*;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 import java.util.UUID;
 
@@ -21,8 +24,8 @@ public class NoteCluster {
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
-    public Voice getVoie() { return voice; }
-    public void setVoie(Voice voie) { this.voice = voie; }
+    public Voice getVoice() { return voice; }
+    public void setVoice(Voice voice) { this.voice = voice; }
     public PureNoteCluster getPureNoteCluster() { return pureNoteCluster; }
     public void setPureNoteCluster(PureNoteCluster pureNoteCluster) { this.pureNoteCluster = pureNoteCluster; }
     public GraphicHints getHints() { return hints; }

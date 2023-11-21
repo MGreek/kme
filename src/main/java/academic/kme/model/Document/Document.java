@@ -1,11 +1,8 @@
 package academic.kme.model.Document;
 
-import academic.kme.model.Measure.Measure;
-import academic.kme.model.NoteCluster.NoteCluster;
 import academic.kme.model.Staff.Staff;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

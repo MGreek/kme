@@ -1,6 +1,5 @@
 package academic.kme.model.Measure;
 
-import academic.kme.model.NoteCluster.NoteCluster;
 import academic.kme.model.Staff.Staff;
 import academic.kme.model.Voice.Voice;
 import jakarta.persistence.*;
