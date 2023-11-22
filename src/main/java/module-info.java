@@ -10,6 +10,7 @@ module academic.kme {
     requires java.naming;
     requires java.sql;
     requires jakarta.persistence;
+    requires lombok;
 
     opens academic.kme.model.Voice to org.hibernate.orm.core;
     opens academic.kme.model.NoteCluster to org.hibernate.orm.core;

@@ -1,5 +1,6 @@
 package academic.kme.controller.Graphics;
 
+import academic.kme.controller.Graphics.Primitive.StaffLines;
 import academic.kme.model.Document.Document;
 import javafx.scene.canvas.Canvas;
 
@@ -14,7 +15,7 @@ public class GraphicsController {
     public void DrawCanvas() {
         Resize();
 
-        artist.DrawStaffLines(30, 30, 2.5, 10, 200);
+        artist.drawStaffLines(new StaffLines(30, 30, 2.5, 10, 200));
     }
 
     public Canvas getCanvas() {
