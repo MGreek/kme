@@ -1,9 +1,10 @@
 package academic.kme.model.Measure;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
 
 @Embeddable
-public class GraphicHints {
-    public GraphicHints()
-    { }
-}
+@Getter
+@Setter
+public class GraphicHints { }

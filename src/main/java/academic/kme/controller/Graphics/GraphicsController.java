@@ -1,21 +1,21 @@
 package academic.kme.controller.Graphics;
 
-import academic.kme.controller.Graphics.Primitive.StaffLines;
 import academic.kme.model.Document.Document;
 import javafx.scene.canvas.Canvas;
 
 public class GraphicsController {
-    private Document document;
     private final CanvasArtist artist = new CanvasArtist();
+    private final Architect architect = new Architect(null, artist);
 
-    private void Resize() {
-        artist.setSize(279);
+    public void resizeWidth(double width) {
+        artist.setWidth(width);
+    }
+    public void resizeHeight(double height) {
+        artist.setHeight(height);
     }
 
-    public void DrawCanvas() {
-        Resize();
-
-        artist.drawStaffLines(new StaffLines(30, 30, 2.5, 10, 200));
+    public void drawCanvas() {
+        architect.Draw();
     }
 
     public Canvas getCanvas() {
@@ -23,10 +23,10 @@ public class GraphicsController {
     }
 
     public Document getDocument() {
-        return document;
+        return architect.getDocument();
     }
 
     public void setDocument(Document document) {
-        this.document = document;
+        architect.setDocument(document);
     }
 }

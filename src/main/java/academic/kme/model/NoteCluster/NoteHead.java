@@ -1,16 +1,17 @@
 package academic.kme.model.NoteCluster;
 
-import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Embeddable
+import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GraphicHints {
-    boolean upsideDown;
+public class NoteHead implements Serializable {
+    private int offset;
+    private Accidental accidental;
 }

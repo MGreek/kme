@@ -1,16 +1,17 @@
-package academic.kme.model.NoteCluster;
+package academic.kme.controller.Graphics.Primitive;
 
-import jakarta.persistence.Embeddable;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Embeddable
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GraphicHints {
-    boolean upsideDown;
+public class Group {
+    private List<NoteHead> noteHeads;
 }

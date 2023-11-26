@@ -13,6 +13,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainApplication extends Application {
@@ -28,13 +29,18 @@ public class MainApplication extends Application {
             System.err.println("Failed to create factory object." + ex);
             throw new ExceptionInInitializerError(ex);
         }
-        List<Document> documents;
+        List<Document> documents = new ArrayList<>();
         try (Session session = factory.openSession()) {
             session.beginTransaction();
 
             String hql = "FROM Document";
             Query query = session.createQuery(hql, Document.class);
-            documents = query.getResultList();
+            for (Object object : query.getResultList()) {
+                if (!(object instanceof Document)) {
+                    break;
+                }
+                documents.add((Document) object);
+            }
 
             session.getTransaction().commit();
         }
@@ -50,14 +56,14 @@ public class MainApplication extends Application {
         }
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 640, 480);
+        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
         stage.setTitle("KME");
         stage.setScene(scene);
         stage.show();
 
         controller = fxmlLoader.getController();
         controller.getGraphicsController().setDocument(documents.get(0));
-        controller.UpdateUpperAnchorPane();
+        controller.updatePane();
     }
 
     @Override

@@ -1,4 +1,7 @@
 package academic.kme.controller.Graphics.Primitive;
 
-public class Note {
+public enum ClefType {
+    Treble,
+    Alto,
+    Bass
 }
