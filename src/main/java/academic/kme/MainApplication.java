@@ -44,10 +44,7 @@ public class MainApplication extends Application {
 
             session.getTransaction().commit();
         }
-        if (documents.isEmpty()) {
-            documents.add(Document.DefaultDocument);
-        }
-        else if (documents.size() > 1) {
+        if (documents.size() > 1) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Corrupt File");
             alert.setContentText("Cannot open file because it is corrupted.");
@@ -57,13 +54,15 @@ public class MainApplication extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
+        controller = fxmlLoader.getController();
+        scene.setOnKeyTyped(controller::onKeyPressed);
+        controller.setDocument(documents.stream().findFirst().orElse(Document.DefaultDocument));
+        controller.updatePane();
+
         stage.setTitle("KME");
         stage.setScene(scene);
         stage.show();
 
-        controller = fxmlLoader.getController();
-        controller.getGraphicsController().setDocument(documents.get(0));
-        controller.updatePane();
     }
 
     @Override
@@ -71,7 +70,7 @@ public class MainApplication extends Application {
         try (Session session = factory.openSession()) {
             session.beginTransaction();
 
-            Document document = controller.getGraphicsController().getDocument();
+            Document document = controller.getDocument();
             if (document != null) {
                 if (session.get(Document.class, document.getId()) != null) {
                     session.merge(document);
