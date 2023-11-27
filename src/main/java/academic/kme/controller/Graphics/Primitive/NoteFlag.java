@@ -10,7 +10,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoteFlag {
-    private double x;
-    private double y;
     private byte length;
 }

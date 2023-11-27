@@ -15,7 +15,7 @@ public class GraphicsController {
     }
 
     public void drawCanvas() {
-        architect.Draw();
+        architect.draw();
     }
 
     public Canvas getCanvas() {

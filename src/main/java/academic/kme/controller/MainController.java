@@ -5,6 +5,8 @@ import academic.kme.controller.Graphics.GraphicsController;
 import academic.kme.model.Document.Document;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -12,18 +14,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 
+import java.util.Objects;
+
 public class MainController {
     @Getter
     private Document document;
 
-    public void setDocument(Document document) {
-        this.document = document;
-        graphicsController.setDocument(document);
-        commandLineController.setDocument(document);
-    }
-
     @FXML
     private Pane mainPane;
+
     @FXML
     private Label commandLine;
 
@@ -31,8 +30,21 @@ public class MainController {
 
     @Getter
     private final GraphicsController graphicsController = new GraphicsController();
+
     @Getter
     private final CommandLineController commandLineController = new CommandLineController();
+
+    public MainController() {
+        commandLineController.getCommandTree().setOnPathChangedEnter(this::onCommandTreePathChanged);
+        commandLineController.getCommandTree().setOnSubmitEnter(this::onCommandTreeSubmitEnter);
+    }
+
+    private void onCommandTreePathChanged(String path) {
+        commandLine.setText(path);
+    }
+
+    private void onCommandTreeSubmitEnter() {
+    }
 
     private void updateCanvas() {
         Canvas canvas = graphicsController.getCanvas();
@@ -46,6 +58,20 @@ public class MainController {
     }
 
     public void onKeyPressed(KeyEvent keyEvent) {
+        if (Objects.equals(keyEvent.getCode().getName(), "Esc")) {
+            commandLineController.getCommandTree().clear();
+        }
+    }
+
+    public void onKeyTyped(KeyEvent keyEvent) {
+        if (keyEvent.getCharacter().length() != 1) {
+            return;
+        }
+        char c = keyEvent.getCharacter().charAt(0);
+        if (Character.isWhitespace(c)) {
+            return;
+        }
+        commandLineController.getCommandTree().applySymbol(c);
     }
 
     public void updatePane() {
@@ -57,5 +83,11 @@ public class MainController {
             mainPane.heightProperty().addListener((observable, oldValue, newValue) -> updatePane());
         }
         updateCanvas();
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
+        graphicsController.setDocument(document);
+        commandLineController.setDocument(document);
     }
 }

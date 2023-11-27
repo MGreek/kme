@@ -26,10 +26,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Document {
-    public static Document DefaultDocument;
+    public static Document defaultDocument;
 
     static {
-        DefaultDocument = new Document();
+        defaultDocument = new Document();
         Staff staff = new Staff();
         Measure measure = new Measure();
         Voice voice = new Voice();
@@ -53,13 +53,13 @@ public class Document {
         measure.setVoices(new ArrayList<>());
         measure.getVoices().add(voice);
 
-        staff.setDocument(DefaultDocument);
+        staff.setDocument(defaultDocument);
         staff.setMeasures(new ArrayList<>());
         staff.getMeasures().add(measure);
 
-        DefaultDocument.setHints(new GraphicHints());
-        DefaultDocument.setStaves(new ArrayList<>());
-        DefaultDocument.getStaves().add(staff);
+        defaultDocument.setHints(new GraphicHints());
+        defaultDocument.setStaves(new ArrayList<>());
+        defaultDocument.getStaves().add(staff);
     }
 
     @Id

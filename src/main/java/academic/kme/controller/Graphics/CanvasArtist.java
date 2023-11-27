@@ -7,6 +7,8 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 public class CanvasArtist implements Artist {
@@ -80,10 +82,7 @@ public class CanvasArtist implements Artist {
     }
 
     @Override
-    public void drawGroup(Group group) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        for (NoteHead noteHead : group.getNoteHeads()) {
-            drawNoteHead(noteHead.getX(), noteHead.getY(), noteHead.isFilled() ? 1.0 : 0.35, noteHead.getWidth(), gc);
-        }
+    public void drawNoteStems(List<NoteStem> noteStems) {
+
     }
 }

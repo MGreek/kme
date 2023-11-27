@@ -10,5 +10,5 @@ public interface Artist {
     void drawClef(Clef clef);
     void drawTimeSignature(TimeSignature timeSignature);
     void drawAccidental(Accidental accidental);
-    void drawGroup(Group group);
+    void drawNoteStems(List<NoteStem> noteStems);
 }
