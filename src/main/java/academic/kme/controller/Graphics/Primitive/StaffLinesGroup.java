@@ -1,18 +1,23 @@
 package academic.kme.controller.Graphics.Primitive;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Clef {
+public class StaffLinesGroup {
     private double x;
-    private int offset;
+    private double y;
+    private double lineHeight;
+    private double spaceHeight;
+    private double length;
 
-    private ClefType clefType;
+    private BracketType bracketType;
+    private List<StaffLines> staffLines;
 }

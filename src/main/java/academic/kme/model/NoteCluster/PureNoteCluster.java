@@ -1,7 +1,6 @@
 package academic.kme.model.NoteCluster;
 
 import jakarta.persistence.Convert;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;

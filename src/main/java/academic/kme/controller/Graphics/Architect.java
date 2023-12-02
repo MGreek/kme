@@ -16,7 +16,6 @@ public class Architect {
 
     public void draw() {
         artist.clear();
-
     }
 
     private void drawStaffLines() {

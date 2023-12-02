@@ -1,13 +1,12 @@
 package academic.kme.controller.Graphics;
 
-import academic.kme.controller.Graphics.Primitive.*;
+import academic.kme.controller.Graphics.Primitive.StaffLinesGroup;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -31,12 +30,12 @@ public class CanvasArtist implements Artist {
         gc.fillRect(pixelX, pixelY, pixelLineLength, pixelLineHeight);
     }
 
-    private void drawNoteHead(double x, double y, double fillPercentage, double width, GraphicsContext gc) {
+    private void drawNoteHead(double x, double y, double fillPercentage, double height, GraphicsContext gc) {
         final double ratio = 1.35;
         double pixelX = getCanvasSpace(x);
         double pixelY = getCanvasSpace(y);
-        double pixelWidth = getCanvasSpace(width);
-        double pixelHeight = pixelWidth / ratio;
+        double pixelHeight = getCanvasSpace(height);
+        double pixelWidth = pixelHeight * ratio;
         double pixelInnerWidth = pixelWidth * (1.0 - fillPercentage);
         double pixelInnerHeight = pixelHeight * (1.0 - fillPercentage);
         double stroke = (pixelWidth - pixelInnerWidth) / 2;
@@ -58,31 +57,7 @@ public class CanvasArtist implements Artist {
     }
 
     @Override
-    public void drawStaffLines(StaffLines staffLines) {
+    public void drawStaffLinesGroup(StaffLinesGroup staffLinesGroup) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        double y = staffLines.getY();
-        for (int i = 0; i < 5; ++i) {
-            drawLine(staffLines.getX(), y, staffLines.getLineHeight(), staffLines.getLength(), gc);
-            y += staffLines.getLineHeight() + staffLines.getSpaceHeight();
-        }
-    }
-
-    @Override
-    public void drawClef(Clef clef) {
-
-    }
-
-    @Override
-    public void drawTimeSignature(TimeSignature timeSignature) {
-    }
-
-    @Override
-    public void drawAccidental(Accidental accidental) {
-
-    }
-
-    @Override
-    public void drawNoteStems(List<NoteStem> noteStems) {
-
     }
 }

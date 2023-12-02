@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoteHead {
-    private double y;
-    private double width;
+    private int offset;
+
+    private AccidentalType accidentalType;
 }

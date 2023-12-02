@@ -1,6 +1,5 @@
 package academic.kme.controller.Graphics.Primitive;
 
-import javafx.scene.shape.Rectangle;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,17 +11,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NoteStem extends Primitive {
+public class NoteStem {
     private double x;
-    private double y;
-    private double width;
-    private double height;
-    private boolean flipped;
-    private NoteFlag noteFlag;
     private List<NoteHead> noteHeads;
 
-    @Override
-    public Rectangle getBoundingBox() {
-        return null;
-    }
+    private NoteFlag noteFlag;
+    private boolean flipped;
 }

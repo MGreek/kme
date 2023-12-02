@@ -5,8 +5,6 @@ import academic.kme.controller.Graphics.GraphicsController;
 import academic.kme.model.Document.Document;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -46,17 +44,6 @@ public class MainController {
     private void onCommandTreeSubmitEnter() {
     }
 
-    private void updateCanvas() {
-        Canvas canvas = graphicsController.getCanvas();
-
-        graphicsController.resizeHeight(Math.min(mainPane.getWidth(), mainPane.getHeight()));
-
-        canvas.setLayoutX((mainPane.getWidth() - canvas.getWidth()) / 2);
-        canvas.setLayoutY((mainPane.getHeight() - canvas.getHeight()) / 2);
-
-        graphicsController.drawCanvas();
-    }
-
     public void onKeyPressed(KeyEvent keyEvent) {
         if (Objects.equals(keyEvent.getCode().getName(), "Esc")) {
             commandLineController.getCommandTree().clear();
@@ -72,6 +59,17 @@ public class MainController {
             return;
         }
         commandLineController.getCommandTree().applySymbol(c);
+    }
+
+    private void updateCanvas() {
+        Canvas canvas = graphicsController.getCanvas();
+
+        graphicsController.resizeHeight(Math.min(mainPane.getWidth(), mainPane.getHeight()));
+
+        canvas.setLayoutX((mainPane.getWidth() - canvas.getWidth()) / 2);
+        canvas.setLayoutY((mainPane.getHeight() - canvas.getHeight()) / 2);
+
+        graphicsController.drawCanvas();
     }
 
     public void updatePane() {

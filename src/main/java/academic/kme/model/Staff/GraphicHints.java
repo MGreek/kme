@@ -1,5 +1,4 @@
-package academic.kme.controller.Graphics.Primitive;
-
+package academic.kme.model.Staff;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,9 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Clef {
-    private double x;
-    private int offset;
-
-    private ClefType clefType;
+public class GraphicHints {
+    private double lineHeight;
+    private double spaceHeight;
 }
