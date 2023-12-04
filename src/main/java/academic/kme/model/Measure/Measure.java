@@ -23,7 +23,7 @@ public class Measure {
     @ManyToOne
     private Staff staff;
 
-    @OneToMany(mappedBy = "measure", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "measure", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, orphanRemoval = true)
     @OrderColumn
     private List<Voice> voices;
 

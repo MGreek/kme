@@ -8,6 +8,7 @@
         <mapping class="academic.kme.model.Voice.Voice"/>
         <mapping class="academic.kme.model.Measure.Measure"/>
         <mapping class="academic.kme.model.Staff.Staff"/>
+        <mapping class="academic.kme.model.StaffGroup.StaffGroup"/>
         <mapping class="academic.kme.model.Document.Document"/>
     </session-factory>
 </hibernate-configuration>

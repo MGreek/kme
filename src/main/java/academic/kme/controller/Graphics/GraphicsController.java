@@ -1,5 +1,7 @@
 package academic.kme.controller.Graphics;
 
+import academic.kme.controller.Graphics.Architect.Architect;
+import academic.kme.controller.Graphics.Artist.CanvasArtist;
 import academic.kme.model.Document.Document;
 import javafx.scene.canvas.Canvas;
 

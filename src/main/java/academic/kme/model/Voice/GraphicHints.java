@@ -1,4 +1,4 @@
-package academic.kme.model.Staff;
+package academic.kme.model.Voice;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;

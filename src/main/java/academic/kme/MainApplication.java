@@ -58,13 +58,16 @@ public class MainApplication extends Application {
                 alert.show();
                 return;
             }
+            if (documents.size() == 1) {
+
+            }
 
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
             controller = fxmlLoader.getController();
             scene.setOnKeyPressed(controller::onKeyPressed);
             scene.setOnKeyTyped(controller::onKeyTyped);
-            controller.setDocument(documents.stream().findFirst().orElse(Document.defaultDocument));
+            controller.setDocument(documents.stream().findFirst().orElse(Document.getDefaultDocument()));
             controller.updatePane();
 
             stage.setTitle("KME");

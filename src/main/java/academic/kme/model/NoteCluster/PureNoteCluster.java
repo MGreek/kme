@@ -19,5 +19,6 @@ public class PureNoteCluster {
     @Lob
     @Convert(converter = NoteHeadListConverter.class)
     List<NoteHead> noteHeads;
+
     byte length;
 }

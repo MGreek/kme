@@ -12,10 +12,11 @@ module academic.kme {
     requires jakarta.persistence;
     requires lombok;
 
-    opens academic.kme.model.Voice to org.hibernate.orm.core;
     opens academic.kme.model.NoteCluster to org.hibernate.orm.core;
+    opens academic.kme.model.Voice to org.hibernate.orm.core;
     opens academic.kme.model.Measure to org.hibernate.orm.core;
     opens academic.kme.model.Staff to org.hibernate.orm.core;
+    opens academic.kme.model.StaffGroup to org.hibernate.orm.core;
     opens academic.kme.model.Document to org.hibernate.orm.core;
 
     opens academic.kme to javafx.fxml;
@@ -23,9 +24,12 @@ module academic.kme {
     opens academic.kme.controller.Graphics to javafx.fxml;
     exports academic.kme;
 
-    exports academic.kme.model.Voice;
     exports academic.kme.model.NoteCluster;
+    exports academic.kme.model.Voice;
     exports academic.kme.model.Measure;
     exports academic.kme.model.Staff;
+    exports academic.kme.model.StaffGroup;
     exports academic.kme.model.Document;
+    opens academic.kme.controller.Graphics.Architect to javafx.fxml;
+    opens academic.kme.controller.Graphics.Artist to javafx.fxml;
 }

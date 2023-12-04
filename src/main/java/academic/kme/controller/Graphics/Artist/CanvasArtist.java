@@ -1,5 +1,6 @@
-package academic.kme.controller.Graphics;
+package academic.kme.controller.Graphics.Artist;
 
+import academic.kme.controller.Graphics.Primitive.StaffLines;
 import academic.kme.controller.Graphics.Primitive.StaffLinesGroup;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -28,6 +29,14 @@ public class CanvasArtist implements Artist {
         double pixelLineLength = getCanvasSpace(lineLength);
         gc.setFill(Color.BLACK);
         gc.fillRect(pixelX, pixelY, pixelLineLength, pixelLineHeight);
+    }
+
+    private void drawStaffLines(double x, double y, double lineHeight,
+                                double spaceHeight, double lineLength, GraphicsContext gc) {
+        for (int i = 0; i < 5; ++i) {
+            drawLine(x, y, lineHeight, lineLength, gc);
+            y += lineHeight + spaceHeight;
+        }
     }
 
     private void drawNoteHead(double x, double y, double fillPercentage, double height, GraphicsContext gc) {
@@ -59,5 +68,13 @@ public class CanvasArtist implements Artist {
     @Override
     public void drawStaffLinesGroup(StaffLinesGroup staffLinesGroup) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        final double length = 290.0 - 2 * staffLinesGroup.getX();
+        final double x = staffLinesGroup.getX();
+        double y = staffLinesGroup.getY();
+        for (StaffLines staffLines : staffLinesGroup.getStaffLines()) {
+            drawStaffLines(x, y, staffLinesGroup.getLineHeight(), staffLinesGroup.getSpaceHeight(), length, gc);
+            y += staffLinesGroup.getLineHeight() * 5 + staffLinesGroup.getSpaceHeight() * 4 + staffLinesGroup.getOffset();
+        }
     }
 }

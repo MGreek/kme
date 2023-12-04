@@ -1,7 +1,8 @@
-package academic.kme.model.Staff;
+package academic.kme.model.StaffGroup;
 
-import academic.kme.model.Measure.Measure;
-import academic.kme.model.StaffGroup.StaffGroup;
+
+import academic.kme.model.Document.Document;
+import academic.kme.model.Staff.Staff;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,16 +17,16 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Staff {
+public class StaffGroup {
     @Id
     private UUID id = UUID.randomUUID();
 
     @ManyToOne
-    private StaffGroup staffGroup;
+    private Document document;
 
-    @OneToMany(mappedBy = "staff", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "staffGroup", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, orphanRemoval = true)
     @OrderColumn
-    private List<Measure> measures;
+    private List<Staff> staves;
 
     @Embedded
     private GraphicHints hints;

@@ -23,7 +23,10 @@ public class Voice {
     @ManyToOne
     private Measure measure;
 
-    @OneToMany(mappedBy = "voice", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "voice", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
     @OrderColumn
     private List<NoteCluster> noteClusters;
+
+    @Embedded
+    private GraphicHints graphicHints;
 }

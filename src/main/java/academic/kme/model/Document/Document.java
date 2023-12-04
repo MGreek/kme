@@ -9,6 +9,7 @@ import academic.kme.model.NoteCluster.NoteCluster;
 import academic.kme.model.NoteCluster.NoteHead;
 import academic.kme.model.NoteCluster.PureNoteCluster;
 import academic.kme.model.Staff.Staff;
+import academic.kme.model.StaffGroup.StaffGroup;
 import academic.kme.model.Voice.Voice;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,10 +27,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Document {
-    public static Document defaultDocument;
-
-    static {
-        defaultDocument = new Document();
+    public static Document getDefaultDocument() {
+        var defaultDocument = new Document();
+        StaffGroup staffGroup = new StaffGroup();
         Staff staff = new Staff();
         Measure measure = new Measure();
         Voice voice = new Voice();
@@ -53,13 +53,20 @@ public class Document {
         measure.setVoices(new ArrayList<>());
         measure.getVoices().add(voice);
 
-        staff.setDocument(defaultDocument);
+        staff.setStaffGroup(staffGroup);
         staff.setMeasures(new ArrayList<>());
         staff.getMeasures().add(measure);
 
-        defaultDocument.setHints(new GraphicHints());
-        defaultDocument.setStaves(new ArrayList<>());
-        defaultDocument.getStaves().add(staff);
+        staffGroup.setDocument(defaultDocument);
+        staffGroup.setStaves(new ArrayList<>());
+        staffGroup.getStaves().add(staff);
+        staffGroup.setHints(new academic.kme.model.StaffGroup.GraphicHints());
+
+        defaultDocument.setHints(new GraphicHints(1, 3));
+        defaultDocument.setStaffGroups(new ArrayList<>());
+        defaultDocument.getStaffGroups().add(staffGroup);
+
+        return defaultDocument;
     }
 
     @Id
@@ -68,7 +75,7 @@ public class Document {
     @Embedded
     private GraphicHints hints;
 
-    @OneToMany(mappedBy = "document", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "document", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, orphanRemoval = true)
     @OrderColumn
-    private List<Staff> staves;
+    private List<StaffGroup> staffGroups;
 }

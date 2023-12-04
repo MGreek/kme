@@ -16,7 +16,7 @@ public class StaffLinesGroup {
     private double y;
     private double lineHeight;
     private double spaceHeight;
-    private double length;
+    private double offset;
 
     private BracketType bracketType;
     private List<StaffLines> staffLines;

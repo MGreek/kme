@@ -1,4 +1,4 @@
-package academic.kme.controller.Graphics;
+package academic.kme.controller.Graphics.Artist;
 
 import academic.kme.controller.Graphics.Primitive.StaffLinesGroup;
 
