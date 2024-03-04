@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class KmeBackendApplication
 
 fun main(args: Array<String>) {
-	runApplication<KmeBackendApplication>(*args)
+    runApplication<KmeBackendApplication>(*args)
 }
