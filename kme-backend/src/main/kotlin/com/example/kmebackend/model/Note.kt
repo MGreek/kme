@@ -13,13 +13,19 @@ enum class Accidental {
     DoubleSharp,
 }
 
+@Embeddable
+data class NoteId(
+    @Embedded
+    val chordId: ChordId,
+    val position: Long,
+)
+
 @Entity
 data class Note(
-    @Id
-    @ManyToOne
-    val chord: Chord? = null,
-    @Id
-    val position: Long,
+    @EmbeddedId
+    val noteId: NoteId,
+    @MapsId("chordId") @ManyToOne
+    val chord: Chord,
     @Enumerated(EnumType.STRING)
     val accidental: Accidental,
     @Min(0) @Max(4)

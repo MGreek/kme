@@ -33,14 +33,20 @@ enum class Clef {
     Bass,
 }
 
+@Embeddable
+data class MeasureId(
+    @Embedded
+    val staffId: StaffId,
+    @Column(name = "measures_order")
+    val measuresOrder: Long,
+)
+
 @Entity
 data class Measure(
-    @Id
-    @ManyToOne
-    val staff: Staff? = null,
-    @Id
-    @Column(name = "measures_order")
-    val measuresOrder: Long? = null,
+    @EmbeddedId
+    val measureId: MeasureId,
+    @MapsId("staffId") @ManyToOne
+    val staff: Staff,
     @OneToMany(mappedBy = "measure")
     @OrderColumn(name = "voices_order")
     val voices: List<Voice> = emptyList(),

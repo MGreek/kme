@@ -2,15 +2,20 @@ package com.example.kmebackend.model
 
 import jakarta.persistence.*
 
+@Embeddable
+data class ChordId(
+    @Embedded
+    val groupingEntryId: GroupingEntryId,
+)
+
 @Entity
 data class Chord(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    @EmbeddedId
+    val chordId: ChordId,
+    @MapsId("groupingEntryId") @OneToOne(optional = false, mappedBy = "chord")
+    val groupingEntry: GroupingEntry,
     @OneToOne(optional = false, mappedBy = "chord")
-    val groupingEntry: GroupingEntry? = null,
-    @OneToOne(optional = false, mappedBy = "chord")
-    val stem: Stem? = null,
+    val stem: Stem,
     @OneToMany(mappedBy = "chord")
     val notes: List<Note> = emptyList(),
     val metadata: String? = null,

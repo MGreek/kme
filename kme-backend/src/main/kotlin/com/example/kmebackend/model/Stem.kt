@@ -12,13 +12,18 @@ enum class StemType {
     Sixtyfourth,
 }
 
+@Embeddable
+data class StemId(
+    @Embedded
+    val chordId: ChordId,
+)
+
 @Entity
 data class Stem(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-    @OneToOne(optional = false)
-    val chord: Chord? = null,
+    @EmbeddedId
+    val stemId: StemId,
+    @MapsId("chordId") @OneToOne(optional = false)
+    val chord: Chord,
     @Enumerated(EnumType.STRING)
     val stemType: StemType,
     val metadata: String? = null,

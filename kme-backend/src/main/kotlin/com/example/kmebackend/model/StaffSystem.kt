@@ -2,12 +2,17 @@ package com.example.kmebackend.model
 
 import jakarta.persistence.*
 
-@Entity
-data class System(
-    @Id
+@Embeddable
+data class StaffSystemId(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-    @OneToMany(mappedBy = "system")
+    val staffSystemId: Long,
+)
+
+@Entity
+data class StaffSystem(
+    @EmbeddedId
+    val staffSystemId: StaffSystemId? = null,
+    @OneToMany(mappedBy = "staffSystem")
     @OrderColumn(name = "staves_order")
     val staves: List<Staff> = emptyList(),
     val metadata: String? = null,

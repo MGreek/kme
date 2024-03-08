@@ -3,14 +3,20 @@ package com.example.kmebackend.model
 import jakarta.persistence.*
 import jakarta.validation.constraints.AssertTrue
 
+@Embeddable
+data class GroupingEntryId(
+    @Embedded
+    val groupingId: GroupingId,
+    @Column(name = "grouping_entries_order")
+    val groupingEntriesOrder: Long,
+)
+
 @Entity
 data class GroupingEntry(
-    @Id
-    @ManyToOne
-    val grouping: Grouping? = null,
-    @Id
-    @Column(name = "grouping_entries_order")
-    val groupingEntriesOrder: Long? = null,
+    @EmbeddedId
+    val groupingEntryId: GroupingEntryId,
+    @MapsId("groupingId") @ManyToOne
+    val grouping: Grouping,
     @OneToOne(optional = true)
     val chord: Chord? = null,
     @OneToOne(optional = true)

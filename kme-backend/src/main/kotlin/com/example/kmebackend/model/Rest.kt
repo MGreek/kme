@@ -12,13 +12,18 @@ enum class RestType {
     Sixtyfourth,
 }
 
+@Embeddable
+data class RestId(
+    @Embedded
+    val groupingEntryId: GroupingEntryId,
+)
+
 @Entity
 data class Rest(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-    @OneToOne(optional = false, mappedBy = "rest")
-    val groupingEntry: GroupingEntry? = null,
+    @EmbeddedId
+    val restId: RestId,
+    @MapsId("groupingEntryId") @OneToOne(optional = false, mappedBy = "rest")
+    val groupingEntry: GroupingEntry,
     @Enumerated(EnumType.STRING)
     val restType: RestType,
     val metadata: String? = null,
