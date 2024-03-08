@@ -5,6 +5,7 @@ import jakarta.persistence.*
 @Embeddable
 data class StaffId(
     @Embedded
+    @AttributeOverride(name = "staffSystemId", column = Column(name = "id"))
     val staffSystemId: StaffSystemId,
     @Column(name = "staves_order")
     val stavesOrder: Long,
@@ -14,7 +15,7 @@ data class StaffId(
 data class Staff(
     @EmbeddedId
     val staffId: StaffId,
-    @MapsId("staffSystemId") @ManyToOne
+    @ManyToOne @JoinColumn(name = "staff_system_id")
     val staffSystem: StaffSystem,
     @OneToMany(mappedBy = "staff")
     @OrderColumn(name = "measures_order")
