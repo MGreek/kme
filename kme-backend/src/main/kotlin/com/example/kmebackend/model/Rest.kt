@@ -22,7 +22,7 @@ data class RestId(
 data class Rest(
     @EmbeddedId
     val restId: RestId,
-    @MapsId("groupingEntryId") @OneToOne(optional = false, mappedBy = "rest")
+    @OneToOne(mappedBy = "rest")
     val groupingEntry: GroupingEntry,
     @Enumerated(EnumType.STRING)
     val restType: RestType,

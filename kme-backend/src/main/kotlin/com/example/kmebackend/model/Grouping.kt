@@ -14,7 +14,14 @@ data class GroupingId(
 data class Grouping(
     @EmbeddedId
     val groupingId: GroupingId,
-    @MapsId("voiceId") @ManyToOne
+    @ManyToOne
+    @JoinColumns(
+        // all columns from VoiceId
+        JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
+        JoinColumn(name = "staves_order", insertable = false, updatable = false),
+        JoinColumn(name = "measures_order", insertable = false, updatable = false),
+        JoinColumn(name = "voices_order", insertable = false, updatable = false),
+    )
     val voice: Voice,
     @OneToMany(mappedBy = "grouping")
     @OrderColumn(name = "grouping_entries_order")

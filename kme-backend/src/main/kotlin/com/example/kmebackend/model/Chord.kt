@@ -12,9 +12,18 @@ data class ChordId(
 data class Chord(
     @EmbeddedId
     val chordId: ChordId,
-    @MapsId("groupingEntryId") @OneToOne(optional = false, mappedBy = "chord")
+    @OneToOne(mappedBy = "chord")
     val groupingEntry: GroupingEntry,
-    @OneToOne(optional = false, mappedBy = "chord")
+    @OneToOne
+    @JoinColumns(
+        // all columns from StemId
+        JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
+        JoinColumn(name = "staves_order", insertable = false, updatable = false),
+        JoinColumn(name = "measures_order", insertable = false, updatable = false),
+        JoinColumn(name = "voices_order", insertable = false, updatable = false),
+        JoinColumn(name = "groupings_order", insertable = false, updatable = false),
+        JoinColumn(name = "grouping_entries_order", insertable = false, updatable = false),
+    )
     val stem: Stem,
     @OneToMany(mappedBy = "chord")
     val notes: List<Note> = emptyList(),

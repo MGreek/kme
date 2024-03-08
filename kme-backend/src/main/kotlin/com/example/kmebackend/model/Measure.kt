@@ -45,7 +45,12 @@ data class MeasureId(
 data class Measure(
     @EmbeddedId
     val measureId: MeasureId,
-    @MapsId("staffId") @ManyToOne
+    @ManyToOne
+    @JoinColumns(
+        // all columns from StaffId
+        JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
+        JoinColumn(name = "staves_order", insertable = false, updatable = false),
+    )
     val staff: Staff,
     @OneToMany(mappedBy = "measure")
     @OrderColumn(name = "voices_order")

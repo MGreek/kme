@@ -4,14 +4,15 @@ import jakarta.persistence.*
 
 @Embeddable
 data class StaffSystemId(
+    @Column(name = "staff_system_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val staffSystemId: Long,
+    val staffSystemId: Long? = null,
 )
 
 @Entity
 data class StaffSystem(
     @EmbeddedId
-    val staffSystemId: StaffSystemId? = null,
+    val staffSystemId: StaffSystemId,
     @OneToMany(mappedBy = "staffSystem")
     @OrderColumn(name = "staves_order")
     val staves: List<Staff> = emptyList(),

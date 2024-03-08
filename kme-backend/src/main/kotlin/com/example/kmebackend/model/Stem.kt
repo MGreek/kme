@@ -22,7 +22,7 @@ data class StemId(
 data class Stem(
     @EmbeddedId
     val stemId: StemId,
-    @MapsId("chordId") @OneToOne(optional = false)
+    @OneToOne(mappedBy = "stem")
     val chord: Chord,
     @Enumerated(EnumType.STRING)
     val stemType: StemType,

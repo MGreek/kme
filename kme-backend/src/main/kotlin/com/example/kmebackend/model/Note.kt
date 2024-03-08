@@ -24,7 +24,16 @@ data class NoteId(
 data class Note(
     @EmbeddedId
     val noteId: NoteId,
-    @MapsId("chordId") @ManyToOne
+    @ManyToOne
+    @JoinColumns(
+        // all columns from ChordId
+        JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
+        JoinColumn(name = "staves_order", insertable = false, updatable = false),
+        JoinColumn(name = "measures_order", insertable = false, updatable = false),
+        JoinColumn(name = "voices_order", insertable = false, updatable = false),
+        JoinColumn(name = "groupings_order", insertable = false, updatable = false),
+        JoinColumn(name = "grouping_entries_order", insertable = false, updatable = false),
+    )
     val chord: Chord,
     @Enumerated(EnumType.STRING)
     val accidental: Accidental,
