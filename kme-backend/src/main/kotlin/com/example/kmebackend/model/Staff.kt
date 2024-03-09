@@ -17,7 +17,7 @@ data class Staff(
     @ManyToOne
     @JoinColumn(name = "staff_system_id", insertable = false, updatable = false)
     val staffSystem: StaffSystem,
-    @OneToMany(mappedBy = "staff")
+    @OneToMany(mappedBy = "staff", cascade = [CascadeType.PERSIST])
     @OrderColumn(name = "measures_order")
     val measures: List<Measure> = emptyList(),
     val metadata: String? = null,

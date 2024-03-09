@@ -22,7 +22,7 @@ data class Voice(
         JoinColumn(name = "measures_order", insertable = false, updatable = false),
     )
     val measure: Measure,
-    @OneToMany(mappedBy = "voice")
+    @OneToMany(mappedBy = "voice", cascade = [CascadeType.PERSIST])
     @OrderColumn(name = "groupings_order")
     val groupings: List<Grouping> = emptyList(),
     val metadata: String? = null,

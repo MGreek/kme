@@ -52,7 +52,7 @@ data class Measure(
         JoinColumn(name = "staves_order", insertable = false, updatable = false),
     )
     val staff: Staff,
-    @OneToMany(mappedBy = "measure")
+    @OneToMany(mappedBy = "measure", cascade = [CascadeType.PERSIST])
     @OrderColumn(name = "voices_order")
     val voices: List<Voice> = emptyList(),
     @Enumerated(EnumType.STRING)

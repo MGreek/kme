@@ -14,7 +14,7 @@ data class Chord(
     val chordId: ChordId,
     @OneToOne(mappedBy = "chord")
     val groupingEntry: GroupingEntry,
-    @OneToOne
+    @OneToOne(cascade = [CascadeType.PERSIST])
     @JoinColumns(
         // all columns from StemId
         JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
@@ -25,7 +25,7 @@ data class Chord(
         JoinColumn(name = "grouping_entries_order", insertable = false, updatable = false),
     )
     val stem: Stem,
-    @OneToMany(mappedBy = "chord")
+    @OneToMany(mappedBy = "chord", cascade = [CascadeType.PERSIST])
     val notes: List<Note> = emptyList(),
     val metadata: String? = null,
 )
