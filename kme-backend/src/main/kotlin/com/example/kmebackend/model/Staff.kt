@@ -7,7 +7,7 @@ data class StaffId(
     @Embedded
     val staffSystemId: StaffSystemId,
     @Column(name = "staves_order")
-    val stavesOrder: Long,
+    val stavesOrder: Int,
 )
 
 @Entity
@@ -17,8 +17,5 @@ data class Staff(
     @ManyToOne
     @JoinColumn(name = "staff_system_id", insertable = false, updatable = false)
     val staffSystem: StaffSystem,
-    @OneToMany(mappedBy = "staff", cascade = [CascadeType.PERSIST])
-    @OrderColumn(name = "measures_order")
-    val measures: List<Measure> = emptyList(),
     val metadata: String? = null,
 )

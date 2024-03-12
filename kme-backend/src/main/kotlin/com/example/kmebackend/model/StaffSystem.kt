@@ -15,8 +15,5 @@ data class StaffSystemId(
 data class StaffSystem(
     @EmbeddedId
     val staffSystemId: StaffSystemId,
-    @OneToMany(mappedBy = "staffSystem", cascade = [CascadeType.PERSIST])
-    @OrderColumn(name = "staves_order")
-    val staves: List<Staff> = emptyList(),
     val metadata: String? = null,
 )

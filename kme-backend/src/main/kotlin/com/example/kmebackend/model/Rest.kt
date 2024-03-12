@@ -22,8 +22,6 @@ data class RestId(
 data class Rest(
     @EmbeddedId
     val restId: RestId,
-    @OneToOne(mappedBy = "rest")
-    val groupingEntry: GroupingEntry,
     @Enumerated(EnumType.STRING)
     val restType: RestType,
     val metadata: String? = null,

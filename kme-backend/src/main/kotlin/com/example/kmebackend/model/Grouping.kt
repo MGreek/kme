@@ -23,8 +23,5 @@ data class Grouping(
         JoinColumn(name = "voices_order", insertable = false, updatable = false),
     )
     val voice: Voice,
-    @OneToMany(mappedBy = "grouping", cascade = [CascadeType.PERSIST])
-    @OrderColumn(name = "grouping_entries_order")
-    val groupingEntries: List<GroupingEntry> = emptyList(),
     val metadata: String? = null,
 )

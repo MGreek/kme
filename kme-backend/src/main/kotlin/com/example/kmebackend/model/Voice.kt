@@ -7,7 +7,7 @@ data class VoiceId(
     @Embedded
     val measureId: MeasureId,
     @Column(name = "voices_order")
-    val voicesOrder: Long,
+    val voicesOrder: Int,
 )
 
 @Entity
@@ -22,8 +22,5 @@ data class Voice(
         JoinColumn(name = "measures_order", insertable = false, updatable = false),
     )
     val measure: Measure,
-    @OneToMany(mappedBy = "voice", cascade = [CascadeType.PERSIST])
-    @OrderColumn(name = "groupings_order")
-    val groupings: List<Grouping> = emptyList(),
     val metadata: String? = null,
 )

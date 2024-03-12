@@ -22,8 +22,6 @@ data class StemId(
 data class Stem(
     @EmbeddedId
     val stemId: StemId,
-    @OneToOne(mappedBy = "stem")
-    val chord: Chord,
     @Enumerated(EnumType.STRING)
     val stemType: StemType,
     val metadata: String? = null,

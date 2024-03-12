@@ -12,9 +12,7 @@ data class ChordId(
 data class Chord(
     @EmbeddedId
     val chordId: ChordId,
-    @OneToOne(mappedBy = "chord")
-    val groupingEntry: GroupingEntry,
-    @OneToOne(cascade = [CascadeType.PERSIST])
+    @OneToOne(orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumns(
         // all columns from StemId
         JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
@@ -25,7 +23,5 @@ data class Chord(
         JoinColumn(name = "grouping_entries_order", insertable = false, updatable = false),
     )
     val stem: Stem,
-    @OneToMany(mappedBy = "chord", cascade = [CascadeType.PERSIST])
-    val notes: List<Note> = emptyList(),
     val metadata: String? = null,
 )

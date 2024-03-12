@@ -25,7 +25,7 @@ data class GroupingEntry(
         JoinColumn(name = "groupings_order", insertable = false, updatable = false),
     )
     val grouping: Grouping,
-    @OneToOne(optional = true, cascade = [CascadeType.PERSIST])
+    @OneToOne(optional = true, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumns(
         // all columns from ChordId
         JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
@@ -36,7 +36,7 @@ data class GroupingEntry(
         JoinColumn(name = "grouping_entries_order", insertable = false, updatable = false),
     )
     val chord: Chord? = null,
-    @OneToOne(optional = true, cascade = [CascadeType.PERSIST])
+    @OneToOne(optional = true, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumns(
         // all columns from RestId
         JoinColumn(name = "staff_system_id", insertable = false, updatable = false),

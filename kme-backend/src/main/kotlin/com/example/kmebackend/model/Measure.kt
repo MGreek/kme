@@ -38,7 +38,7 @@ data class MeasureId(
     @Embedded
     val staffId: StaffId,
     @Column(name = "measures_order")
-    val measuresOrder: Long,
+    val measuresOrder: Int,
 )
 
 @Entity
@@ -52,9 +52,6 @@ data class Measure(
         JoinColumn(name = "staves_order", insertable = false, updatable = false),
     )
     val staff: Staff,
-    @OneToMany(mappedBy = "measure", cascade = [CascadeType.PERSIST])
-    @OrderColumn(name = "voices_order")
-    val voices: List<Voice> = emptyList(),
     @Enumerated(EnumType.STRING)
     val keySignature: KeySignature,
     @Enumerated(EnumType.STRING)
