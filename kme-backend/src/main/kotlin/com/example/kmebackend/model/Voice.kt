@@ -13,14 +13,29 @@ data class VoiceId(
 @Entity
 data class Voice(
     @EmbeddedId
-    val voiceId: VoiceId,
-    @ManyToOne
+    val voiceId: VoiceId? = null,
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumns(
         // all columns from MeasureId
-        JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
-        JoinColumn(name = "staves_order", insertable = false, updatable = false),
-        JoinColumn(name = "measures_order", insertable = false, updatable = false),
+        JoinColumn(
+            name = "staff_system_id",
+            referencedColumnName = "staff_system_id",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "staves_order",
+            referencedColumnName = "staves_order",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "measures_order",
+            referencedColumnName = "measures_order",
+            insertable = false,
+            updatable = false,
+        ),
     )
-    val measure: Measure,
+    val measure: Measure? = null,
     val metadata: String? = null,
 )

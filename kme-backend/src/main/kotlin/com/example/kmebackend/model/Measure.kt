@@ -44,14 +44,24 @@ data class MeasureId(
 @Entity
 data class Measure(
     @EmbeddedId
-    val measureId: MeasureId,
-    @ManyToOne
+    val measureId: MeasureId? = null,
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumns(
         // all columns from StaffId
-        JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
-        JoinColumn(name = "staves_order", insertable = false, updatable = false),
+        JoinColumn(
+            name = "staff_system_id",
+            referencedColumnName = "staff_system_id",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "staves_order",
+            referencedColumnName = "staves_order",
+            insertable = false,
+            updatable = false,
+        ),
     )
-    val staff: Staff,
+    val staff: Staff? = null,
     @Enumerated(EnumType.STRING)
     val keySignature: KeySignature,
     @Enumerated(EnumType.STRING)

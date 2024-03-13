@@ -1,14 +1,12 @@
 package com.example.kmebackend.model
 
-import com.example.kmebackend.model.converter.UUIDConverter
 import jakarta.persistence.*
 import java.util.UUID
 
 @Embeddable
 data class StaffSystemId(
     @Column(name = "staff_system_id")
-    @Convert(converter = UUIDConverter::class)
-    val staffSystemId: UUID = UUID.randomUUID(),
+    val staffSystemId: String = UUID.randomUUID().toString(),
 )
 
 @Entity

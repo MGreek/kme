@@ -17,24 +17,54 @@ enum class Accidental {
 data class NoteId(
     @Embedded
     val chordId: ChordId,
-    val position: Long,
+    val position: Int,
 )
 
 @Entity
 data class Note(
     @EmbeddedId
-    val noteId: NoteId,
-    @ManyToOne
+    val noteId: NoteId? = null,
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumns(
         // all columns from ChordId
-        JoinColumn(name = "staff_system_id", insertable = false, updatable = false),
-        JoinColumn(name = "staves_order", insertable = false, updatable = false),
-        JoinColumn(name = "measures_order", insertable = false, updatable = false),
-        JoinColumn(name = "voices_order", insertable = false, updatable = false),
-        JoinColumn(name = "groupings_order", insertable = false, updatable = false),
-        JoinColumn(name = "grouping_entries_order", insertable = false, updatable = false),
+        JoinColumn(
+            name = "staff_system_id",
+            referencedColumnName = "staff_system_id",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "staves_order",
+            referencedColumnName = "staves_order",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "measures_order",
+            referencedColumnName = "measures_order",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "voices_order",
+            referencedColumnName = "voices_order",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "groupings_order",
+            referencedColumnName = "groupings_order",
+            insertable = false,
+            updatable = false,
+        ),
+        JoinColumn(
+            name = "grouping_entries_order",
+            referencedColumnName = "grouping_entries_order",
+            insertable = false,
+            updatable = false,
+        ),
     )
-    val chord: Chord,
+    val chord: Chord? = null,
     @Enumerated(EnumType.STRING)
     val accidental: Accidental,
     @Min(0) @Max(4)

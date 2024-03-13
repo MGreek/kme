@@ -13,9 +13,14 @@ data class StaffId(
 @Entity
 data class Staff(
     @EmbeddedId
-    val staffId: StaffId,
-    @ManyToOne
-    @JoinColumn(name = "staff_system_id", insertable = false, updatable = false)
-    val staffSystem: StaffSystem,
+    val staffId: StaffId? = null,
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(
+        name = "staff_system_id",
+        referencedColumnName = "staff_system_id",
+        insertable = false,
+        updatable = false,
+    )
+    val staffSystem: StaffSystem? = null,
     val metadata: String? = null,
 )
