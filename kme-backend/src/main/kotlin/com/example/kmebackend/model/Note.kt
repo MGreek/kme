@@ -16,14 +16,14 @@ enum class Accidental {
 @Embeddable
 data class NoteId(
     @Embedded
-    val chordId: ChordId,
+    val chordId: ChordId? = null,
     val position: Int,
 )
 
 @Entity
 data class Note(
     @EmbeddedId
-    val noteId: NoteId? = null,
+    val noteId: NoteId,
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumns(
         // all columns from ChordId
