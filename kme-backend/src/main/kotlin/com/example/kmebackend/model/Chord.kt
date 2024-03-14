@@ -53,5 +53,7 @@ data class Chord(
         ),
     )
     val groupingEntry: GroupingEntry? = null,
+    @Embedded
+    val stem: Stem,
     val metadata: String? = null,
 )
