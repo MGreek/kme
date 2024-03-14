@@ -1,6 +1,8 @@
 package com.example.kmebackend.model
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 
 @Embeddable
 data class ChordId(
@@ -12,7 +14,7 @@ data class ChordId(
 data class Chord(
     @EmbeddedId
     val chordId: ChordId? = null,
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumns(
         // all columns from GroupingEntryId
         JoinColumn(
@@ -56,5 +58,7 @@ data class Chord(
     @Embedded
     @AttributeOverride(name = "metadata", column = Column(name = "stem_metadata"))
     val stem: Stem,
+    @Min(0) @Max(4)
+    val dotCount: Long,
     val metadata: String? = null,
 )

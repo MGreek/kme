@@ -1,8 +1,6 @@
 package com.example.kmebackend.model
 
 import jakarta.persistence.*
-import jakarta.validation.constraints.Max
-import jakarta.validation.constraints.Min
 
 enum class Accidental {
     DoubleFlat,
@@ -67,7 +65,5 @@ data class Note(
     val chord: Chord? = null,
     @Enumerated(EnumType.STRING)
     val accidental: Accidental,
-    @Min(0) @Max(4)
-    val dotCount: Long,
     val metadata: String? = null,
 )

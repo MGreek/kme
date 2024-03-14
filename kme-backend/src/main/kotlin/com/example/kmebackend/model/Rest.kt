@@ -22,7 +22,7 @@ data class RestId(
 data class Rest(
     @EmbeddedId
     val restId: RestId? = null,
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumns(
         // all columns from GroupingEntryId
         JoinColumn(

@@ -12,6 +12,6 @@ data class StaffSystemId(
 @Entity
 data class StaffSystem(
     @EmbeddedId
-    val staffSystemId: StaffSystemId,
+    val staffSystemId: StaffSystemId? = null,
     val metadata: String? = null,
 )
