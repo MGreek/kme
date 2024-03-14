@@ -54,6 +54,7 @@ data class Chord(
     )
     val groupingEntry: GroupingEntry? = null,
     @Embedded
+    @AttributeOverride(name = "metadata", column = Column(name = "stem_metadata"))
     val stem: Stem,
     val metadata: String? = null,
 )
