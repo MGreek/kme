@@ -5,6 +5,8 @@ import com.example.kmebackend.repository.GroupingEntryRepository
 import com.example.kmebackend.repository.GroupingRepository
 import com.example.kmebackend.repository.RestRepository
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class RestService(
@@ -17,6 +19,20 @@ data class RestService(
      */
     fun save(rest: Rest): Rest {
         return restRepository.save(rest)
+    }
+
+    /**
+     * A wrapper around RestRepository::findById
+     */
+    fun findById(restId: RestId): Optional<Rest> {
+        return restRepository.findById(restId)
+    }
+
+    /**
+     * A wrapper around RestRepository::existsById
+     */
+    fun existsById(restId: RestId): Boolean {
+        return restRepository.existsById(restId)
     }
 
     /**

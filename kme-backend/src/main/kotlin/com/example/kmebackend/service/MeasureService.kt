@@ -6,6 +6,8 @@ import com.example.kmebackend.model.StaffId
 import com.example.kmebackend.repository.MeasureRepository
 import com.example.kmebackend.repository.StaffRepository
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class MeasureService(
@@ -17,6 +19,20 @@ data class MeasureService(
      */
     fun save(measure: Measure): Measure {
         return measureRepository.save(measure)
+    }
+
+    /**
+     * A wrapper around MeasureRepository::findById
+     */
+    fun findById(measureId: MeasureId): Optional<Measure> {
+        return measureRepository.findById(measureId)
+    }
+
+    /**
+     * A wrapper around MeasureRepository::existsById
+     */
+    fun existsById(measureId: MeasureId): Boolean {
+        return measureRepository.existsById(measureId)
     }
 
     /**

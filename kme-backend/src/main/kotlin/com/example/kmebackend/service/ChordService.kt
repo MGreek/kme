@@ -4,6 +4,8 @@ import com.example.kmebackend.model.*
 import com.example.kmebackend.repository.ChordRepository
 import com.example.kmebackend.repository.GroupingRepository
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class ChordService(
@@ -15,6 +17,20 @@ data class ChordService(
      */
     fun save(chord: Chord): Chord {
         return chordRepository.save(chord)
+    }
+
+    /**
+     * A wrapper around ChordRepository::findById
+     */
+    fun findById(chordId: ChordId): Optional<Chord> {
+        return chordRepository.findById(chordId)
+    }
+
+    /**
+     * A wrapper around ChordRepository::existsById
+     */
+    fun existsById(chordId: ChordId): Boolean {
+        return chordRepository.existsById(chordId)
     }
 
     /**

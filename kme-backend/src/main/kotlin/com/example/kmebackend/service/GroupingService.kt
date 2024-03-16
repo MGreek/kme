@@ -6,6 +6,8 @@ import com.example.kmebackend.model.VoiceId
 import com.example.kmebackend.repository.GroupingRepository
 import com.example.kmebackend.repository.VoiceRepository
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class GroupingService(
@@ -17,6 +19,20 @@ data class GroupingService(
      */
     fun save(grouping: Grouping): Grouping {
         return groupingRepository.save(grouping)
+    }
+
+    /**
+     * A wrapper around GroupingRepository::findById
+     */
+    fun findById(groupingId: GroupingId): Optional<Grouping> {
+        return groupingRepository.findById(groupingId)
+    }
+
+    /**
+     * A wrapper around GroupingRepository::existsById
+     */
+    fun existsById(groupingId: GroupingId): Boolean {
+        return groupingRepository.existsById(groupingId)
     }
 
     /**

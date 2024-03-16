@@ -4,6 +4,8 @@ import com.example.kmebackend.model.*
 import com.example.kmebackend.repository.ChordRepository
 import com.example.kmebackend.repository.NoteRepository
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class NoteService(
@@ -18,6 +20,20 @@ data class NoteService(
     }
 
     /**
+     * A wrapper around NoteRepository::findById
+     */
+    fun findById(noteId: NoteId): Optional<Note> {
+        return noteRepository.findById(noteId)
+    }
+
+    /**
+     * A wrapper around NoteRepository::existsById
+     */
+    fun existsById(noteId: NoteId): Boolean {
+        return noteRepository.existsById(noteId)
+    }
+
+    /**
      * Creates a new Note and inserts it in the Chord corresponding to chordId.
      * @param chordId must correspond to a saved Chord.
      * @param note the instance from where data is copied to the new Note. Its embedded ChordId is ignored.
@@ -29,6 +45,10 @@ data class NoteService(
     ): Note {
         if (!chordRepository.existsById(chordId)) {
             throw NoSuchElementException("Staff with ID $chordId not found")
+        }
+        val newNoteId = NoteId(chordId, note.noteId.position)
+        if (existsById(newNoteId)) {
+            throw UnsupportedOperationException("Note with ID $newNoteId already exists")
         }
         val newNote =
             note.copy(

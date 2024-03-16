@@ -6,6 +6,8 @@ import com.example.kmebackend.model.VoiceId
 import com.example.kmebackend.repository.MeasureRepository
 import com.example.kmebackend.repository.VoiceRepository
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class VoiceService(
@@ -17,6 +19,20 @@ data class VoiceService(
      */
     fun save(voice: Voice): Voice {
         return voiceRepository.save(voice)
+    }
+
+    /**
+     * A wrapper around VoiceRepository::findById
+     */
+    fun findById(voiceId: VoiceId): Optional<Voice> {
+        return voiceRepository.findById(voiceId)
+    }
+
+    /**
+     * A wrapper around VoiceRepository::existsById
+     */
+    fun existsById(voiceId: VoiceId): Boolean {
+        return voiceRepository.existsById(voiceId)
     }
 
     /**

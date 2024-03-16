@@ -6,6 +6,8 @@ import com.example.kmebackend.model.StaffSystemId
 import com.example.kmebackend.repository.StaffRepository
 import com.example.kmebackend.repository.StaffSystemRepository
 import org.springframework.stereotype.Service
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class StaffService(
@@ -17,6 +19,20 @@ data class StaffService(
      */
     fun save(staff: Staff): Staff {
         return staffRepository.save(staff)
+    }
+
+    /**
+     * A wrapper around StaffRepository::findById
+     */
+    fun findById(staffId: StaffId): Optional<Staff> {
+        return staffRepository.findById(staffId)
+    }
+
+    /**
+     * A wrapper around StaffRepository::existsById
+     */
+    fun existsById(staffId: StaffId): Boolean {
+        return staffRepository.existsById(staffId)
     }
 
     /**
