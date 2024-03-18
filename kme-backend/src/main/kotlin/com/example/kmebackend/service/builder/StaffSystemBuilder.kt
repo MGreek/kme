@@ -38,8 +38,7 @@ class StaffSystemBuilder(
         return this
     }
 
-    fun selectStaffSystem(uuid: String): StaffSystemBuilder {
-        val staffSystemId = StaffSystemId(staffSystemId = uuid)
+    fun selectStaffSystem(staffSystemId: StaffSystemId): StaffSystemBuilder {
         if (!staffSystemService.existsById(staffSystemId)) {
             throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
         }
