@@ -1,10 +1,12 @@
 package com.example.kmebackend.service
 
+import com.example.kmebackend.model.Staff
 import com.example.kmebackend.model.StaffSystem
 import com.example.kmebackend.model.StaffSystemId
 import com.example.kmebackend.repository.StaffSystemRepository
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 data class StaffSystemService(
@@ -38,5 +40,19 @@ data class StaffSystemService(
      */
     fun createStaffSystem(staffSystem: StaffSystem): StaffSystem {
         return staffSystem.copy(staffSystemId = StaffSystemId())
+    }
+
+    fun countChildren(staffSystemId: StaffSystemId): Int {
+        if (!existsById(staffSystemId)) {
+            throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
+        }
+        return staffSystemRepository.countChildren(staffSystemId)
+    }
+
+    fun getChildren(staffSystemId: StaffSystemId): List<Staff> {
+        if (!existsById(staffSystemId)) {
+            throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
+        }
+        return staffSystemRepository.getChildren(staffSystemId)
     }
 }
