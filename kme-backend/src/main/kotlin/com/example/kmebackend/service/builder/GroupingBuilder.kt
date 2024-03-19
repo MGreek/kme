@@ -19,12 +19,24 @@ class GroupingBuilder internal constructor(
     private var metadata: String? = null
     private var overrideMetadata: Boolean = false
 
+    /**
+     * Stores newMetadata that will be used to override the selected Grouping's metadata.
+     * @param newMetadata the data that will be used to override the selected Grouping's metadata.
+     * @return the same GroupingBuilder instance that called this function
+     * @see save
+     */
     fun setMetadata(newMetadata: String?): GroupingBuilder {
         metadata = newMetadata
         overrideMetadata = true
         return this
     }
 
+    /**
+     * Overrides the data that has been set for the selected Grouping and then saves it.
+     * The data that has been set is then discarded.
+     * @return the same GroupingBuilder instance that called this function
+     * @throws UnsupportedOperationException if no Grouping was selected.
+     */
     fun save(): GroupingBuilder {
         if (selectedGroupingId == null) {
             throw UnsupportedOperationException("A Grouping must be selected")
@@ -33,10 +45,19 @@ class GroupingBuilder internal constructor(
         if (overrideMetadata) {
             grouping = grouping.copy(metadata = metadata)
         }
+        overrideMetadata = false
+
         groupingService.save(grouping)
         return this
     }
 
+    /**
+     * Selects a Grouping.
+     * @param index the position of the Grouping inside its parent Voice.
+     * @return the same GroupingBuilder instance that called this function
+     * @throws NoSuchElementException if there was no Grouping found for the given index
+     * @see appendAndSelectGrouping
+     */
     fun selectGrouping(index: Int): GroupingBuilder {
         val groupingId =
             GroupingId(
@@ -50,6 +71,12 @@ class GroupingBuilder internal constructor(
         return this
     }
 
+    /**
+     * Creates, appends and selects a Grouping.
+     * @param newGrouping the instance from where data will be copied to the new Grouping. Its ID is ignored.
+     * @return the same GroupingBuilder instance that called this function.
+     * @see selectGrouping
+     */
     fun appendAndSelectGrouping(newGrouping: Grouping): GroupingBuilder {
         var grouping = groupingService.appendToVoice(requireNotNull(voiceBuilder.selectedVoiceId), newGrouping)
         grouping = groupingService.save(grouping)
@@ -57,6 +84,10 @@ class GroupingBuilder internal constructor(
         return this
     }
 
+    /**
+     * @return a new RestBuilder that builds inside the selected Grouping.
+     * @throws UnsupportedOperationException if no Grouping was selected.
+     */
     fun buildRests(): RestBuilder {
         if (selectedGroupingId == null) {
             throw UnsupportedOperationException("A Grouping must be selected")
@@ -67,6 +98,10 @@ class GroupingBuilder internal constructor(
         )
     }
 
+    /**
+     * @return a new ChordBuilder that builds inside the selected Grouping.
+     * @throws UnsupportedOperationException if no Grouping was selected.
+     */
     fun buildChords(): ChordBuilder {
         if (selectedGroupingId == null) {
             throw UnsupportedOperationException("A Grouping must be selected")
@@ -78,6 +113,9 @@ class GroupingBuilder internal constructor(
         )
     }
 
+    /**
+     * @return the instance of VoiceBuilder that created this GroupingBuilder.
+     */
     fun back(): VoiceBuilder {
         return voiceBuilder
     }

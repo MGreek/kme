@@ -17,12 +17,24 @@ class VoiceBuilder internal constructor(
     private var metadata: String? = null
     private var overrideMetadata: Boolean = false
 
+    /**
+     * Stores newMetadata that will be used to override the selected Voice's metadata.
+     * @param newMetadata the data that will be used to override the selected Voice's metadata.
+     * @return the same VoiceBuilder instance that called this function
+     * @see save
+     */
     fun setMetadata(newMetadata: String?): VoiceBuilder {
         metadata = newMetadata
         overrideMetadata = true
         return this
     }
 
+    /**
+     * Overrides the data that has been set for the selected Voice and then saves it.
+     * The data that has been set is then discarded.
+     * @return the same VoiceBuilder instance that called this function
+     * @throws UnsupportedOperationException if no Voice was selected.
+     */
     fun save(): VoiceBuilder {
         if (selectedVoiceId == null) {
             throw UnsupportedOperationException("A Voice must be selected")
@@ -37,6 +49,13 @@ class VoiceBuilder internal constructor(
         return this
     }
 
+    /**
+     * Selects a Voice.
+     * @param index the position of the Voice inside its parent Measure.
+     * @return the same VoiceBuilder instance that called this function
+     * @throws NoSuchElementException if there was no Voice found for the given index
+     * @see appendAndSelectVoice
+     */
     fun selectVoice(index: Int): VoiceBuilder {
         val voiceId =
             VoiceId(
@@ -50,6 +69,12 @@ class VoiceBuilder internal constructor(
         return this
     }
 
+    /**
+     * Creates, appends and selects a Voice.
+     * @param newVoice the instance from where data will be copied to the new Voice. Its ID is ignored.
+     * @return the same VoiceBuilder instance that called this function.
+     * @see selectVoice
+     */
     fun appendAndSelectVoice(newVoice: Voice): VoiceBuilder {
         var voice = voiceService.appendToMeasure(requireNotNull(measureBuilder.selectedMeasureId), newVoice)
         voice = voiceService.save(voice)
@@ -57,6 +82,10 @@ class VoiceBuilder internal constructor(
         return this
     }
 
+    /**
+     * @return a new GroupingBuilder that builds inside the selected Voice.
+     * @throws UnsupportedOperationException if no Voice was selected.
+     */
     fun buildGroupings(): GroupingBuilder {
         if (selectedVoiceId == null) {
             throw UnsupportedOperationException("A Voice must be selected")
@@ -70,6 +99,9 @@ class VoiceBuilder internal constructor(
         )
     }
 
+    /**
+     * @return the instance of MeasureBuilder that created this VoiceBuilder.
+     */
     fun back(): MeasureBuilder {
         return measureBuilder
     }

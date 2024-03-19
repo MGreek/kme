@@ -18,28 +18,58 @@ class ChordBuilder internal constructor(
     private var overrideStemMetadata: Boolean = false
     private var dotCount: Long? = null
 
+    /**
+     * Stores newMetadata that will be used to override the selected Chord's metadata.
+     * @param newMetadata the data that will be used to override the selected Chord's metadata.
+     * @return the same ChordBuilder instance that called this function
+     * @see save
+     */
     fun setMetadata(newMetadata: String?): ChordBuilder {
         metadata = newMetadata
         overrideMetadata = true
         return this
     }
 
+    /**
+     * Stores newStemType that will be used to override the selected Chord's stemType.
+     * @param newStemType the data that will be used to override the selected Chord's stemType.
+     * @return the same ChordBuilder instance that called this function
+     * @see save
+     */
     fun setStemType(newStemType: StemType): ChordBuilder {
         stemType = newStemType
         return this
     }
 
+    /**
+     * Stores newStemMetadata that will be used to override the selected Chord's stemMetadata.
+     * @param newStemMetadata the data that will be used to override the selected Chord's stemMetadata.
+     * @return the same ChordBuilder instance that called this function
+     * @see save
+     */
     fun setStemMetadata(newStemMetadata: String?): ChordBuilder {
         stemMetadata = newStemMetadata
         overrideStemMetadata = true
         return this
     }
 
+    /**
+     * Stores newDotCount that will be used to override the selected Chord's dotCount.
+     * @param newDotCount the data that will be used to override the selected Chord's dotCount.
+     * @return the same ChordBuilder instance that called this function
+     * @see save
+     */
     fun setDotCount(newDotCount: Long): ChordBuilder {
         dotCount = newDotCount
         return this
     }
 
+    /**
+     * Overrides the data that has been set for the selected Chord and then saves it.
+     * The data that has been set is then discarded.
+     * @return the same ChordBuilder instance that called this function
+     * @throws UnsupportedOperationException if no Chord was selected.
+     */
     fun save(): ChordBuilder {
         if (selectedChordId == null) {
             throw UnsupportedOperationException("A Chord must be selected")
@@ -66,6 +96,13 @@ class ChordBuilder internal constructor(
         return this
     }
 
+    /**
+     * Selects a Chord.
+     * @param index the position of the Chord inside its parent Grouping.
+     * @return the same ChordBuilder instance that called this function
+     * @throws NoSuchElementException if there was no Chord found for the given index
+     * @see appendAndSelectChord
+     */
     fun selectChord(index: Int): ChordBuilder {
         val chordId =
             ChordId(
@@ -78,6 +115,12 @@ class ChordBuilder internal constructor(
         return this
     }
 
+    /**
+     * Creates, appends and selects a Chord.
+     * @param newChord the instance from where data will be copied to the new Chord. Its ID is ignored.
+     * @return the same ChordBuilder instance that called this function.
+     * @see selectChord
+     */
     fun appendAndSelectChord(newChord: Chord): ChordBuilder {
         var chord = chordService.appendToGrouping(requireNotNull(groupingBuilder.selectedGroupingId), newChord)
         chord = chordService.save(chord)
@@ -85,6 +128,10 @@ class ChordBuilder internal constructor(
         return this
     }
 
+    /**
+     * @return a new NoteBuilder that builds inside the selected Chord.
+     * @throws UnsupportedOperationException if no Chord was selected.
+     */
     fun buildNotes(): NoteBuilder {
         if (selectedChordId == null) {
             throw UnsupportedOperationException("A Chord must be selected")
@@ -92,6 +139,9 @@ class ChordBuilder internal constructor(
         return NoteBuilder(this, noteService)
     }
 
+    /**
+     * @return the instance of GroupingBuilder that created this ChordBuilder.
+     */
     fun back(): GroupingBuilder {
         return groupingBuilder
     }

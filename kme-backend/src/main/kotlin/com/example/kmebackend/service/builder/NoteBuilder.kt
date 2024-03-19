@@ -15,17 +15,35 @@ class NoteBuilder internal constructor(
     private var metadata: String? = null
     private var overrideMetadata: Boolean = false
 
+    /**
+     * Stores newAccidental that will be used to override the selected Note's accidental.
+     * @param newAccidental the data that will be used to override the selected Note's accidental.
+     * @return the same NoteBuilder instance that called this function
+     * @see save
+     */
     fun setAccidental(newAccidental: Accidental): NoteBuilder {
         accidental = newAccidental
         return this
     }
 
+    /**
+     * Stores newMetadata that will be used to override the selected Note's metadata.
+     * @param newMetadata the data that will be used to override the selected Note's metadata.
+     * @return the same NoteBuilder instance that called this function
+     * @see save
+     */
     fun setMetadata(newMetadata: String?): NoteBuilder {
         metadata = newMetadata
         overrideMetadata = true
         return this
     }
 
+    /**
+     * Overrides the data that has been set for the selected Note and then saves it.
+     * The data that has been set is then discarded.
+     * @return the same NoteBuilder instance that called this function
+     * @throws UnsupportedOperationException if no Note was selected.
+     */
     fun save(): NoteBuilder {
         if (selectedNoteId == null) {
             throw UnsupportedOperationException("A Note must be selected")
@@ -41,6 +59,13 @@ class NoteBuilder internal constructor(
         return this
     }
 
+    /**
+     * Selects a Note.
+     * @param position the position of the Note inside its parent Chord.
+     * @return the same NoteBuilder instance that called this function
+     * @throws NoSuchElementException if there was no Note found for the given index
+     * @see insertAndSelectNote
+     */
     fun selectNote(position: Int): NoteBuilder {
         val noteId =
             NoteId(
@@ -54,6 +79,12 @@ class NoteBuilder internal constructor(
         return this
     }
 
+    /**
+     * Creates, inserts and selects a Note.
+     * @param newNote the instance from where data will be copied to the new Note. Its ID is ignored.
+     * @return the same NoteBuilder instance that called this function.
+     * @see selectNote
+     */
     fun insertAndSelectNote(newNote: Note): NoteBuilder {
         var note = noteService.insertInChord(requireNotNull(chordBuilder.selectedChordId), newNote)
         note = noteService.save(note)
@@ -61,6 +92,9 @@ class NoteBuilder internal constructor(
         return this
     }
 
+    /**
+     * @return the instance of ChordBuilder that created this NoteBuilder.
+     */
     fun back(): ChordBuilder {
         return chordBuilder
     }

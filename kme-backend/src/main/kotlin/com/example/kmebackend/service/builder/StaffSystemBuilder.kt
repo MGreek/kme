@@ -19,14 +19,25 @@ class StaffSystemBuilder(
     private var metadata: String? = null
     private var overrideMetadata: Boolean = false
 
+    /**
+     * Stores newMetadata that will be used to override the selected StaffSystem's metadata.
+     * @param newMetadata the data that will be used to override the selected StaffSystem's metadata.
+     * @return the same StaffSystemBuilder instance that called this function
+     * @see save
+     */
     fun setMetadata(newMetadata: String?): StaffSystemBuilder {
         metadata = newMetadata
         overrideMetadata = true
         return this
     }
 
+    /**
+     * Overrides the data that has been set for the selected StaffSystem and then saves it.
+     * The data that has been set is then discarded.
+     * @return the same StaffSystemBuilder instance that called this function
+     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     */
     fun save(): StaffSystemBuilder {
-        // TODO: reset overrideMetadata to false when done; do this for other builders also
         if (selectedStaffSystemId == null) {
             throw UnsupportedOperationException("A StaffSystem must be selected")
         }
@@ -39,6 +50,13 @@ class StaffSystemBuilder(
         return this
     }
 
+    /**
+     * Selects a StaffSystem.
+     * @param staffSystemId the ID of the StaffSystem.
+     * @return the same StaffSystemBuilder instance that called this function
+     * @throws NoSuchElementException if there was no StaffSystem found for staffSystemId
+     * @see createAndSelectStaffSystem
+     */
     fun selectStaffSystem(staffSystemId: StaffSystemId): StaffSystemBuilder {
         if (!staffSystemService.existsById(staffSystemId)) {
             throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
@@ -47,6 +65,12 @@ class StaffSystemBuilder(
         return this
     }
 
+    /**
+     * Creates and selects a StaffSystem.
+     * @param newStaffSystem the instance from where data will be copied to the new StaffSystem. Its ID is ignored.
+     * @return the same StaffSystemBuilder instance that called this function.
+     * @see selectStaffSystem
+     */
     fun createAndSelectStaffSystem(newStaffSystem: StaffSystem): StaffSystemBuilder {
         var staffSystem = staffSystemService.createStaffSystem(newStaffSystem)
         staffSystem = staffSystemService.save(staffSystem)
@@ -54,6 +78,10 @@ class StaffSystemBuilder(
         return this
     }
 
+    /**
+     * @return a new StaffBuilder that builds inside the selected StaffSystem.
+     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     */
     fun buildStaves(): StaffBuilder {
         if (selectedStaffSystemId == null) {
             throw UnsupportedOperationException("A StaffSystem must be selected")
