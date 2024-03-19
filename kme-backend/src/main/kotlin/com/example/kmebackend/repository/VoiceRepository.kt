@@ -1,5 +1,6 @@
 package com.example.kmebackend.repository
 
+import com.example.kmebackend.model.Grouping
 import com.example.kmebackend.model.Voice
 import com.example.kmebackend.model.VoiceId
 import org.springframework.data.jpa.repository.JpaRepository
@@ -13,4 +14,10 @@ interface VoiceRepository : JpaRepository<Voice, VoiceId> {
      */
     @Query("SELECT COUNT(g) FROM Grouping g WHERE g.groupingId.voiceId = ?1")
     fun countChildren(voiceId: VoiceId): Int
+
+    /**
+     * @return the groupings which are children of the given Voice
+     */
+    @Query("SELECT g FROM Grouping g WHERE g.groupingId.voiceId = ?1")
+    fun getChildren(voiceId: VoiceId): List<Grouping>
 }
