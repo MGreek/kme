@@ -15,7 +15,6 @@ interface StaffSystemRepository : JpaRepository<StaffSystem, StaffSystemId> {
     @Query("SELECT COUNT(s) FROM Staff s WHERE s.staffId.staffSystemId = ?1")
     fun countChildren(staffSystemId: StaffSystemId): Int
 
-    // TODO: order by staves_order; also in other repos
     /**
      * @return the staves which are children of the given StaffSystem
      */
