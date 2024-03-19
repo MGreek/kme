@@ -31,6 +31,8 @@ class VoiceBuilder internal constructor(
         if (overrideMetadata) {
             voice = voice.copy(metadata = metadata)
         }
+        overrideMetadata = false
+
         voiceService.save(voice)
         return this
     }
