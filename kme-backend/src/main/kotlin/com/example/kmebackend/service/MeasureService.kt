@@ -3,6 +3,7 @@ package com.example.kmebackend.service
 import com.example.kmebackend.model.Measure
 import com.example.kmebackend.model.MeasureId
 import com.example.kmebackend.model.StaffId
+import com.example.kmebackend.model.Voice
 import com.example.kmebackend.repository.MeasureRepository
 import com.example.kmebackend.repository.StaffRepository
 import org.springframework.stereotype.Service
@@ -58,5 +59,27 @@ data class MeasureService(
                 staff = staffRepository.findById(staffId).get(),
             )
         return newMeasure
+    }
+
+    /**
+     * @param measureId the id of the Measure.
+     * @return the number of children of the Measure corresponding to measureId.
+     */
+    fun countChildren(measureId: MeasureId): Int {
+        if (!existsById(measureId)) {
+            throw NoSuchElementException("Measure with ID $measureId not found")
+        }
+        return measureRepository.countChildren(measureId)
+    }
+
+    /**
+     * @param measureId the id of the Measure.
+     * @return the number of children of the Measure corresponding to measureId.
+     */
+    fun getChildren(measureId: MeasureId): List<Voice> {
+        if (!existsById(measureId)) {
+            throw NoSuchElementException("Measure with ID $measureId not found")
+        }
+        return measureRepository.getChildren(measureId)
     }
 }

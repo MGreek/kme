@@ -1,5 +1,6 @@
 package com.example.kmebackend.service
 
+import com.example.kmebackend.model.Measure
 import com.example.kmebackend.model.Staff
 import com.example.kmebackend.model.StaffId
 import com.example.kmebackend.model.StaffSystemId
@@ -58,5 +59,27 @@ data class StaffService(
                 staffSystem = staffSystemRepository.findById(staffSystemId).get(),
             )
         return newStaff
+    }
+
+    /**
+     * @param staffId the id of the Staff.
+     * @return the number of children of the Staff corresponding to staffId.
+     */
+    fun countChildren(staffId: StaffId): Int {
+        if (!existsById(staffId)) {
+            throw NoSuchElementException("Staff with ID $staffId not found")
+        }
+        return staffRepository.countChildren(staffId)
+    }
+
+    /**
+     * @param staffId the id of the Staff.
+     * @return the children of the Staff corresponding to staffId.
+     */
+    fun getChildren(staffId: StaffId): List<Measure> {
+        if (!existsById(staffId)) {
+            throw NoSuchElementException("Staff with ID $staffId not found")
+        }
+        return staffRepository.getChildren(staffId)
     }
 }

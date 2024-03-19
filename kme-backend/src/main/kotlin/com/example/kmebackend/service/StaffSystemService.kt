@@ -42,6 +42,10 @@ data class StaffSystemService(
         return staffSystem.copy(staffSystemId = StaffSystemId())
     }
 
+    /**
+     * @param staffSystemId the id of the StaffSystem.
+     * @return the number of children of the StaffSystem corresponding to staffSystemId.
+     */
     fun countChildren(staffSystemId: StaffSystemId): Int {
         if (!existsById(staffSystemId)) {
             throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
@@ -49,6 +53,10 @@ data class StaffSystemService(
         return staffSystemRepository.countChildren(staffSystemId)
     }
 
+    /**
+     * @param staffSystemId the id of the StaffSystem.
+     * @return the children of the StaffSystem corresponding to staffSystemId.
+     */
     fun getChildren(staffSystemId: StaffSystemId): List<Staff> {
         if (!existsById(staffSystemId)) {
             throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")

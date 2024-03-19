@@ -62,4 +62,26 @@ data class ChordService(
             )
         return newChord
     }
+
+    /**
+     * @param chordId the id of the Chord.
+     * @return the number of children of the Chord corresponding to chordId.
+     */
+    fun countChildren(chordId: ChordId): Int {
+        if (!existsById(chordId)) {
+            throw NoSuchElementException("Chord with ID $chordId not found")
+        }
+        return chordRepository.countChildren(chordId)
+    }
+
+    /**
+     * @param chordId the id of the Chord.
+     * @return the number of children of the Chord corresponding to chordId.
+     */
+    fun getChildren(chordId: ChordId): List<Note> {
+        if (!existsById(chordId)) {
+            throw NoSuchElementException("Chord with ID $chordId not found")
+        }
+        return chordRepository.getChildren(chordId)
+    }
 }

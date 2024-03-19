@@ -1,8 +1,6 @@
 package com.example.kmebackend.service
 
-import com.example.kmebackend.model.MeasureId
-import com.example.kmebackend.model.Voice
-import com.example.kmebackend.model.VoiceId
+import com.example.kmebackend.model.*
 import com.example.kmebackend.repository.MeasureRepository
 import com.example.kmebackend.repository.VoiceRepository
 import org.springframework.stereotype.Service
@@ -58,5 +56,27 @@ data class VoiceService(
                 measure = measureRepository.findById(measureId).get(),
             )
         return newVoice
+    }
+
+    /**
+     * @param voiceId the id of the Voice.
+     * @return the number of children of the Voice corresponding to voiceId.
+     */
+    fun countChildren(voiceId: VoiceId): Int {
+        if (!existsById(voiceId)) {
+            throw NoSuchElementException("Voice with ID $voiceId not found")
+        }
+        return voiceRepository.countChildren(voiceId)
+    }
+
+    /**
+     * @param voiceId the id of the Voice.
+     * @return the children of the Voice corresponding to voiceId.
+     */
+    fun getChildren(voiceId: VoiceId): List<Grouping> {
+        if (!existsById(voiceId)) {
+            throw NoSuchElementException("Voice with ID $voiceId not found")
+        }
+        return voiceRepository.getChildren(voiceId)
     }
 }
