@@ -54,6 +54,9 @@ class StaffBuilder internal constructor(
     }
 
     fun buildMeasures(): MeasureBuilder {
+        if (selectedStaffId == null) {
+            throw UnsupportedOperationException("A Staff must be selected")
+        }
         return MeasureBuilder(
             this,
             measureService,
