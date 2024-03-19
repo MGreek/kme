@@ -32,6 +32,7 @@ class StaffBuilder internal constructor(
         if (overrideMetadata) {
             staff = staff.copy(metadata = metadata)
         }
+        overrideMetadata = false
         staffService.save(staff)
         return this
     }
