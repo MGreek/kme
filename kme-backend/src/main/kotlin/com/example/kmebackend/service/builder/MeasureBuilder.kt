@@ -88,6 +88,9 @@ class MeasureBuilder internal constructor(
     }
 
     fun buildVoices(): VoiceBuilder {
+        if (selectedMeasureId == null) {
+            throw UnsupportedOperationException("A Measure must be selected")
+        }
         return VoiceBuilder(
             this,
             voiceService,
