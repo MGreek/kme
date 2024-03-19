@@ -48,15 +48,20 @@ class ChordBuilder internal constructor(
         if (overrideMetadata) {
             chord = chord.copy(metadata = metadata)
         }
+        overrideMetadata = false
         if (stemType != null) {
             chord = chord.copy(stem = chord.stem.copy(stemType = requireNotNull(stemType)))
         }
+        stemType = null
         if (overrideStemMetadata) {
             chord = chord.copy(stem = chord.stem.copy(metadata = stemMetadata))
         }
+        overrideStemMetadata = false
         if (dotCount != null) {
             chord = chord.copy(dotCount = requireNotNull(dotCount))
         }
+        dotCount = null
+
         chordService.save(chord)
         return this
     }
