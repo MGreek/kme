@@ -49,15 +49,20 @@ class MeasureBuilder internal constructor(
         if (keySignature != null) {
             measure = measure.copy(keySignature = requireNotNull(keySignature))
         }
+        keySignature = null
         if (timeSignature != null) {
             measure = measure.copy(timeSignature = requireNotNull(timeSignature))
         }
+        timeSignature = null
         if (clef != null) {
             measure = measure.copy(clef = requireNotNull(clef))
         }
+        clef = null
         if (overrideMetadata) {
             measure = measure.copy(metadata = metadata)
         }
+        overrideMetadata = false
+
         measureService.save(measure)
         return this
     }
