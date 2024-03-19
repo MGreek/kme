@@ -34,6 +34,7 @@ class StaffSystemBuilder(
         if (overrideMetadata) {
             staffSystem = staffSystem.copy(metadata = metadata)
         }
+        overrideMetadata = false
         staffSystemService.save(staffSystem)
         return this
     }
@@ -54,6 +55,9 @@ class StaffSystemBuilder(
     }
 
     fun buildStaves(): StaffBuilder {
+        if (selectedStaffSystemId == null) {
+            throw UnsupportedOperationException("A StaffSystem must be selected")
+        }
         return StaffBuilder(
             this,
             staffService,
