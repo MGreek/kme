@@ -35,9 +35,12 @@ class RestBuilder internal constructor(
         if (restType != null) {
             rest = rest.copy(restType = requireNotNull(restType))
         }
+        restType = null
         if (overrideMetadata) {
             rest = rest.copy(metadata = metadata)
         }
+        overrideMetadata = false
+
         restService.save(rest)
         return this
     }
