@@ -16,6 +16,6 @@ interface ChordRepository : JpaRepository<Chord, ChordId> {
     /**
      * @return the notes which are children of the given Chord
      */
-    @Query("SELECT n FROM Note n WHERE n.noteId.chordId = ?1")
+    @Query("SELECT n FROM Note n WHERE n.noteId.chordId = ?1 ORDER BY n.noteId.position")
     fun getChildren(chordId: ChordId): List<Note>
 }

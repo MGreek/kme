@@ -18,6 +18,6 @@ interface MeasureRepository : JpaRepository<Measure, MeasureId> {
     /**
      * @return the voices which are children of the given Measure
      */
-    @Query("SELECT v FROM Voice v WHERE v.voiceId.measureId = ?1")
+    @Query("SELECT v FROM Voice v WHERE v.voiceId.measureId = ?1 ORDER BY v.voiceId.voicesOrder")
     fun getChildren(measureId: MeasureId): List<Voice>
 }

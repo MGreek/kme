@@ -18,6 +18,6 @@ interface VoiceRepository : JpaRepository<Voice, VoiceId> {
     /**
      * @return the groupings which are children of the given Voice
      */
-    @Query("SELECT g FROM Grouping g WHERE g.groupingId.voiceId = ?1")
+    @Query("SELECT g FROM Grouping g WHERE g.groupingId.voiceId = ?1 ORDER BY g.groupingId.groupingsOrder")
     fun getChildren(voiceId: VoiceId): List<Grouping>
 }

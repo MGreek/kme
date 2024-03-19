@@ -18,6 +18,6 @@ interface StaffRepository : JpaRepository<Staff, StaffId> {
     /**
      * @return the measures which are children of the given Staff
      */
-    @Query("SELECT m FROM Measure m WHERE m.measureId.staffId = ?1")
+    @Query("SELECT m FROM Measure m WHERE m.measureId.staffId = ?1 ORDER BY m.measureId.measuresOrder")
     fun getChildren(staffId: StaffId): List<Measure>
 }
