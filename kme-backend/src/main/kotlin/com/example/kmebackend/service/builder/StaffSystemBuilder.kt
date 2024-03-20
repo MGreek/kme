@@ -32,6 +32,17 @@ class StaffSystemBuilder(
     }
 
     /**
+     * @return the selected StaffSystem's ID.
+     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     */
+    fun getSelectedStaffSystemId(): StaffSystemId {
+        if (selectedStaffSystemId == null) {
+            throw UnsupportedOperationException("A StaffSystem must be selected")
+        }
+        return requireNotNull(selectedStaffSystemId)
+    }
+
+    /**
      * Overrides the data that has been set for the selected StaffSystem and then saves it.
      * The data that has been set is then discarded.
      * @return the same StaffSystemBuilder instance that called this function
