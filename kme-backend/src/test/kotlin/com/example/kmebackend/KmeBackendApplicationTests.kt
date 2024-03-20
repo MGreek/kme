@@ -3,12 +3,15 @@ package com.example.kmebackend
 import com.example.kmebackend.model.*
 import com.example.kmebackend.service.*
 import com.example.kmebackend.service.builder.StaffSystemBuilder
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import java.util.*
+import kotlin.NoSuchElementException
 
 @SpringBootTest
 class KmeBackendApplicationTests(
@@ -31,6 +34,257 @@ class KmeBackendApplicationTests(
 ) {
     @Test
     fun contextLoads() {
+    }
+
+    @Test
+    fun testBuilders() {
+        fun randomMetadata(): String {
+            return (1..20).map { ('a'..'z').random() }.joinToString("")
+        }
+
+        // StaffSystemBuilder tests
+        val staffSystemBuilder =
+            StaffSystemBuilder(
+                staffSystemService,
+                staffService,
+                measureService,
+                voiceService,
+                groupingService,
+                restService,
+                chordService,
+                noteService,
+            )
+        assertThrows<UnsupportedOperationException> { staffSystemBuilder.save() }
+        assertThrows<UnsupportedOperationException> { staffSystemBuilder.getSelectedStaffSystemId() }
+        assertThrows<NoSuchElementException> {
+            staffSystemBuilder.selectStaffSystem(StaffSystemId(UUID.randomUUID().toString()))
+        }
+        assertThrows<UnsupportedOperationException> { staffSystemBuilder.buildStaves() }
+
+        val newStaffSystemId =
+            staffSystemBuilder.createAndSelectStaffSystem(StaffSystem())
+                .getSelectedStaffSystemId()
+        assertTrue(staffSystemService.existsById(newStaffSystemId))
+
+        val uuid = UUID.randomUUID().toString()
+        val staffSystem = StaffSystem(StaffSystemId(uuid))
+        staffSystemService.save(staffSystem)
+
+        val staffSystemMetadata = randomMetadata()
+        staffSystemBuilder.selectStaffSystem(requireNotNull(staffSystem.staffSystemId))
+            .setMetadata(staffSystemMetadata)
+            .save()
+
+        val storedStaffSystem = staffSystemService.findById(StaffSystemId(uuid)).orElseThrow()
+        assertEquals(staffSystemMetadata, storedStaffSystem.metadata)
+
+        // StaffBuilder tests
+        val staffBuilder = staffSystemBuilder.buildStaves()
+        assertEquals(staffSystemBuilder, staffBuilder.back())
+        assertThrows<UnsupportedOperationException> { staffBuilder.save() }
+        assertThrows<NoSuchElementException> {
+            staffBuilder.selectStaff(100)
+        }
+        assertThrows<UnsupportedOperationException> { staffBuilder.buildMeasures() }
+        val staffMetadata = randomMetadata()
+        staffBuilder.appendAndSelectStaff(Staff(metadata = staffMetadata))
+        var storedStaff = staffService.findById(requireNotNull(staffBuilder.selectedStaffId)).orElseThrow()
+        assertEquals(staffMetadata, storedStaff.metadata)
+        val otherStaffBuilder = staffSystemBuilder.buildStaves().selectStaff(0)
+        assertNotEquals(staffBuilder, otherStaffBuilder)
+        val newStaffMetadata = randomMetadata()
+        otherStaffBuilder.setMetadata(newStaffMetadata).save()
+        storedStaff = staffService.findById(requireNotNull(staffBuilder.selectedStaffId)).orElseThrow()
+        assertEquals(newStaffMetadata, storedStaff.metadata)
+
+        // MeasureBuilder tests
+        val measureBuilder = staffBuilder.buildMeasures()
+        assertEquals(staffBuilder, measureBuilder.back())
+        assertThrows<UnsupportedOperationException> { measureBuilder.save() }
+        assertThrows<NoSuchElementException> {
+            measureBuilder.selectMeasure(100)
+        }
+        assertThrows<UnsupportedOperationException> { measureBuilder.buildVoices() }
+        val measure =
+            measureService.appendToStaff(
+                requireNotNull(staffBuilder.selectedStaffId),
+                Measure(
+                    keySignature = KeySignature.None,
+                    timeSignature = TimeSignature.ThreeFour,
+                    clef = Clef.Alto,
+                ),
+            )
+        measureService.save(measure)
+
+        val measureMetadata = randomMetadata()
+        measureBuilder.selectMeasure(0)
+            .setKeySignature(KeySignature.Flat7)
+            .setMetadata(measureMetadata)
+            .setTimeSignature(TimeSignature.Common)
+            .setClef(Clef.Treble)
+            .save()
+
+        val storedMeasure = measureService.findById(requireNotNull(measure.measureId)).orElseThrow()
+        assertEquals(
+            measure.copy(
+                keySignature = KeySignature.Flat7,
+                timeSignature = TimeSignature.Common,
+                clef = Clef.Treble,
+                metadata = measureMetadata,
+            ),
+            storedMeasure,
+        )
+
+        // VoiceBuilder tests
+        val voiceBuilder = measureBuilder.buildVoices()
+        assertEquals(measureBuilder, voiceBuilder.back())
+        assertThrows<UnsupportedOperationException> { voiceBuilder.save() }
+        assertThrows<NoSuchElementException> {
+            voiceBuilder.selectVoice(100)
+        }
+        assertThrows<UnsupportedOperationException> { voiceBuilder.buildGroupings() }
+
+        val voice =
+            voiceService.appendToMeasure(
+                requireNotNull(measure.measureId),
+                Voice(),
+            )
+        voiceService.save(voice)
+
+        val voiceMetadata = randomMetadata()
+        voiceBuilder.selectVoice(0)
+            .setMetadata(voiceMetadata)
+            .save()
+
+        val storedVoice = voiceService.findById(requireNotNull(voice.voiceId)).orElseThrow()
+        assertEquals(
+            voiceMetadata,
+            storedVoice.metadata,
+        )
+
+        // GroupingBuilder tests
+        val groupingBuilder = voiceBuilder.buildGroupings()
+        assertEquals(voiceBuilder, groupingBuilder.back())
+        assertThrows<UnsupportedOperationException> { groupingBuilder.save() }
+        assertThrows<NoSuchElementException> {
+            groupingBuilder.selectGrouping(100)
+        }
+        assertThrows<UnsupportedOperationException> { groupingBuilder.buildRests() }
+        assertThrows<UnsupportedOperationException> { groupingBuilder.buildChords() }
+
+        val grouping = groupingService.appendToVoice(requireNotNull(voice.voiceId), Grouping())
+        groupingService.save(grouping)
+
+        val groupingMetadata = randomMetadata()
+        groupingBuilder.selectGrouping(0)
+            .setMetadata(groupingMetadata)
+            .save()
+
+        val storedGrouping = groupingService.findById(requireNotNull(grouping.groupingId)).orElseThrow()
+        assertEquals(groupingMetadata, storedGrouping.metadata)
+
+        // RestBuilder tests
+        val restBuilder = groupingBuilder.buildRests()
+        assertEquals(groupingBuilder, restBuilder.back())
+        assertThrows<UnsupportedOperationException> { restBuilder.save() }
+        assertThrows<NoSuchElementException> {
+            restBuilder.selectRest(100)
+        }
+
+        val rest =
+            restService.appendToGrouping(
+                requireNotNull(grouping.groupingId),
+                Rest(restType = RestType.Sixtyfourth),
+            )
+        restService.save(rest)
+
+        val restMetadata = randomMetadata()
+        restBuilder.selectRest(0)
+            .setRestType(RestType.Sixteenth)
+            .setMetadata(restMetadata)
+            .save()
+
+        val storedRest = restService.findById(requireNotNull(rest.restId)).orElseThrow()
+        assertEquals(
+            rest.copy(
+                restType = RestType.Sixteenth,
+                metadata = restMetadata,
+            ),
+            storedRest,
+        )
+
+        // ChordBuilder tests
+        val chordBuilder = groupingBuilder.buildChords()
+        assertEquals(groupingBuilder, chordBuilder.back())
+        assertThrows<UnsupportedOperationException> { chordBuilder.save() }
+        assertThrows<UnsupportedOperationException> { chordBuilder.buildNotes() }
+        assertThrows<NoSuchElementException> {
+            chordBuilder.selectChord(100)
+        }
+
+        val chord =
+            chordService.appendToGrouping(
+                requireNotNull(grouping.groupingId),
+                Chord(
+                    stem = Stem(stemType = StemType.Quarter, metadata = randomMetadata()),
+                    dotCount = 1,
+                    metadata = randomMetadata(),
+                ),
+            )
+        chordService.save(chord)
+
+        val chordMetadata = randomMetadata()
+        val stemMetadata = randomMetadata()
+        chordBuilder.selectChord(1)
+            .setStemType(StemType.Whole)
+            .setStemMetadata(stemMetadata)
+            .setDotCount(2)
+            .setMetadata(chordMetadata)
+            .save()
+
+        val storedChord = chordService.findById(requireNotNull(chord.chordId)).orElseThrow()
+        assertEquals(
+            chord.copy(
+                stem = Stem(stemType = StemType.Whole, metadata = stemMetadata),
+                dotCount = 2,
+                metadata = chordMetadata,
+            ),
+            storedChord,
+        )
+
+        // NoteBuilder tests
+        val noteBuilder = chordBuilder.buildNotes()
+        assertEquals(chordBuilder, noteBuilder.back())
+        assertThrows<UnsupportedOperationException> { noteBuilder.save() }
+        assertThrows<NoSuchElementException> {
+            noteBuilder.selectNote(100)
+        }
+
+        val note =
+            noteService.insertInChord(
+                requireNotNull(chord.chordId),
+                Note(
+                    noteId = NoteId(position = 1),
+                    accidental = Accidental.DoubleFlat,
+                    metadata = randomMetadata(),
+                ),
+            )
+        noteService.save(note)
+
+        val noteMetadata = randomMetadata()
+        noteBuilder.selectNote(1)
+            .setAccidental(Accidental.DoubleSharp)
+            .setMetadata(noteMetadata)
+            .save()
+
+        val storedNote = noteService.findById(requireNotNull(note.noteId)).orElseThrow()
+        assertEquals(
+            note.copy(
+                accidental = Accidental.DoubleSharp,
+                metadata = noteMetadata,
+            ),
+            storedNote,
+        )
     }
 
     @ParameterizedTest
