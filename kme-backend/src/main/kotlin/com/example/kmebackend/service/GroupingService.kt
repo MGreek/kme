@@ -40,6 +40,7 @@ data class GroupingService(
      * @param voiceId must correspond to a saved Voice.
      * @param grouping the instance from where data is copied to the new Grouping. Its ID is ignored.
      * @return a new Grouping that is appended to the list corresponding to voiceId.
+     * @throws NoSuchElementException if voiceId doesn't correspond to a Voice.
      */
     fun appendToVoice(
         voiceId: VoiceId,
@@ -63,6 +64,7 @@ data class GroupingService(
     /**
      * @param groupingId the id of the Grouping.
      * @return the number of children of the Grouping corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun countChildren(groupingId: GroupingId): Int {
         if (!existsById(groupingId)) {
@@ -74,6 +76,7 @@ data class GroupingService(
     /**
      * @param groupingId the id of the Grouping.
      * @return the number of rests belonging to the Grouping corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun countRests(groupingId: GroupingId): Int {
         if (!existsById(groupingId)) {
@@ -85,6 +88,7 @@ data class GroupingService(
     /**
      * @param groupingId the id of the Grouping.
      * @return the number of chords belonging to the Grouping corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun countChords(groupingId: GroupingId): Int {
         if (!existsById(groupingId)) {
@@ -96,6 +100,7 @@ data class GroupingService(
     /**
      * @param groupingId the id of the Grouping.
      * @return the rests belonging to the Grouping corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun getRests(groupingId: GroupingId): List<Rest> {
         if (!existsById(groupingId)) {
@@ -107,6 +112,7 @@ data class GroupingService(
     /**
      * @param groupingId the id of the Grouping.
      * @return the chords belonging to the Grouping corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun getChords(groupingId: GroupingId): List<Chord> {
         if (!existsById(groupingId)) {
@@ -127,6 +133,7 @@ data class GroupingService(
     /**
      * Deletes the Grouping corresponding to groupingId and its children.
      * @param groupingId the ID of the Grouping to be deleted.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun deleteById(groupingId: GroupingId) {

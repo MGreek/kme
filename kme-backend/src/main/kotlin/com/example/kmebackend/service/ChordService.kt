@@ -40,6 +40,7 @@ data class ChordService(
      * @param groupingId must correspond to a saved Grouping.
      * @param chord the instance from where data is copied to the new Chord. Its ID is ignored.
      * @return a new Chord inside a new GroupingEntry which is appended to the list corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun appendToGrouping(
         groupingId: GroupingId,
@@ -67,6 +68,7 @@ data class ChordService(
     /**
      * @param chordId the id of the Chord.
      * @return the number of children of the Chord corresponding to chordId.
+     * @throws NoSuchElementException if chordId doesn't correspond to a Chord.
      */
     fun countChildren(chordId: ChordId): Int {
         if (!existsById(chordId)) {
@@ -78,6 +80,7 @@ data class ChordService(
     /**
      * @param chordId the id of the Chord.
      * @return the number of children of the Chord corresponding to chordId.
+     * @throws NoSuchElementException if chordId doesn't correspond to a Chord.
      */
     fun getChildren(chordId: ChordId): List<Note> {
         if (!existsById(chordId)) {

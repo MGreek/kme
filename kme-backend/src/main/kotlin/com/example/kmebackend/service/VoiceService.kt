@@ -39,6 +39,7 @@ data class VoiceService(
      * @param measureId must correspond to a saved Measure.
      * @param voice the instance from where data is copied to the new Voice. Its ID is ignored.
      * @return a new Voice that is appended to the list corresponding to measureId.
+     * @throws NoSuchElementException if measureId doesn't correspond to a Measure.
      */
     fun appendToMeasure(
         measureId: MeasureId,
@@ -62,6 +63,7 @@ data class VoiceService(
     /**
      * @param voiceId the id of the Voice.
      * @return the number of children of the Voice corresponding to voiceId.
+     * @throws NoSuchElementException if voiceId doesn't correspond to a Voice.
      */
     fun countChildren(voiceId: VoiceId): Int {
         if (!existsById(voiceId)) {
@@ -73,6 +75,7 @@ data class VoiceService(
     /**
      * @param voiceId the id of the Voice.
      * @return the children of the Voice corresponding to voiceId.
+     * @throws NoSuchElementException if voiceId doesn't correspond to a Voice.
      */
     fun getChildren(voiceId: VoiceId): List<Grouping> {
         if (!existsById(voiceId)) {

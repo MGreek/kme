@@ -42,6 +42,7 @@ data class MeasureService(
      * @param staffId must correspond to a saved Staff.
      * @param measure the instance from where data is copied to the new Measure. Its ID is ignored.
      * @return a new Measure that is appended to the list corresponding to staffId.
+     * @throws NoSuchElementException if staffId doesn't correspond to a Staff.
      */
     fun appendToStaff(
         staffId: StaffId,
@@ -65,6 +66,7 @@ data class MeasureService(
     /**
      * @param measureId the id of the Measure.
      * @return the number of children of the Measure corresponding to measureId.
+     * @throws NoSuchElementException if measureId doesn't correspond to a Measure.
      */
     fun countChildren(measureId: MeasureId): Int {
         if (!existsById(measureId)) {
@@ -76,6 +78,7 @@ data class MeasureService(
     /**
      * @param measureId the id of the Measure.
      * @return the number of children of the Measure corresponding to measureId.
+     * @throws NoSuchElementException if measureId doesn't correspond to a Measure.
      */
     fun getChildren(measureId: MeasureId): List<Voice> {
         if (!existsById(measureId)) {

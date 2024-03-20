@@ -42,6 +42,7 @@ data class StaffService(
      * @param staffSystemId must correspond to a saved StaffSystem.
      * @param staff the instance from where data is copied to the new Staff. Its ID is ignored.
      * @return a new Staff that is appended to the list corresponding to staffSystemId.
+     * @throws NoSuchElementException if staffSystemId doesn't correspond to a StaffSystem.
      */
     fun appendToStaffSystem(
         staffSystemId: StaffSystemId,
@@ -65,6 +66,7 @@ data class StaffService(
     /**
      * @param staffId the id of the Staff.
      * @return the number of children of the Staff corresponding to staffId.
+     * @throws NoSuchElementException if staffId doesn't correspond to a Staff.
      */
     fun countChildren(staffId: StaffId): Int {
         if (!existsById(staffId)) {
@@ -76,6 +78,7 @@ data class StaffService(
     /**
      * @param staffId the id of the Staff.
      * @return the children of the Staff corresponding to staffId.
+     * @throws NoSuchElementException if staffId doesn't correspond to a Staff.
      */
     fun getChildren(staffId: StaffId): List<Measure> {
         if (!existsById(staffId)) {

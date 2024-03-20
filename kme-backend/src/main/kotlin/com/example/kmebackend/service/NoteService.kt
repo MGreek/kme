@@ -38,6 +38,8 @@ data class NoteService(
      * @param chordId must correspond to a saved Chord.
      * @param note the instance from where data is copied to the new Note. Its embedded ChordId is ignored.
      * @return a new Note that is inserted in the Chord corresponding to chordId.
+     * @throws NoSuchElementException if chordId doesn't correspond to a Chord.
+     * @throws UnsupportedOperationException if a Note is already present at the same specified position inside the given Chord.
      */
     fun insertInChord(
         chordId: ChordId,

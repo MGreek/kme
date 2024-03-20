@@ -46,6 +46,7 @@ data class StaffSystemService(
     /**
      * @param staffSystemId the id of the StaffSystem.
      * @return the number of children of the StaffSystem corresponding to staffSystemId.
+     * @throws NoSuchElementException if staffSystemId doesn't correspond to a StaffSystem.
      */
     fun countChildren(staffSystemId: StaffSystemId): Int {
         if (!existsById(staffSystemId)) {
@@ -57,6 +58,7 @@ data class StaffSystemService(
     /**
      * @param staffSystemId the id of the StaffSystem.
      * @return the children of the StaffSystem corresponding to staffSystemId.
+     * @throws NoSuchElementException if staffSystemId doesn't correspond to a StaffSystem.
      */
     fun getChildren(staffSystemId: StaffSystemId): List<Staff> {
         if (!existsById(staffSystemId)) {

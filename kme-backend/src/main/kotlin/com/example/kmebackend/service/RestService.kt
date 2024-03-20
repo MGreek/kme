@@ -41,6 +41,7 @@ data class RestService(
      * @param groupingId must correspond to a saved Grouping.
      * @param rest the instance from where data is copied to the new Rest. Its ID is ignored.
      * @return a new Rest inside a new GroupingEntry which is appended to the list corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun appendToGrouping(
         groupingId: GroupingId,
