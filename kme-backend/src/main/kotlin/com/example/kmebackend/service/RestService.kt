@@ -65,4 +65,23 @@ data class RestService(
             )
         return newRest
     }
+
+    /**
+     * Deletes all Rest entities.
+     */
+    fun deleteAll() {
+        restRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the Rest corresponding to restId
+     * @param restId the ID of the Rest to be deleted.
+     * @throws NoSuchElementException if restId doesn't correspond to a Rest.
+     */
+    fun deleteById(restId: RestId) {
+        if (!existsById(restId)) {
+            throw NoSuchElementException("Rest with ID $restId not found")
+        }
+        restRepository.deleteById(restId)
+    }
 }

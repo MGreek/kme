@@ -12,6 +12,7 @@ import kotlin.NoSuchElementException
 
 @Service
 data class MeasureService(
+    val voiceService: VoiceService,
     val measureRepository: MeasureRepository,
     val staffRepository: StaffRepository,
 ) {
@@ -81,5 +82,29 @@ data class MeasureService(
             throw NoSuchElementException("Measure with ID $measureId not found")
         }
         return measureRepository.getChildren(measureId)
+    }
+
+    /**
+     * Deletes all Measure entities and their children.
+     */
+    fun deleteAll() {
+        voiceService.deleteAll()
+        measureRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the Measure corresponding to measureId and its children.
+     * @param measureId the ID of the Measure to be deleted.
+     * @throws NoSuchElementException if measureId doesn't correspond to a Measure.
+     */
+    fun deleteById(measureId: MeasureId) {
+        if (!existsById(measureId)) {
+            throw NoSuchElementException("Measure with ID $measureId not found")
+        }
+        val children = getChildren(measureId)
+        for (child in children) {
+            voiceService.deleteById(requireNotNull(child.voiceId))
+        }
+        measureRepository.deleteById(measureId)
     }
 }

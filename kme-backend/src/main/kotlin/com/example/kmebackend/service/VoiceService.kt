@@ -9,6 +9,7 @@ import kotlin.NoSuchElementException
 
 @Service
 data class VoiceService(
+    val groupingService: GroupingService,
     val voiceRepository: VoiceRepository,
     val measureRepository: MeasureRepository,
 ) {
@@ -78,5 +79,29 @@ data class VoiceService(
             throw NoSuchElementException("Voice with ID $voiceId not found")
         }
         return voiceRepository.getChildren(voiceId)
+    }
+
+    /**
+     * Deletes all Voice entities and their children.
+     */
+    fun deleteAll() {
+        groupingService.deleteAll()
+        voiceRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the Voice corresponding to voiceId and its children.
+     * @param voiceId the ID of the Voice to be deleted.
+     * @throws NoSuchElementException if voiceId doesn't correspond to a Voice.
+     */
+    fun deleteById(voiceId: VoiceId) {
+        if (!existsById(voiceId)) {
+            throw NoSuchElementException("Voice with ID $voiceId not found")
+        }
+        val children = getChildren(voiceId)
+        for (child in children) {
+            groupingService.deleteById(requireNotNull(child.groupingId))
+        }
+        voiceRepository.deleteById(voiceId)
     }
 }

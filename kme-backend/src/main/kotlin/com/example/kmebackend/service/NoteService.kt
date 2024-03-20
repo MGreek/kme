@@ -61,4 +61,23 @@ data class NoteService(
             )
         return newNote
     }
+
+    /**
+     * Deletes all Note entities.
+     */
+    fun deleteAll() {
+        noteRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the Note corresponding to noteId
+     * @param noteId the ID of the Note to be deleted.
+     * @throws NoSuchElementException if noteId doesn't correspond to a Note.
+     */
+    fun deleteById(noteId: NoteId) {
+        if (!existsById(noteId)) {
+            throw NoSuchElementException("Note with ID $noteId not found")
+        }
+        noteRepository.deleteById(noteId)
+    }
 }

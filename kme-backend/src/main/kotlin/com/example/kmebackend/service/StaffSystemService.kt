@@ -10,6 +10,7 @@ import kotlin.NoSuchElementException
 
 @Service
 data class StaffSystemService(
+    val staffService: StaffService,
     val staffSystemRepository: StaffSystemRepository,
 ) {
     /**
@@ -62,5 +63,29 @@ data class StaffSystemService(
             throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
         }
         return staffSystemRepository.getChildren(staffSystemId)
+    }
+
+    /**
+     * Deletes all StaffSystem entities and their children.
+     */
+    fun deleteAll() {
+        staffService.deleteAll()
+        staffSystemRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the StaffSystem corresponding to staffSystemId and its children.
+     * @param staffSystemId the ID of the StaffSystem to be deleted.
+     * @throws NoSuchElementException if staffSystemId doesn't correspond to a StaffSystem.
+     */
+    fun deleteById(staffSystemId: StaffSystemId) {
+        if (!existsById(staffSystemId)) {
+            throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
+        }
+        val children = getChildren(staffSystemId)
+        for (child in children) {
+            staffService.deleteById(requireNotNull(child.staffId))
+        }
+        staffSystemRepository.deleteById(staffSystemId)
     }
 }

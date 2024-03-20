@@ -9,6 +9,7 @@ import kotlin.NoSuchElementException
 
 @Service
 data class ChordService(
+    val noteService: NoteService,
     val chordRepository: ChordRepository,
     val groupingRepository: GroupingRepository,
 ) {
@@ -83,5 +84,29 @@ data class ChordService(
             throw NoSuchElementException("Chord with ID $chordId not found")
         }
         return chordRepository.getChildren(chordId)
+    }
+
+    /**
+     * Deletes all Chord entities and their children.
+     */
+    fun deleteAll() {
+        noteService.deleteAll()
+        chordRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the Chord corresponding to chordId and its children.
+     * @param chordId the ID of the Chord to be deleted.
+     * @throws NoSuchElementException if chordId doesn't correspond to a Chord.
+     */
+    fun deleteById(chordId: ChordId) {
+        if (!existsById(chordId)) {
+            throw NoSuchElementException("Chord with ID $chordId not found")
+        }
+        val children = getChildren(chordId)
+        for (child in children) {
+            noteService.deleteById(requireNotNull(child.noteId))
+        }
+        chordRepository.deleteById(chordId)
     }
 }

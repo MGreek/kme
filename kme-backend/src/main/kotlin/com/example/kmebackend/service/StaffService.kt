@@ -12,6 +12,7 @@ import kotlin.NoSuchElementException
 
 @Service
 data class StaffService(
+    val measureService: MeasureService,
     val staffRepository: StaffRepository,
     val staffSystemRepository: StaffSystemRepository,
 ) {
@@ -81,5 +82,29 @@ data class StaffService(
             throw NoSuchElementException("Staff with ID $staffId not found")
         }
         return staffRepository.getChildren(staffId)
+    }
+
+    /**
+     * Deletes all Staff entities and their children.
+     */
+    fun deleteAll() {
+        measureService.deleteAll()
+        staffRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the Staff corresponding to staffId and its children.
+     * @param staffId the ID of the Staff to be deleted.
+     * @throws NoSuchElementException if staffId doesn't correspond to a Staff.
+     */
+    fun deleteById(staffId: StaffId) {
+        if (!existsById(staffId)) {
+            throw NoSuchElementException("Staff with ID $staffId not found")
+        }
+        val children = getChildren(staffId)
+        for (child in children) {
+            measureService.deleteById(requireNotNull(child.measureId))
+        }
+        staffRepository.deleteById(staffId)
     }
 }

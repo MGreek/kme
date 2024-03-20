@@ -9,6 +9,8 @@ import kotlin.NoSuchElementException
 
 @Service
 data class GroupingService(
+    val restService: RestService,
+    val chordService: ChordService,
     val groupingRepository: GroupingRepository,
     val voiceRepository: VoiceRepository,
 ) {
@@ -111,5 +113,34 @@ data class GroupingService(
             throw NoSuchElementException("Grouping with ID $groupingId not found")
         }
         return groupingRepository.getChords(groupingId)
+    }
+
+    /**
+     * Deletes all Grouping entities and their children.
+     */
+    fun deleteAll() {
+        restService.deleteAll()
+        chordService.deleteAll()
+        groupingRepository.deleteAll()
+    }
+
+    /**
+     * Deletes the Grouping corresponding to groupingId and its children.
+     * @param groupingId the ID of the Grouping to be deleted.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
+     */
+    fun deleteById(groupingId: GroupingId) {
+        if (!existsById(groupingId)) {
+            throw NoSuchElementException("Grouping with ID $groupingId not found")
+        }
+        val rests = getRests(groupingId)
+        for (rest in rests) {
+            restService.deleteById(requireNotNull(rest.restId))
+        }
+        val chords = getChords(groupingId)
+        for (chord in chords) {
+            chordService.deleteById(requireNotNull(chord.chordId))
+        }
+        groupingRepository.deleteById(groupingId)
     }
 }
