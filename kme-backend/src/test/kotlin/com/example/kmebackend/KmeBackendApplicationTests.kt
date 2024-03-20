@@ -42,6 +42,9 @@ class KmeBackendApplicationTests(
             return (1..20).map { ('a'..'z').random() }.joinToString("")
         }
 
+        // Clear all data
+        staffSystemService.deleteAll()
+
         // StaffSystemBuilder tests
         val staffSystemBuilder =
             StaffSystemBuilder(
@@ -290,6 +293,9 @@ class KmeBackendApplicationTests(
     @ParameterizedTest
     @ValueSource(strings = ["4c1bac9b-869d-44e2-8495-2f501f909440"])
     fun storeSheetMusic(uuid: String) {
+        // Clear all data
+        staffSystemService.deleteAll()
+
         // store measures 12 from WTC I Fuga IV
         staffSystemService.save(StaffSystem(StaffSystemId(uuid)))
 
