@@ -63,15 +63,20 @@ class KmeBackendApplicationTests(
             staffSystemBuilder.selectStaffSystem(StaffSystemId(UUID.randomUUID().toString()))
         }
         assertThrows<UnsupportedOperationException> { staffSystemBuilder.buildStaves() }
+        assertThrows<UnsupportedOperationException> { staffSystemBuilder.deleteSelectedStaffSystem() }
 
         val newStaffSystemId =
-            staffSystemBuilder.createAndSelectStaffSystem(StaffSystem())
+            staffSystemBuilder
+                .createAndSelectStaffSystem(StaffSystem())
                 .getSelectedStaffSystemId()
         assertTrue(staffSystemService.existsById(newStaffSystemId))
+        staffSystemBuilder.selectStaffSystem(newStaffSystemId).deleteSelectedStaffSystem()
+        assertFalse(staffSystemService.existsById(newStaffSystemId))
 
         val uuid = UUID.randomUUID().toString()
         val staffSystem = StaffSystem(StaffSystemId(uuid))
         staffSystemService.save(staffSystem)
+        assertTrue(staffSystemService.existsById(requireNotNull(staffSystem.staffSystemId)))
 
         val staffSystemMetadata = randomMetadata()
         staffSystemBuilder.selectStaffSystem(requireNotNull(staffSystem.staffSystemId))
@@ -89,6 +94,17 @@ class KmeBackendApplicationTests(
             staffBuilder.selectStaff(100)
         }
         assertThrows<UnsupportedOperationException> { staffBuilder.buildMeasures() }
+        assertThrows<UnsupportedOperationException> { staffBuilder.getSelectedStaffId() }
+        assertThrows<UnsupportedOperationException> { staffBuilder.deleteSelectedStaff() }
+
+        val newStaffId =
+            staffBuilder
+                .appendAndSelectStaff(Staff())
+                .getSelectedStaffId()
+        assertTrue(staffService.existsById(newStaffId))
+        staffBuilder.selectStaff(newStaffId.stavesOrder).deleteSelectedStaff()
+        assertFalse(staffService.existsById(newStaffId))
+
         val staffMetadata = randomMetadata()
         staffBuilder.appendAndSelectStaff(Staff(metadata = staffMetadata))
         var storedStaff = staffService.findById(requireNotNull(staffBuilder.selectedStaffId)).orElseThrow()
@@ -108,6 +124,23 @@ class KmeBackendApplicationTests(
             measureBuilder.selectMeasure(100)
         }
         assertThrows<UnsupportedOperationException> { measureBuilder.buildVoices() }
+        assertThrows<UnsupportedOperationException> { measureBuilder.getSelectedMeasureId() }
+        assertThrows<UnsupportedOperationException> { measureBuilder.deleteSelectedMeasure() }
+
+        val newMeasureId =
+            measureBuilder
+                .appendAndSelectMeasure(
+                    Measure(
+                        keySignature = KeySignature.Flat4,
+                        timeSignature = TimeSignature.FourFour,
+                        clef = Clef.Alto,
+                    ),
+                )
+                .getSelectedMeasureId()
+        assertTrue(measureService.existsById(newMeasureId))
+        measureBuilder.selectMeasure(newMeasureId.measuresOrder).deleteSelectedMeasure()
+        assertFalse(measureService.existsById(newMeasureId))
+
         val measure =
             measureService.appendToStaff(
                 requireNotNull(staffBuilder.selectedStaffId),
@@ -146,6 +179,16 @@ class KmeBackendApplicationTests(
             voiceBuilder.selectVoice(100)
         }
         assertThrows<UnsupportedOperationException> { voiceBuilder.buildGroupings() }
+        assertThrows<UnsupportedOperationException> { voiceBuilder.getSelectedVoiceId() }
+        assertThrows<UnsupportedOperationException> { voiceBuilder.deleteSelectedVoice() }
+
+        val newVoiceId =
+            voiceBuilder
+                .appendAndSelectVoice(Voice())
+                .getSelectedVoiceId()
+        assertTrue(voiceService.existsById(newVoiceId))
+        voiceBuilder.selectVoice(newVoiceId.voicesOrder).deleteSelectedVoice()
+        assertFalse(voiceService.existsById(newVoiceId))
 
         val voice =
             voiceService.appendToMeasure(
@@ -174,6 +217,16 @@ class KmeBackendApplicationTests(
         }
         assertThrows<UnsupportedOperationException> { groupingBuilder.buildRests() }
         assertThrows<UnsupportedOperationException> { groupingBuilder.buildChords() }
+        assertThrows<UnsupportedOperationException> { groupingBuilder.getSelectedGroupingId() }
+        assertThrows<UnsupportedOperationException> { groupingBuilder.deleteSelectedGrouping() }
+
+        val newGroupingId =
+            groupingBuilder
+                .appendAndSelectGrouping(Grouping())
+                .getSelectedGroupingId()
+        assertTrue(groupingService.existsById(newGroupingId))
+        groupingBuilder.selectGrouping(newGroupingId.groupingsOrder).deleteSelectedGrouping()
+        assertFalse(groupingService.existsById(newGroupingId))
 
         val grouping = groupingService.appendToVoice(requireNotNull(voice.voiceId), Grouping())
         groupingService.save(grouping)
@@ -193,6 +246,16 @@ class KmeBackendApplicationTests(
         assertThrows<NoSuchElementException> {
             restBuilder.selectRest(100)
         }
+        assertThrows<UnsupportedOperationException> { restBuilder.getSelectedRestId() }
+        assertThrows<UnsupportedOperationException> { restBuilder.deleteSelectedRest() }
+
+        val newRestId =
+            restBuilder
+                .appendAndSelectRest(Rest(restType = RestType.Sixteenth))
+                .getSelectedRestId()
+        assertTrue(restService.existsById(newRestId))
+        restBuilder.selectRest(newRestId.groupingEntryId.groupingEntriesOrder).deleteSelectedRest()
+        assertFalse(restService.existsById(newRestId))
 
         val rest =
             restService.appendToGrouping(
@@ -224,6 +287,21 @@ class KmeBackendApplicationTests(
         assertThrows<NoSuchElementException> {
             chordBuilder.selectChord(100)
         }
+        assertThrows<UnsupportedOperationException> { chordBuilder.getSelectedChordId() }
+        assertThrows<UnsupportedOperationException> { chordBuilder.deleteSelectedChord() }
+
+        val newChordId =
+            chordBuilder
+                .appendAndSelectChord(
+                    Chord(
+                        stem = Stem(stemType = StemType.Thirtysecond),
+                        dotCount = 0,
+                    ),
+                )
+                .getSelectedChordId()
+        assertTrue(chordService.existsById(newChordId))
+        chordBuilder.selectChord(newChordId.groupingEntryId.groupingEntriesOrder).deleteSelectedChord()
+        assertFalse(chordService.existsById(newChordId))
 
         val chord =
             chordService.appendToGrouping(
@@ -262,6 +340,21 @@ class KmeBackendApplicationTests(
         assertThrows<NoSuchElementException> {
             noteBuilder.selectNote(100)
         }
+        assertThrows<UnsupportedOperationException> { noteBuilder.getSelectedNoteId() }
+        assertThrows<UnsupportedOperationException> { noteBuilder.deleteSelectedNote() }
+
+        val newNoteId =
+            noteBuilder
+                .insertAndSelectNote(
+                    Note(
+                        noteId = NoteId(position = 10),
+                        accidental = Accidental.Flat,
+                    ),
+                )
+                .getSelectedNoteId()
+        assertTrue(noteService.existsById(newNoteId))
+        noteBuilder.selectNote(newNoteId.position).deleteSelectedNote()
+        assertFalse(noteService.existsById(newNoteId))
 
         val note =
             noteService.insertInChord(
