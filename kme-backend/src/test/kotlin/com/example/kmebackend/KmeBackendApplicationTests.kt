@@ -37,6 +37,32 @@ class KmeBackendApplicationTests(
     }
 
     @Test
+    fun testServices() {
+        // TODO: make tests for other services as well
+        // Clear all data
+        staffSystemService.deleteAll()
+
+        assertThrows<NoSuchElementException> { staffSystemService.countChildren(StaffSystemId()) }
+        assertThrows<NoSuchElementException> { staffSystemService.getChildren(StaffSystemId()) }
+        assertThrows<NoSuchElementException> { staffSystemService.deleteById(StaffSystemId()) }
+
+        val staffSystem = staffSystemService.createStaffSystem(StaffSystem())
+        staffSystemService.save(staffSystem)
+
+        val staff =
+            staffService.appendToStaffSystem(
+                requireNotNull(staffSystem.staffSystemId),
+                Staff(),
+            )
+        staffService.save(staff)
+        assertEquals(1, staffSystemService.countChildren(requireNotNull(staffSystem.staffSystemId)))
+
+        staffSystemService.deleteById(requireNotNull(staffSystem.staffSystemId))
+        assertFalse(staffService.existsById(requireNotNull(staff.staffId)))
+        assertFalse(staffSystemService.existsById(requireNotNull(staffSystem.staffSystemId)))
+    }
+
+    @Test
     fun testBuilders() {
         fun randomMetadata(): String {
             return (1..20).map { ('a'..'z').random() }.joinToString("")
