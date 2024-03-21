@@ -31,6 +31,17 @@ class StaffBuilder internal constructor(
     }
 
     /**
+     * @return the selected Staff's ID.
+     * @throws UnsupportedOperationException if no Staff was selected.
+     */
+    fun getSelectedStaffId(): StaffId {
+        if (selectedStaffId == null) {
+            throw UnsupportedOperationException("A Staff must be selected")
+        }
+        return requireNotNull(selectedStaffId)
+    }
+
+    /**
      * Overrides the data that has been set for the selected Staff and then saves it.
      * The data that has been set is then discarded.
      * @return the same StaffBuilder instance that called this function
@@ -72,9 +83,24 @@ class StaffBuilder internal constructor(
      * @see selectStaff
      */
     fun appendAndSelectStaff(newStaff: Staff): StaffBuilder {
+        // TODO: check that selectedStaffSystemId is not null; update documentation; do this for the other builders
         var staff = staffService.appendToStaffSystem(requireNotNull(staffSystemBuilder.selectedStaffSystemId), newStaff)
         staff = staffService.save(staff)
         selectedStaffId = staff.staffId
+        return this
+    }
+
+    /**
+     * Deletes the selected Staff.
+     * @return the same StaffBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no Staff was selected.
+     * @see StaffService.deleteById
+     */
+    fun deleteSelectedStaff(): StaffBuilder {
+        if (selectedStaffId == null) {
+            throw UnsupportedOperationException("A Staff must be selected")
+        }
+        staffService.deleteById(requireNotNull(selectedStaffId))
         return this
     }
 

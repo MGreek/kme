@@ -2,10 +2,7 @@ package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.Grouping
 import com.example.kmebackend.model.GroupingId
-import com.example.kmebackend.service.ChordService
-import com.example.kmebackend.service.GroupingService
-import com.example.kmebackend.service.NoteService
-import com.example.kmebackend.service.RestService
+import com.example.kmebackend.service.*
 
 class GroupingBuilder internal constructor(
     private val voiceBuilder: VoiceBuilder,
@@ -29,6 +26,17 @@ class GroupingBuilder internal constructor(
         metadata = newMetadata
         overrideMetadata = true
         return this
+    }
+
+    /**
+     * @return the selected Grouping's ID.
+     * @throws UnsupportedOperationException if no Grouping was selected.
+     */
+    fun getSelectedGroupingId(): GroupingId {
+        if (selectedGroupingId == null) {
+            throw UnsupportedOperationException("A Grouping must be selected")
+        }
+        return requireNotNull(selectedGroupingId)
     }
 
     /**
@@ -81,6 +89,20 @@ class GroupingBuilder internal constructor(
         var grouping = groupingService.appendToVoice(requireNotNull(voiceBuilder.selectedVoiceId), newGrouping)
         grouping = groupingService.save(grouping)
         selectedGroupingId = grouping.groupingId
+        return this
+    }
+
+    /**
+     * Deletes the selected Grouping.
+     * @return the same GroupingBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no Grouping was selected.
+     * @see GroupingService.deleteById
+     */
+    fun deleteSelectedGrouping(): GroupingBuilder {
+        if (selectedGroupingId == null) {
+            throw UnsupportedOperationException("A Grouping must be selected")
+        }
+        groupingService.deleteById(requireNotNull(selectedGroupingId))
         return this
     }
 

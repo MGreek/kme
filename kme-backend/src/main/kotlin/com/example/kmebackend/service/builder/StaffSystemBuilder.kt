@@ -90,6 +90,20 @@ class StaffSystemBuilder(
     }
 
     /**
+     * Deletes the selected StaffSystem.
+     * @return the same StaffSystemBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     * @see StaffSystemService.deleteById
+     */
+    fun deleteSelectedStaffSystem(): StaffSystemBuilder {
+        if (selectedStaffSystemId == null) {
+            throw UnsupportedOperationException("A StaffSystem must be selected")
+        }
+        staffSystemService.deleteById(requireNotNull(selectedStaffSystemId))
+        return this
+    }
+
+    /**
      * @return a new StaffBuilder that builds inside the selected StaffSystem.
      * @throws UnsupportedOperationException if no StaffSystem was selected.
      */

@@ -65,6 +65,17 @@ class ChordBuilder internal constructor(
     }
 
     /**
+     * @return the selected Chord's ID.
+     * @throws UnsupportedOperationException if no Chord was selected.
+     */
+    fun getSelectedChordId(): ChordId {
+        if (selectedChordId == null) {
+            throw UnsupportedOperationException("A Chord must be selected")
+        }
+        return requireNotNull(selectedChordId)
+    }
+
+    /**
      * Overrides the data that has been set for the selected Chord and then saves it.
      * The data that has been set is then discarded.
      * @return the same ChordBuilder instance that called this function
@@ -125,6 +136,20 @@ class ChordBuilder internal constructor(
         var chord = chordService.appendToGrouping(requireNotNull(groupingBuilder.selectedGroupingId), newChord)
         chord = chordService.save(chord)
         selectedChordId = chord.chordId
+        return this
+    }
+
+    /**
+     * Deletes the selected Chord.
+     * @return the same ChordBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no Chord was selected.
+     * @see ChordService.deleteById
+     */
+    fun deleteSelectedChord(): ChordBuilder {
+        if (selectedChordId == null) {
+            throw UnsupportedOperationException("A Chord must be selected")
+        }
+        chordService.deleteById(requireNotNull(selectedChordId))
         return this
     }
 

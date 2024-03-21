@@ -30,6 +30,17 @@ class VoiceBuilder internal constructor(
     }
 
     /**
+     * @return the selected Voice's ID.
+     * @throws UnsupportedOperationException if no Voice was selected.
+     */
+    fun getSelectedVoiceId(): VoiceId {
+        if (selectedVoiceId == null) {
+            throw UnsupportedOperationException("A Voice must be selected")
+        }
+        return requireNotNull(selectedVoiceId)
+    }
+
+    /**
      * Overrides the data that has been set for the selected Voice and then saves it.
      * The data that has been set is then discarded.
      * @return the same VoiceBuilder instance that called this function
@@ -79,6 +90,20 @@ class VoiceBuilder internal constructor(
         var voice = voiceService.appendToMeasure(requireNotNull(measureBuilder.selectedMeasureId), newVoice)
         voice = voiceService.save(voice)
         selectedVoiceId = voice.voiceId
+        return this
+    }
+
+    /**
+     * Deletes the selected Voice.
+     * @return the same VoiceBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no Voice was selected.
+     * @see VoiceService.deleteById
+     */
+    fun deleteSelectedVoice(): VoiceBuilder {
+        if (selectedVoiceId == null) {
+            throw UnsupportedOperationException("A Voice must be selected")
+        }
+        voiceService.deleteById(requireNotNull(selectedVoiceId))
         return this
     }
 

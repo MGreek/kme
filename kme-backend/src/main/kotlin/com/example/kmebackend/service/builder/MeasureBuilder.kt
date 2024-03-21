@@ -66,6 +66,17 @@ class MeasureBuilder internal constructor(
     }
 
     /**
+     * @return the selected Measure's ID.
+     * @throws UnsupportedOperationException if no Measure was selected.
+     */
+    fun getSelectedMeasureId(): MeasureId {
+        if (selectedMeasureId == null) {
+            throw UnsupportedOperationException("A Measure must be selected")
+        }
+        return requireNotNull(selectedMeasureId)
+    }
+
+    /**
      * Overrides the data that has been set for the selected Measure and then saves it.
      * The data that has been set is then discarded.
      * @return the same MeasureBuilder instance that called this function
@@ -127,6 +138,20 @@ class MeasureBuilder internal constructor(
         var measure = measureService.appendToStaff(requireNotNull(staffBuilder.selectedStaffId), newMeasure)
         measure = measureService.save(measure)
         selectedMeasureId = measure.measureId
+        return this
+    }
+
+    /**
+     * Deletes the selected Measure.
+     * @return the same MeasureBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no Measure was selected.
+     * @see MeasureService.deleteById
+     */
+    fun deleteSelectedMeasure(): MeasureBuilder {
+        if (selectedMeasureId == null) {
+            throw UnsupportedOperationException("A Measure must be selected")
+        }
+        measureService.deleteById(requireNotNull(selectedMeasureId))
         return this
     }
 

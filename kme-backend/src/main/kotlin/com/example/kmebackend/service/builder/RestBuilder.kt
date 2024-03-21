@@ -1,9 +1,6 @@
 package com.example.kmebackend.service.builder
 
-import com.example.kmebackend.model.GroupingEntryId
-import com.example.kmebackend.model.Rest
-import com.example.kmebackend.model.RestId
-import com.example.kmebackend.model.RestType
+import com.example.kmebackend.model.*
 import com.example.kmebackend.service.RestService
 
 class RestBuilder internal constructor(
@@ -37,6 +34,17 @@ class RestBuilder internal constructor(
         metadata = newMetadata
         overrideMetadata = true
         return this
+    }
+
+    /**
+     * @return the selected Rest's ID.
+     * @throws UnsupportedOperationException if no Rest was selected.
+     */
+    fun getSelectedRestId(): RestId {
+        if (selectedRestId == null) {
+            throw UnsupportedOperationException("A Rest must be selected")
+        }
+        return requireNotNull(selectedRestId)
     }
 
     /**
@@ -92,6 +100,20 @@ class RestBuilder internal constructor(
         var rest = restService.appendToGrouping(requireNotNull(groupingBuilder.selectedGroupingId), newRest)
         rest = restService.save(rest)
         selectedRestId = rest.restId
+        return this
+    }
+
+    /**
+     * Deletes the selected Rest.
+     * @return the same RestBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no Rest was selected.
+     * @see RestService.deleteById
+     */
+    fun deleteSelectedRest(): RestBuilder {
+        if (selectedRestId == null) {
+            throw UnsupportedOperationException("A Rest must be selected")
+        }
+        restService.deleteById(requireNotNull(selectedRestId))
         return this
     }
 

@@ -39,6 +39,17 @@ class NoteBuilder internal constructor(
     }
 
     /**
+     * @return the selected Note's ID.
+     * @throws UnsupportedOperationException if no Note was selected.
+     */
+    fun getSelectedNoteId(): NoteId {
+        if (selectedNoteId == null) {
+            throw UnsupportedOperationException("A Note must be selected")
+        }
+        return requireNotNull(selectedNoteId)
+    }
+
+    /**
      * Overrides the data that has been set for the selected Note and then saves it.
      * The data that has been set is then discarded.
      * @return the same NoteBuilder instance that called this function
@@ -89,6 +100,20 @@ class NoteBuilder internal constructor(
         var note = noteService.insertInChord(requireNotNull(chordBuilder.selectedChordId), newNote)
         note = noteService.save(note)
         selectedNoteId = note.noteId
+        return this
+    }
+
+    /**
+     * Deletes the selected Note.
+     * @return the same NoteBuilder instance that called this function.
+     * @throws UnsupportedOperationException if no Note was selected.
+     * @see NoteService.deleteById
+     */
+    fun deleteSelectedNote(): NoteBuilder {
+        if (selectedNoteId == null) {
+            throw UnsupportedOperationException("A Note must be selected")
+        }
+        noteService.deleteById(requireNotNull(selectedNoteId))
         return this
     }
 
