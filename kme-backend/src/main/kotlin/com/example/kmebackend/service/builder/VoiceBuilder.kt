@@ -1,9 +1,13 @@
 package com.example.kmebackend.service.builder
 
+import com.example.kmebackend.model.Measure
 import com.example.kmebackend.model.Voice
 import com.example.kmebackend.model.VoiceId
 import com.example.kmebackend.service.*
 
+/**
+ * A class that makes building [Voices][Voice] easier and faster.
+ */
 class VoiceBuilder internal constructor(
     private val measureBuilder: MeasureBuilder,
     private val voiceService: VoiceService,
@@ -18,9 +22,9 @@ class VoiceBuilder internal constructor(
     private var overrideMetadata: Boolean = false
 
     /**
-     * Stores newMetadata that will be used to override the selected Voice's metadata.
-     * @param newMetadata the data that will be used to override the selected Voice's metadata.
-     * @return the same VoiceBuilder instance that called this function
+     * Stores [newMetadata] that will be used to override the selected [Voice's][Voice] [Voice.metadata].
+     * @param newMetadata the data that will be used to override the selected [Voice's][Voice] [Voice.metadata].
+     * @return the same [VoiceBuilder] instance that called this function.
      * @see save
      */
     fun setMetadata(newMetadata: String?): VoiceBuilder {
@@ -30,8 +34,8 @@ class VoiceBuilder internal constructor(
     }
 
     /**
-     * @return the selected Voice's ID.
-     * @throws UnsupportedOperationException if no Voice was selected.
+     * @return the selected [Voice's][Voice] ID.
+     * @throws UnsupportedOperationException if no [Voice] was selected.
      */
     fun getSelectedVoiceId(): VoiceId {
         if (selectedVoiceId == null) {
@@ -41,10 +45,10 @@ class VoiceBuilder internal constructor(
     }
 
     /**
-     * Overrides the data that has been set for the selected Voice and then saves it.
+     * Overrides the data that has been set for the selected [Voice] and then saves it.
      * The data that has been set is then discarded.
-     * @return the same VoiceBuilder instance that called this function
-     * @throws UnsupportedOperationException if no Voice was selected.
+     * @return the same [VoiceBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Voice] was selected.
      */
     fun save(): VoiceBuilder {
         if (selectedVoiceId == null) {
@@ -61,10 +65,10 @@ class VoiceBuilder internal constructor(
     }
 
     /**
-     * Selects a Voice.
-     * @param index the position of the Voice inside its parent Measure.
-     * @return the same VoiceBuilder instance that called this function
-     * @throws NoSuchElementException if there was no Voice found for the given index
+     * Selects a [Voice].
+     * @param index the position of the [Voice] inside its parent [Measure].
+     * @return the same [VoiceBuilder] instance that called this function.
+     * @throws NoSuchElementException if there was no [Voice] found for the given [index].
      * @see appendAndSelectVoice
      */
     fun selectVoice(index: Int): VoiceBuilder {
@@ -81,9 +85,9 @@ class VoiceBuilder internal constructor(
     }
 
     /**
-     * Creates, appends and selects a Voice.
-     * @param newVoice the instance from where data will be copied to the new Voice. Its ID is ignored.
-     * @return the same VoiceBuilder instance that called this function.
+     * Creates, appends and selects a [Voice].
+     * @param newVoice the instance from where data will be copied to the new [Voice]. Its ID is ignored.
+     * @return the same [VoiceBuilder] instance that called this function.
      * @see selectVoice
      */
     fun appendAndSelectVoice(newVoice: Voice): VoiceBuilder {
@@ -94,9 +98,9 @@ class VoiceBuilder internal constructor(
     }
 
     /**
-     * Deletes the selected Voice.
-     * @return the same VoiceBuilder instance that called this function.
-     * @throws UnsupportedOperationException if no Voice was selected.
+     * Deletes the selected [Voice].
+     * @return the same [VoiceBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Voice] was selected.
      * @see VoiceService.deleteById
      */
     fun deleteSelectedVoice(): VoiceBuilder {
@@ -108,8 +112,8 @@ class VoiceBuilder internal constructor(
     }
 
     /**
-     * @return a new GroupingBuilder that builds inside the selected Voice.
-     * @throws UnsupportedOperationException if no Voice was selected.
+     * @return a new [GroupingBuilder] that builds inside the selected [Voice].
+     * @throws UnsupportedOperationException if no [Voice] was selected.
      */
     fun buildGroupings(): GroupingBuilder {
         if (selectedVoiceId == null) {
@@ -125,7 +129,7 @@ class VoiceBuilder internal constructor(
     }
 
     /**
-     * @return the instance of MeasureBuilder that created this VoiceBuilder.
+     * @return the instance of [MeasureBuilder] that created this [VoiceBuilder].
      */
     fun back(): MeasureBuilder {
         return measureBuilder

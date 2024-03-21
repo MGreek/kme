@@ -2,8 +2,12 @@ package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.Grouping
 import com.example.kmebackend.model.GroupingId
+import com.example.kmebackend.model.Voice
 import com.example.kmebackend.service.*
 
+/**
+ * A class that makes building [Groupings][Grouping] easier and faster.
+ */
 class GroupingBuilder internal constructor(
     private val voiceBuilder: VoiceBuilder,
     private val groupingService: GroupingService,
@@ -17,9 +21,9 @@ class GroupingBuilder internal constructor(
     private var overrideMetadata: Boolean = false
 
     /**
-     * Stores newMetadata that will be used to override the selected Grouping's metadata.
-     * @param newMetadata the data that will be used to override the selected Grouping's metadata.
-     * @return the same GroupingBuilder instance that called this function
+     * Stores [newMetadata] that will be used to override the selected [Grouping's][Grouping] [Grouping.metadata].
+     * @param newMetadata the data that will be used to override the selected [Grouping's][Grouping] [Grouping.metadata].
+     * @return the same [GroupingBuilder] instance that called this function.
      * @see save
      */
     fun setMetadata(newMetadata: String?): GroupingBuilder {
@@ -29,8 +33,8 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * @return the selected Grouping's ID.
-     * @throws UnsupportedOperationException if no Grouping was selected.
+     * @return the selected [Grouping's][Grouping] ID.
+     * @throws UnsupportedOperationException if no [Grouping] was selected.
      */
     fun getSelectedGroupingId(): GroupingId {
         if (selectedGroupingId == null) {
@@ -40,10 +44,10 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * Overrides the data that has been set for the selected Grouping and then saves it.
+     * Overrides the data that has been set for the selected [Grouping] and then saves it.
      * The data that has been set is then discarded.
-     * @return the same GroupingBuilder instance that called this function
-     * @throws UnsupportedOperationException if no Grouping was selected.
+     * @return the same [GroupingBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Grouping] was selected.
      */
     fun save(): GroupingBuilder {
         if (selectedGroupingId == null) {
@@ -60,10 +64,10 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * Selects a Grouping.
-     * @param index the position of the Grouping inside its parent Voice.
-     * @return the same GroupingBuilder instance that called this function
-     * @throws NoSuchElementException if there was no Grouping found for the given index
+     * Selects a [Grouping].
+     * @param index the position of the [Grouping] inside its parent [Voice].
+     * @return the same [GroupingBuilder] instance that called this function.
+     * @throws NoSuchElementException if there was no [Grouping] found for the given [index].
      * @see appendAndSelectGrouping
      */
     fun selectGrouping(index: Int): GroupingBuilder {
@@ -80,9 +84,9 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * Creates, appends and selects a Grouping.
-     * @param newGrouping the instance from where data will be copied to the new Grouping. Its ID is ignored.
-     * @return the same GroupingBuilder instance that called this function.
+     * Creates, appends and selects a [Grouping].
+     * @param newGrouping the instance from where data will be copied to the new [Grouping]. Its ID is ignored.
+     * @return the same [GroupingBuilder] instance that called this function.
      * @see selectGrouping
      */
     fun appendAndSelectGrouping(newGrouping: Grouping): GroupingBuilder {
@@ -93,9 +97,9 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * Deletes the selected Grouping.
-     * @return the same GroupingBuilder instance that called this function.
-     * @throws UnsupportedOperationException if no Grouping was selected.
+     * Deletes the selected [Grouping].
+     * @return the same [GroupingBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Grouping] was selected.
      * @see GroupingService.deleteById
      */
     fun deleteSelectedGrouping(): GroupingBuilder {
@@ -107,8 +111,8 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * @return a new RestBuilder that builds inside the selected Grouping.
-     * @throws UnsupportedOperationException if no Grouping was selected.
+     * @return a new [RestBuilder] that builds inside the selected [Grouping].
+     * @throws UnsupportedOperationException if no [Grouping] was selected.
      */
     fun buildRests(): RestBuilder {
         if (selectedGroupingId == null) {
@@ -121,8 +125,8 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * @return a new ChordBuilder that builds inside the selected Grouping.
-     * @throws UnsupportedOperationException if no Grouping was selected.
+     * @return a new [ChordBuilder] that builds inside the selected [Grouping].
+     * @throws UnsupportedOperationException if no [Grouping] was selected.
      */
     fun buildChords(): ChordBuilder {
         if (selectedGroupingId == null) {
@@ -136,7 +140,7 @@ class GroupingBuilder internal constructor(
     }
 
     /**
-     * @return the instance of VoiceBuilder that created this GroupingBuilder.
+     * @return the instance of [VoiceBuilder] that created this [GroupingBuilder].
      */
     fun back(): VoiceBuilder {
         return voiceBuilder

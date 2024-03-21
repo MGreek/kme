@@ -2,8 +2,12 @@ package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.Staff
 import com.example.kmebackend.model.StaffId
+import com.example.kmebackend.model.StaffSystem
 import com.example.kmebackend.service.*
 
+/**
+ * A class that makes building [Staves][Staff] easier and faster.
+ */
 class StaffBuilder internal constructor(
     private val staffSystemBuilder: StaffSystemBuilder,
     private val staffService: StaffService,
@@ -19,9 +23,9 @@ class StaffBuilder internal constructor(
     private var overrideMetadata: Boolean = false
 
     /**
-     * Stores newMetadata that will be used to override the selected Staff's metadata.
-     * @param newMetadata the data that will be used to override the selected Staff's metadata.
-     * @return the same StaffBuilder instance that called this function
+     * Stores [newMetadata] that will be used to override the selected [Staff's][Staff] [metadata][Staff.metadata].
+     * @param newMetadata the data that will be used to override the selected [Staff's][Staff] [metadata][Staff.metadata].
+     * @return the same [StaffBuilder] instance that called this function.
      * @see save
      */
     fun setMetadata(newMetadata: String?): StaffBuilder {
@@ -31,8 +35,8 @@ class StaffBuilder internal constructor(
     }
 
     /**
-     * @return the selected Staff's ID.
-     * @throws UnsupportedOperationException if no Staff was selected.
+     * @return the selected [Staff's][Staff] ID.
+     * @throws UnsupportedOperationException if no [Staff] was selected.
      */
     fun getSelectedStaffId(): StaffId {
         if (selectedStaffId == null) {
@@ -42,10 +46,10 @@ class StaffBuilder internal constructor(
     }
 
     /**
-     * Overrides the data that has been set for the selected Staff and then saves it.
+     * Overrides the data that has been set for the selected [Staff] and then saves it.
      * The data that has been set is then discarded.
-     * @return the same StaffBuilder instance that called this function
-     * @throws UnsupportedOperationException if no Staff was selected.
+     * @return the same [StaffBuilder] instance that called this function
+     * @throws UnsupportedOperationException if no [Staff] was selected.
      */
     fun save(): StaffBuilder {
         if (selectedStaffId == null) {
@@ -61,10 +65,10 @@ class StaffBuilder internal constructor(
     }
 
     /**
-     * Selects a Staff.
-     * @param index the position of the Staff inside its parent StaffSystem.
-     * @return the same StaffBuilder instance that called this function
-     * @throws NoSuchElementException if there was no Staff found for the given index
+     * Selects a [Staff].
+     * @param index the position of the [Staff] inside its parent [StaffSystem][StaffSystem].
+     * @return the same [StaffBuilder] instance that called this function
+     * @throws NoSuchElementException if there was no [Staff] found for the given [index]
      * @see appendAndSelectStaff
      */
     fun selectStaff(index: Int): StaffBuilder {
@@ -77,13 +81,12 @@ class StaffBuilder internal constructor(
     }
 
     /**
-     * Creates, appends and selects a Staff.
-     * @param newStaff the instance from where data will be copied to the new Staff. Its ID is ignored.
-     * @return the same StaffBuilder instance that called this function.
+     * Creates, appends and selects a [Staff].
+     * @param newStaff the instance from where data will be copied to the new [Staff]. Its ID is ignored.
+     * @return the same [StaffBuilder] instance that called this function.
      * @see selectStaff
      */
     fun appendAndSelectStaff(newStaff: Staff): StaffBuilder {
-        // TODO: check that selectedStaffSystemId is not null; update documentation; do this for the other builders
         var staff = staffService.appendToStaffSystem(requireNotNull(staffSystemBuilder.selectedStaffSystemId), newStaff)
         staff = staffService.save(staff)
         selectedStaffId = staff.staffId
@@ -91,9 +94,9 @@ class StaffBuilder internal constructor(
     }
 
     /**
-     * Deletes the selected Staff.
-     * @return the same StaffBuilder instance that called this function.
-     * @throws UnsupportedOperationException if no Staff was selected.
+     * Deletes the selected [Staff].
+     * @return the same [StaffBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Staff] was selected.
      * @see StaffService.deleteById
      */
     fun deleteSelectedStaff(): StaffBuilder {
@@ -105,8 +108,8 @@ class StaffBuilder internal constructor(
     }
 
     /**
-     * @return a new MeasureBuilder that builds inside the selected Staff.
-     * @throws UnsupportedOperationException if no Staff was selected.
+     * @return a new [MeasureBuilder] that builds inside the selected [Staff].
+     * @throws UnsupportedOperationException if no [Staff] was selected.
      */
     fun buildMeasures(): MeasureBuilder {
         if (selectedStaffId == null) {

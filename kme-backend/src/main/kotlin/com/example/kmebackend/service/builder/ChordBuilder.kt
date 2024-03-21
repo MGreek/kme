@@ -4,6 +4,9 @@ import com.example.kmebackend.model.*
 import com.example.kmebackend.service.ChordService
 import com.example.kmebackend.service.NoteService
 
+/**
+ * A class that makes building [Chords][Chord] easier and faster.
+ */
 class ChordBuilder internal constructor(
     private val groupingBuilder: GroupingBuilder,
     private val chordService: ChordService,
@@ -19,9 +22,9 @@ class ChordBuilder internal constructor(
     private var dotCount: Long? = null
 
     /**
-     * Stores newMetadata that will be used to override the selected Chord's metadata.
-     * @param newMetadata the data that will be used to override the selected Chord's metadata.
-     * @return the same ChordBuilder instance that called this function
+     * Stores [newMetadata] that will be used to override the selected [Chord's][Chord] [Chord.metadata].
+     * @param newMetadata the data that will be used to override the selected [Chord's][Chord] [Chord.metadata].
+     * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
     fun setMetadata(newMetadata: String?): ChordBuilder {
@@ -31,9 +34,9 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Stores newStemType that will be used to override the selected Chord's stemType.
-     * @param newStemType the data that will be used to override the selected Chord's stemType.
-     * @return the same ChordBuilder instance that called this function
+     * Stores [newStemType] that will be used to override the selected [Chord's][Chord] [stemType][Stem.stemType].
+     * @param newStemType the data that will be used to override the selected [Chord's][Chord] [stemType][Stem.stemType].
+     * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
     fun setStemType(newStemType: StemType): ChordBuilder {
@@ -42,9 +45,9 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Stores newStemMetadata that will be used to override the selected Chord's stemMetadata.
-     * @param newStemMetadata the data that will be used to override the selected Chord's stemMetadata.
-     * @return the same ChordBuilder instance that called this function
+     * Stores [newStemMetadata] that will be used to override the selected [Chord's][Chord] [stemMetadata][Stem.metadata].
+     * @param newStemMetadata the data that will be used to override the selected [Chord's][Chord] [stemMetadata][Stem.metadata].
+     * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
     fun setStemMetadata(newStemMetadata: String?): ChordBuilder {
@@ -54,9 +57,9 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Stores newDotCount that will be used to override the selected Chord's dotCount.
-     * @param newDotCount the data that will be used to override the selected Chord's dotCount.
-     * @return the same ChordBuilder instance that called this function
+     * Stores [newDotCount] that will be used to override the selected [Chord's][Chord] [Chord.dotCount].
+     * @param newDotCount the data that will be used to override the selected [Chord's][Chord] [Chord.dotCount].
+     * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
     fun setDotCount(newDotCount: Long): ChordBuilder {
@@ -65,8 +68,8 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * @return the selected Chord's ID.
-     * @throws UnsupportedOperationException if no Chord was selected.
+     * @return the selected [Chord's][Chord] ID.
+     * @throws UnsupportedOperationException if no [Chord] was selected.
      */
     fun getSelectedChordId(): ChordId {
         if (selectedChordId == null) {
@@ -76,10 +79,10 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Overrides the data that has been set for the selected Chord and then saves it.
+     * Overrides the data that has been set for the selected [Chord] and then saves it.
      * The data that has been set is then discarded.
-     * @return the same ChordBuilder instance that called this function
-     * @throws UnsupportedOperationException if no Chord was selected.
+     * @return the same [ChordBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Chord] was selected.
      */
     fun save(): ChordBuilder {
         if (selectedChordId == null) {
@@ -108,10 +111,10 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Selects a Chord.
-     * @param index the position of the Chord inside its parent Grouping.
-     * @return the same ChordBuilder instance that called this function
-     * @throws NoSuchElementException if there was no Chord found for the given index
+     * Selects a [Chord].
+     * @param index the position of the [Chord] inside its parent [Grouping].
+     * @return the same [ChordBuilder] instance that called this function.
+     * @throws NoSuchElementException if there was no [Chord] found for the given [index].
      * @see appendAndSelectChord
      */
     fun selectChord(index: Int): ChordBuilder {
@@ -127,9 +130,9 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Creates, appends and selects a Chord.
-     * @param newChord the instance from where data will be copied to the new Chord. Its ID is ignored.
-     * @return the same ChordBuilder instance that called this function.
+     * Creates, appends and selects a [Chord].
+     * @param newChord the instance from where data will be copied to the new [Chord]. Its ID is ignored.
+     * @return the same [ChordBuilder] instance that called this function.
      * @see selectChord
      */
     fun appendAndSelectChord(newChord: Chord): ChordBuilder {
@@ -140,9 +143,9 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Deletes the selected Chord.
-     * @return the same ChordBuilder instance that called this function.
-     * @throws UnsupportedOperationException if no Chord was selected.
+     * Deletes the selected [Chord].
+     * @return the same [ChordBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Chord] was selected.
      * @see ChordService.deleteById
      */
     fun deleteSelectedChord(): ChordBuilder {
@@ -154,8 +157,8 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * @return a new NoteBuilder that builds inside the selected Chord.
-     * @throws UnsupportedOperationException if no Chord was selected.
+     * @return a new [NoteBuilder] that builds inside the selected [Chord].
+     * @throws UnsupportedOperationException if no [Chord] was selected.
      */
     fun buildNotes(): NoteBuilder {
         if (selectedChordId == null) {
@@ -165,7 +168,7 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * @return the instance of GroupingBuilder that created this ChordBuilder.
+     * @return the instance of [GroupingBuilder] that created this [ChordBuilder].
      */
     fun back(): GroupingBuilder {
         return groupingBuilder

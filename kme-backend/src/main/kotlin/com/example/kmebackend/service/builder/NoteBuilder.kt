@@ -1,10 +1,14 @@
 package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.Accidental
+import com.example.kmebackend.model.Chord
 import com.example.kmebackend.model.Note
 import com.example.kmebackend.model.NoteId
 import com.example.kmebackend.service.NoteService
 
+/**
+ * A class that makes building [Notes][Note] easier and faster.
+ */
 class NoteBuilder internal constructor(
     private val chordBuilder: ChordBuilder,
     private val noteService: NoteService,
@@ -16,9 +20,9 @@ class NoteBuilder internal constructor(
     private var overrideMetadata: Boolean = false
 
     /**
-     * Stores newAccidental that will be used to override the selected Note's accidental.
-     * @param newAccidental the data that will be used to override the selected Note's accidental.
-     * @return the same NoteBuilder instance that called this function
+     * Stores [newAccidental] that will be used to override the selected [Note's][Note] [Note.accidental].
+     * @param newAccidental the data that will be used to override the selected [Note's][Note] [Note.accidental].
+     * @return the same [NoteBuilder] instance that called this function.
      * @see save
      */
     fun setAccidental(newAccidental: Accidental): NoteBuilder {
@@ -27,9 +31,9 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * Stores newMetadata that will be used to override the selected Note's metadata.
-     * @param newMetadata the data that will be used to override the selected Note's metadata.
-     * @return the same NoteBuilder instance that called this function
+     * Stores [newMetadata] that will be used to override the selected [Note's][Note] [Note.metadata].
+     * @param newMetadata the data that will be used to override the selected [Note's][Note] [Note.metadata].
+     * @return the same [NoteBuilder] instance that called this function.
      * @see save
      */
     fun setMetadata(newMetadata: String?): NoteBuilder {
@@ -39,8 +43,8 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * @return the selected Note's ID.
-     * @throws UnsupportedOperationException if no Note was selected.
+     * @return the selected [Note's][Note] ID.
+     * @throws UnsupportedOperationException if no [Note] was selected.
      */
     fun getSelectedNoteId(): NoteId {
         if (selectedNoteId == null) {
@@ -50,10 +54,10 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * Overrides the data that has been set for the selected Note and then saves it.
+     * Overrides the data that has been set for the selected [Note] and then saves it.
      * The data that has been set is then discarded.
-     * @return the same NoteBuilder instance that called this function
-     * @throws UnsupportedOperationException if no Note was selected.
+     * @return the same [NoteBuilder] instance that called this function
+     * @throws UnsupportedOperationException if no [Note] was selected.
      */
     fun save(): NoteBuilder {
         if (selectedNoteId == null) {
@@ -71,10 +75,10 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * Selects a Note.
-     * @param position the position of the Note inside its parent Chord.
-     * @return the same NoteBuilder instance that called this function
-     * @throws NoSuchElementException if there was no Note found for the given index
+     * Selects a [Note].
+     * @param position the [position of the Note][NoteId.position] inside its parent [Chord].
+     * @return the same [NoteBuilder] instance that called this function.
+     * @throws NoSuchElementException if there was no [Note] found for the given [position].
      * @see insertAndSelectNote
      */
     fun selectNote(position: Int): NoteBuilder {
@@ -91,9 +95,9 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * Creates, inserts and selects a Note.
-     * @param newNote the instance from where data will be copied to the new Note. Its ID is ignored.
-     * @return the same NoteBuilder instance that called this function.
+     * Creates, inserts and selects a [Note].
+     * @param newNote the instance from where data will be copied to the new [Note]. Its ID is ignored.
+     * @return the same [NoteBuilder] instance that called this function.
      * @see selectNote
      */
     fun insertAndSelectNote(newNote: Note): NoteBuilder {
@@ -104,9 +108,9 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * Deletes the selected Note.
-     * @return the same NoteBuilder instance that called this function.
-     * @throws UnsupportedOperationException if no Note was selected.
+     * Deletes the selected [Note].
+     * @return the same [NoteBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [Note] was selected.
      * @see NoteService.deleteById
      */
     fun deleteSelectedNote(): NoteBuilder {
@@ -118,7 +122,7 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * @return the instance of ChordBuilder that created this NoteBuilder.
+     * @return the instance of [ChordBuilder] that created this [NoteBuilder].
      */
     fun back(): ChordBuilder {
         return chordBuilder

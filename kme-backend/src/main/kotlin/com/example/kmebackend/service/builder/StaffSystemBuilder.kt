@@ -4,6 +4,9 @@ import com.example.kmebackend.model.StaffSystem
 import com.example.kmebackend.model.StaffSystemId
 import com.example.kmebackend.service.*
 
+/**
+ * A class that makes building [StaffSystems][StaffSystem] easier and faster.
+ */
 class StaffSystemBuilder(
     private val staffSystemService: StaffSystemService,
     private val staffService: StaffService,
@@ -20,9 +23,9 @@ class StaffSystemBuilder(
     private var overrideMetadata: Boolean = false
 
     /**
-     * Stores newMetadata that will be used to override the selected StaffSystem's metadata.
-     * @param newMetadata the data that will be used to override the selected StaffSystem's metadata.
-     * @return the same StaffSystemBuilder instance that called this function
+     * Stores [newMetadata] that will be used to override the selected [StaffSystem's][StaffSystem] [metadata][StaffSystem.metadata].
+     * @param newMetadata the data that will be used to override the selected [StaffSystem]'s [metadata][StaffSystem.metadata].
+     * @return the same [StaffSystemBuilder] instance that called this function
      * @see save
      */
     fun setMetadata(newMetadata: String?): StaffSystemBuilder {
@@ -32,8 +35,8 @@ class StaffSystemBuilder(
     }
 
     /**
-     * @return the selected StaffSystem's ID.
-     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     * @return the selected [StaffSystem's][StaffSystem] ID.
+     * @throws UnsupportedOperationException if no [StaffSystem] was selected.
      */
     fun getSelectedStaffSystemId(): StaffSystemId {
         if (selectedStaffSystemId == null) {
@@ -43,10 +46,10 @@ class StaffSystemBuilder(
     }
 
     /**
-     * Overrides the data that has been set for the selected StaffSystem and then saves it.
+     * Overrides the data that has been set for the selected [StaffSystem] and then saves it.
      * The data that has been set is then discarded.
-     * @return the same StaffSystemBuilder instance that called this function
-     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     * @return the same [StaffSystemBuilder] instance that called this function
+     * @throws UnsupportedOperationException if no [StaffSystem] was selected.
      */
     fun save(): StaffSystemBuilder {
         if (selectedStaffSystemId == null) {
@@ -62,10 +65,10 @@ class StaffSystemBuilder(
     }
 
     /**
-     * Selects a StaffSystem.
-     * @param staffSystemId the ID of the StaffSystem.
-     * @return the same StaffSystemBuilder instance that called this function
-     * @throws NoSuchElementException if there was no StaffSystem found for staffSystemId
+     * Selects a [StaffSystem].
+     * @param staffSystemId the ID of the [StaffSystem].
+     * @return the same [StaffSystemBuilder] instance that called this function
+     * @throws NoSuchElementException if there was no [StaffSystem] found for [staffSystemId]
      * @see createAndSelectStaffSystem
      */
     fun selectStaffSystem(staffSystemId: StaffSystemId): StaffSystemBuilder {
@@ -77,9 +80,9 @@ class StaffSystemBuilder(
     }
 
     /**
-     * Creates and selects a StaffSystem.
-     * @param newStaffSystem the instance from where data will be copied to the new StaffSystem. Its ID is ignored.
-     * @return the same StaffSystemBuilder instance that called this function.
+     * Creates and selects a [StaffSystem].
+     * @param newStaffSystem the instance from where data will be copied to the new [StaffSystem]. Its ID is ignored.
+     * @return the same [StaffSystemBuilder] instance that called this function.
      * @see selectStaffSystem
      */
     fun createAndSelectStaffSystem(newStaffSystem: StaffSystem): StaffSystemBuilder {
@@ -90,9 +93,9 @@ class StaffSystemBuilder(
     }
 
     /**
-     * Deletes the selected StaffSystem.
-     * @return the same StaffSystemBuilder instance that called this function.
-     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     * Deletes the selected [StaffSystem].
+     * @return the same [StaffSystemBuilder] instance that called this function.
+     * @throws UnsupportedOperationException if no [StaffSystem] was selected.
      * @see StaffSystemService.deleteById
      */
     fun deleteSelectedStaffSystem(): StaffSystemBuilder {
@@ -104,8 +107,8 @@ class StaffSystemBuilder(
     }
 
     /**
-     * @return a new StaffBuilder that builds inside the selected StaffSystem.
-     * @throws UnsupportedOperationException if no StaffSystem was selected.
+     * @return a new [StaffBuilder] that builds inside the selected [StaffSystem].
+     * @throws UnsupportedOperationException if no [StaffSystem] was selected.
      */
     fun buildStaves(): StaffBuilder {
         if (selectedStaffSystemId == null) {
