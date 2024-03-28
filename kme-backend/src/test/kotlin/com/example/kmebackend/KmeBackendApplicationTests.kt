@@ -1,6 +1,7 @@
 package com.example.kmebackend
 
 import com.example.kmebackend.model.*
+import com.example.kmebackend.model.dto.*
 import com.example.kmebackend.service.*
 import com.example.kmebackend.service.builder.StaffSystemBuilder
 import org.junit.jupiter.api.Assertions.*
@@ -860,6 +861,136 @@ class KmeBackendApplicationTests(
                 accidental = Accidental.None,
             ),
             bassVoice2Note3,
+        )
+    }
+
+    @Test
+    fun testDTO() {
+        // Clear all data
+        staffSystemService.deleteAll()
+
+        val staffSystemBuilder =
+            StaffSystemBuilder(
+                staffSystemService,
+                staffService,
+                measureService,
+                voiceService,
+                groupingService,
+                restService,
+                chordService,
+                noteService,
+            )
+
+        val expectedNoteDTO =
+            NoteDTO(
+                position = 3,
+                accidental = Accidental.None,
+                metadata = "Note 1",
+            )
+        val expectedChordDTO =
+            ChordDTO(
+                stemDTO = StemDTO(stemType = StemType.Quarter, metadata = "Stem 1"),
+                dotCount = 0,
+                metadata = "Chord 1",
+                noteDTOs = listOf(expectedNoteDTO),
+            )
+        val expectedChordGroupingEntryDTO =
+            GroupingEntryDTO(
+                groupingEntriesOrder = 1,
+                restDTO = null,
+                chordDTO = expectedChordDTO,
+            )
+        val expectedRestDTO =
+            RestDTO(
+                restType = RestType.Quarter,
+                metadata = "Rest 1",
+            )
+        val expectedRestGroupingEntryDTO =
+            GroupingEntryDTO(
+                groupingEntriesOrder = 0,
+                restDTO = expectedRestDTO,
+                chordDTO = null,
+            )
+        val expectedGroupingDTO =
+            GroupingDTO(
+                groupingsOrder = 0,
+                metadata = "Grouping 1",
+                groupingEntryDTOs = listOf(expectedRestGroupingEntryDTO, expectedChordGroupingEntryDTO),
+            )
+        val expectedVoiceDTO =
+            VoiceDTO(
+                voicesOrder = 0,
+                metadata = "Voice 1",
+                groupingDTOs = listOf(expectedGroupingDTO),
+            )
+        val expectedMeasureDTO =
+            MeasureDTO(
+                measuresOrder = 0,
+                keySignature = KeySignature.Flat3,
+                timeSignature = TimeSignature.TwoFour,
+                clef = Clef.Treble,
+                metadata = "Measure 1",
+                voiceDTOs = listOf(expectedVoiceDTO),
+            )
+        val expectedStaffDTO =
+            StaffDTO(
+                stavesOrder = 0,
+                metadata = "Staff 1",
+                measureDTOs = listOf(expectedMeasureDTO),
+            )
+        val expectedStaffSystemDTO =
+            StaffSystemDTO(
+                id = UUID.randomUUID().toString(),
+                metadata = "StaffSystem 1",
+                staffDTOs = listOf(expectedStaffDTO),
+            )
+
+        val staffSystem =
+            StaffSystem(
+                staffSystemId = StaffSystemId(staffSystemId = expectedStaffSystemDTO.id),
+                metadata = expectedStaffSystemDTO.metadata,
+            )
+        staffSystemService.save(staffSystem)
+
+        staffSystemBuilder.selectStaffSystem(requireNotNull(staffSystem.staffSystemId))
+            .buildStaves()
+            .appendAndSelectStaff(Staff(metadata = expectedStaffDTO.metadata))
+            .buildMeasures()
+            .appendAndSelectMeasure(
+                Measure(
+                    keySignature = expectedMeasureDTO.keySignature,
+                    timeSignature = expectedMeasureDTO.timeSignature,
+                    clef = expectedMeasureDTO.clef,
+                    metadata = expectedMeasureDTO.metadata,
+                ),
+            )
+            .buildVoices()
+            .appendAndSelectVoice(Voice(metadata = expectedVoiceDTO.metadata))
+            .buildGroupings()
+            .appendAndSelectGrouping(Grouping(metadata = expectedGroupingDTO.metadata))
+            .buildRests()
+            .appendAndSelectRest(Rest(restType = expectedRestDTO.restType, metadata = expectedRestDTO.metadata))
+            .back()
+            .buildChords()
+            .appendAndSelectChord(
+                Chord(
+                    stem = Stem(stemType = expectedChordDTO.stemDTO.stemType, metadata = expectedChordDTO.stemDTO.metadata),
+                    dotCount = expectedChordDTO.dotCount,
+                    metadata = expectedChordDTO.metadata,
+                ),
+            )
+            .buildNotes()
+            .insertAndSelectNote(
+                Note(
+                    noteId = NoteId(position = expectedNoteDTO.position),
+                    accidental = expectedNoteDTO.accidental,
+                    metadata = expectedNoteDTO.metadata,
+                ),
+            )
+
+        assertEquals(
+            expectedStaffSystemDTO,
+            staffSystemService.staffSystemToDTO(staffSystem),
         )
     }
 }
