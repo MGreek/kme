@@ -3,6 +3,8 @@ package com.example.kmebackend.service
 import com.example.kmebackend.model.Staff
 import com.example.kmebackend.model.StaffSystem
 import com.example.kmebackend.model.StaffSystemId
+import com.example.kmebackend.model.dto.StaffDTO
+import com.example.kmebackend.model.dto.StaffSystemDTO
 import com.example.kmebackend.repository.StaffSystemRepository
 import org.springframework.stereotype.Service
 import java.util.*
@@ -89,5 +91,32 @@ data class StaffSystemService(
             staffService.deleteById(requireNotNull(child.staffId))
         }
         staffSystemRepository.deleteById(staffSystemId)
+    }
+
+    /**
+     * Turns a [StaffSystem] into a [StaffSystemDTO].
+     * @param staffSystem the instance that is used to create the [StaffSystemDTO].
+     * @return a [StaffSystemDTO] that is derived from the given [StaffSystem].
+     * @throws UnsupportedOperationException if [staffSystem's][staffSystem] ID is null.
+     * @throws NoSuchElementException if [staffSystem] is not found.
+     */
+    fun staffSystemToDTO(staffSystem: StaffSystem): StaffSystemDTO {
+        if (staffSystem.staffSystemId == null) {
+            throw UnsupportedOperationException("StaffSystems ID must not be null")
+        }
+        if (!existsById(requireNotNull(staffSystem.staffSystemId))) {
+            throw NoSuchElementException("StaffSystem with ID ${requireNotNull(staffSystem.staffSystemId)} not found")
+        }
+
+        val staffDTOs = mutableListOf<StaffDTO>()
+        for (staff in getChildren(requireNotNull(staffSystem.staffSystemId))) {
+            staffDTOs.add(staffService.staffToDTO(staff))
+        }
+
+        return StaffSystemDTO(
+            id = requireNotNull(staffSystem.staffSystemId).staffSystemId,
+            metadata = staffSystem.metadata,
+            staffDTOs = staffDTOs,
+        )
     }
 }

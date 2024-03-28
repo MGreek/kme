@@ -49,5 +49,4 @@ data class GroupingEntry(
         ),
     )
     val grouping: Grouping? = null,
-    val metadata: String? = null,
 )

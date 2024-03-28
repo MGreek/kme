@@ -1,9 +1,6 @@
 package com.example.kmebackend.repository
 
-import com.example.kmebackend.model.Chord
-import com.example.kmebackend.model.Grouping
-import com.example.kmebackend.model.GroupingId
-import com.example.kmebackend.model.Rest
+import com.example.kmebackend.model.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -39,4 +36,10 @@ interface GroupingRepository : JpaRepository<Grouping, GroupingId> {
      */
     @Query("SELECT c FROM Chord c WHERE c.chordId.groupingEntryId.groupingId = ?1 ORDER BY c.chordId.groupingEntryId.groupingEntriesOrder")
     fun getChords(groupingId: GroupingId): List<Chord>
+
+    /**
+     * @return the groupingEntries which are children of the given Grouping
+     */
+    @Query("SELECT ge FROM GroupingEntry ge WHERE ge.groupingEntryId.groupingId = ?1 ORDER BY ge.groupingEntryId.groupingEntriesOrder")
+    fun getGroupingEntries(groupingId: GroupingId): List<GroupingEntry>
 }
