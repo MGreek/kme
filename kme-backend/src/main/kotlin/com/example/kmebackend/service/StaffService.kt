@@ -4,6 +4,8 @@ import com.example.kmebackend.model.Measure
 import com.example.kmebackend.model.Staff
 import com.example.kmebackend.model.StaffId
 import com.example.kmebackend.model.StaffSystemId
+import com.example.kmebackend.model.dto.MeasureDTO
+import com.example.kmebackend.model.dto.StaffDTO
 import com.example.kmebackend.repository.StaffRepository
 import com.example.kmebackend.repository.StaffSystemRepository
 import org.springframework.stereotype.Service
@@ -109,5 +111,32 @@ data class StaffService(
             measureService.deleteById(requireNotNull(child.measureId))
         }
         staffRepository.deleteById(staffId)
+    }
+
+    /**
+     * Turns a [Staff] into a [StaffDTO].
+     * @param staff the instance that is used to create the [StaffDTO].
+     * @return a [StaffDTO] that is derived from the given [Staff].
+     * @throws UnsupportedOperationException if [staff's][staff] ID is null.
+     * @throws NoSuchElementException if [staff] is not found.
+     */
+    fun staffToDTO(staff: Staff): StaffDTO {
+        if (staff.staffId == null) {
+            throw UnsupportedOperationException("Staffs ID must not be null")
+        }
+        if (!existsById(requireNotNull(staff.staffId))) {
+            throw NoSuchElementException("Staff with ID ${requireNotNull(staff.staffId)} not found")
+        }
+
+        val measureDTOs = mutableListOf<MeasureDTO>()
+        for (child in getChildren(requireNotNull(staff.staffId))) {
+            measureDTOs.add(measureService.measureToDTO(child))
+        }
+
+        return StaffDTO(
+            stavesOrder = requireNotNull(staff.staffId).stavesOrder,
+            metadata = staff.metadata,
+            measureDTOs = measureDTOs,
+        )
     }
 }

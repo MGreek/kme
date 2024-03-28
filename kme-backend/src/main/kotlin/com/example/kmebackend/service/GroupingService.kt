@@ -1,6 +1,8 @@
 package com.example.kmebackend.service
 
 import com.example.kmebackend.model.*
+import com.example.kmebackend.model.dto.GroupingDTO
+import com.example.kmebackend.model.dto.GroupingEntryDTO
 import com.example.kmebackend.repository.GroupingRepository
 import com.example.kmebackend.repository.VoiceRepository
 import org.springframework.stereotype.Service
@@ -9,8 +11,7 @@ import kotlin.NoSuchElementException
 
 @Service
 data class GroupingService(
-    val restService: RestService,
-    val chordService: ChordService,
+    val groupingEntryService: GroupingEntryService,
     val groupingRepository: GroupingRepository,
     val voiceRepository: VoiceRepository,
 ) {
@@ -122,11 +123,22 @@ data class GroupingService(
     }
 
     /**
+     * @param groupingId the id of the Grouping.
+     * @return the groupingEntries belonging to the Grouping corresponding to groupingId.
+     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
+     */
+    fun getChildren(groupingId: GroupingId): List<GroupingEntry> {
+        if (!existsById(groupingId)) {
+            throw NoSuchElementException("Grouping with ID $groupingId not found")
+        }
+        return groupingRepository.getGroupingEntries(groupingId)
+    }
+
+    /**
      * Deletes all Grouping entities and their children.
      */
     fun deleteAll() {
-        restService.deleteAll()
-        chordService.deleteAll()
+        groupingEntryService.deleteAll()
         groupingRepository.deleteAll()
     }
 
@@ -134,20 +146,41 @@ data class GroupingService(
      * Deletes the Grouping corresponding to groupingId and its children.
      * @param groupingId the ID of the Grouping to be deleted.
      * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
-     * @throws NoSuchElementException if groupingId doesn't correspond to a Grouping.
      */
     fun deleteById(groupingId: GroupingId) {
         if (!existsById(groupingId)) {
             throw NoSuchElementException("Grouping with ID $groupingId not found")
         }
-        val rests = getRests(groupingId)
-        for (rest in rests) {
-            restService.deleteById(requireNotNull(rest.restId))
-        }
-        val chords = getChords(groupingId)
-        for (chord in chords) {
-            chordService.deleteById(requireNotNull(chord.chordId))
+        val children = getChildren(groupingId)
+        for (child in children) {
+            groupingEntryService.deleteById(requireNotNull(child.groupingEntryId))
         }
         groupingRepository.deleteById(groupingId)
+    }
+
+    /**
+     * Turns a [Grouping] into a [GroupingDTO].
+     * @param grouping the instance that is used to create the [GroupingDTO].
+     * @return a [GroupingDTO] that is derived from the given [Grouping].
+     * @throws UnsupportedOperationException if [grouping's][grouping] ID is null.
+     * @throws NoSuchElementException if [grouping] is not found.
+     */
+    fun groupingToDTO(grouping: Grouping): GroupingDTO {
+        if (grouping.groupingId == null) {
+            throw UnsupportedOperationException("Groupings ID must not be null")
+        }
+        if (!existsById(requireNotNull(grouping.groupingId))) {
+            throw NoSuchElementException("Grouping with ID ${requireNotNull(grouping.groupingId)} not found")
+        }
+        val groupingEntryDTOs = mutableListOf<GroupingEntryDTO>()
+        for (child in getChildren(requireNotNull(grouping.groupingId))) {
+            groupingEntryDTOs.add(groupingEntryService.groupingEntryToDTO(child))
+        }
+
+        return GroupingDTO(
+            groupingsOrder = requireNotNull(grouping.groupingId).groupingsOrder,
+            metadata = grouping.metadata,
+            groupingEntryDTOs = groupingEntryDTOs,
+        )
     }
 }

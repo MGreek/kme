@@ -1,9 +1,8 @@
 package com.example.kmebackend.service
 
-import com.example.kmebackend.model.Measure
-import com.example.kmebackend.model.MeasureId
-import com.example.kmebackend.model.StaffId
-import com.example.kmebackend.model.Voice
+import com.example.kmebackend.model.*
+import com.example.kmebackend.model.dto.MeasureDTO
+import com.example.kmebackend.model.dto.VoiceDTO
 import com.example.kmebackend.repository.MeasureRepository
 import com.example.kmebackend.repository.StaffRepository
 import org.springframework.stereotype.Service
@@ -109,5 +108,34 @@ data class MeasureService(
             voiceService.deleteById(requireNotNull(child.voiceId))
         }
         measureRepository.deleteById(measureId)
+    }
+
+    /**
+     * Turns a [Measure] into a [MeasureDTO].
+     * @param measure the instance that is used to create the [MeasureDTO].
+     * @return a [MeasureDTO] that is derived from the given [Measure].
+     * @throws UnsupportedOperationException if [measure's][measure] ID is null.
+     * @throws NoSuchElementException if [measure] is not found.
+     */
+    fun measureToDTO(measure: Measure): MeasureDTO {
+        if (measure.measureId == null) {
+            throw UnsupportedOperationException("Measures ID must not be null")
+        }
+        if (!existsById(requireNotNull(measure.measureId))) {
+            throw NoSuchElementException("Measure with ID ${requireNotNull(measure.measureId)} not found")
+        }
+        val voiceDTOs = mutableListOf<VoiceDTO>()
+        for (child in getChildren(requireNotNull(measure.measureId))) {
+            voiceDTOs.add(voiceService.voiceToDTO(child))
+        }
+
+        return MeasureDTO(
+            measuresOrder = requireNotNull(measure.measureId).measuresOrder,
+            metadata = measure.metadata,
+            keySignature = measure.keySignature,
+            timeSignature = measure.timeSignature,
+            clef = measure.clef,
+            voiceDTOs = voiceDTOs,
+        )
     }
 }

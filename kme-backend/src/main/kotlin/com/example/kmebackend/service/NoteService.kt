@@ -1,6 +1,7 @@
 package com.example.kmebackend.service
 
 import com.example.kmebackend.model.*
+import com.example.kmebackend.model.dto.NoteDTO
 import com.example.kmebackend.repository.ChordRepository
 import com.example.kmebackend.repository.NoteRepository
 import org.springframework.stereotype.Service
@@ -81,5 +82,26 @@ data class NoteService(
             throw NoSuchElementException("Note with ID $noteId not found")
         }
         noteRepository.deleteById(noteId)
+    }
+
+    /**
+     * Turns a [Note] into a [NoteDTO].
+     * @param note the instance that is used to create the [NoteDTO].
+     * @return a [NoteDTO] that is derived from the given [Note].
+     * @throws UnsupportedOperationException if [note's][note] chord ID is null.
+     * @throws NoSuchElementException if [note] is not found.
+     */
+    fun noteToDTO(note: Note): NoteDTO {
+        if (note.noteId.chordId == null) {
+            throw UnsupportedOperationException("note.noteId.chordId must not be null")
+        }
+        if (!existsById(note.noteId)) {
+            throw NoSuchElementException("Chord with ID ${note.noteId} not found")
+        }
+        return NoteDTO(
+            position = note.noteId.position,
+            accidental = note.accidental,
+            metadata = note.metadata,
+        )
     }
 }
