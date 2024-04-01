@@ -1,23 +1,39 @@
 {
   "name": "kme-frontend",
+  "description": "The frontend of the kme project.",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MGreek/kme"
+  },
+  "keywords": [
+    "frontend",
+    "kme",
+    "editor"
+  ],
+  "author": "Marc-Alexander Grec <marcgrec2003@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/MGreek/kme/issues"
+  },
+  "homepage": "https://github.com/MGreek/kme/kme-frontend",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "source": "src/index.html",
-  "main": "dist/main.js",
-  "module": "dist/module.js",
-  "types": "dist/types.d.ts",
   "scripts": {
     "start": "parcel",
+    "prebuild": "rimraf ./dist",
     "build": "parcel build"
   },
   "devDependencies": {
     "@types/react": "^18.2.73",
     "@types/react-dom": "^18.2.23",
     "parcel": "^2.12.0",
-    "process": "^0.11.10"
+    "process": "^0.11.10",
+    "rimraf": "^5.0.5"
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "vexflow-repl": "^1.0.1"
   }
 }

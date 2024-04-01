@@ -1,3 +1,12 @@
+import { useEffect } from "react";
+import { drawSample } from "vexflow-repl"
+
 export default function App() {
-  return <h1>Hello world!</h1>;
+  useEffect(() => {
+    const div = document.getElementById("output")
+    if (div instanceof HTMLDivElement) {
+      drawSample(div)
+    }
+  }, [])
+  return <div id="output"></div>
 }
