@@ -1,6 +1,12 @@
+import dotenv from "dotenv";
 import { createRoot } from "react-dom/client";
-import App from "./app";
+import App from "./App";
+
+dotenv.config();
 
 const container = document.getElementById("app");
-const root = createRoot(container!)
+if (container == null) {
+  throw new Error(`No element with id="app"`);
+}
+const root = createRoot(container);
 root.render(<App />);
