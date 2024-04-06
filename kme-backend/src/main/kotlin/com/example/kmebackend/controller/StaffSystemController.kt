@@ -204,7 +204,7 @@ class StaffSystemController(
                 .back()
                 .appendAndSelectChord(
                     Chord(
-                        stem = Stem(stemType = StemType.Quarter),
+                        stem = Stem(stemType = StemType.Eight),
                         dotCount = 0,
                     ),
                 )
@@ -212,7 +212,21 @@ class StaffSystemController(
                 .insertAndSelectNote(
                     Note(
                         noteId = NoteId(position = 0),
-                        accidental = Accidental.None,
+                        accidental = Accidental.DoubleSharp,
+                    ),
+                )
+                .back()
+                .appendAndSelectChord(
+                    Chord(
+                        stem = Stem(stemType = StemType.Eight),
+                        dotCount = 0,
+                    ),
+                )
+                .buildNotes()
+                .insertAndSelectNote(
+                    Note(
+                        noteId = NoteId(position = 0),
+                        accidental = Accidental.DoubleSharp,
                     ),
                 )
                 .back().back().back()
@@ -241,7 +255,8 @@ class StaffSystemController(
                 .buildGroupings()
                 .appendAndSelectGrouping(Grouping())
                 .buildRests()
-                .appendAndSelectRest(Rest(restType = RestType.Whole))
+                .appendAndSelectRest(Rest(restType = RestType.Half))
+                .appendAndSelectRest(Rest(restType = RestType.Half))
 
             val staffSystem = staffSystemService.findById(staffSystemBuilder.getSelectedStaffSystemId()).orElseThrow()
             return ResponseEntity.ok(staffSystemService.staffSystemToDTO(staffSystem))
