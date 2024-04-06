@@ -2398,8 +2398,10 @@ utility-types@^3.10.0:
   resolved "https://registry.yarnpkg.com/utility-types/-/utility-types-3.11.0.tgz#607c40edb4f258915e901ea7995607fdf319424c"
   integrity sha512-6Z7Ma2aVEWisaL6TvBCy7P8rm2LQoPv6dJ7ecIaIixHcwfbJ0x7mWdbcwlIM5IGQxPZSFYeqRCqlOOeKoJYMkw==
 
-"vexflow-repl@file:..\\..\\vexflow-repl":
-  version "1.0.1"
+vexflow-repl@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/vexflow-repl/-/vexflow-repl-1.1.0.tgz#3a039783947cea1c3651bf5f421a8e42ae623e1a"
+  integrity sha512-oZEDHk32EoyL7qemsFjqo2jpXHviD7EhGcBGigCXrc8whlrbKUKFPC1ZjY9eEkB/5wMyE889WEv1m1EACYt8Og==
   dependencies:
     vexflow "^4.2.3"
 
