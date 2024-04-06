@@ -1,16 +1,35 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
-	"organizeImports": {
-		"enabled": true
-	},
-	"formatter": {
-		"include": ["src/**/*"]
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true
-		},
-		"include": ["src/**/*"]
-	}
+  "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+  "organizeImports": {
+    "enabled": true,
+    "include": [
+      "src/**/*"
+    ],
+    "ignore": [
+      "node_modules/**/*",
+      "dist/**/*"
+    ]
+  },
+  "formatter": {
+    "include": [
+      "src/**/*"
+    ],
+    "ignore": [
+      "node_modules/**/*",
+      "dist/**/*"
+    ]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    },
+    "include": [
+      "src/**/*"
+    ],
+    "ignore": [
+      "node_modules/**/*",
+      "dist/**/*"
+    ]
+  }
 }
