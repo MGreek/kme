@@ -65,5 +65,6 @@ data class Rest(
     val groupingEntry: GroupingEntry? = null,
     @Enumerated(EnumType.STRING)
     val restType: RestType,
+    val position: Int,
     val metadata: String? = null,
 )
