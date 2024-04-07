@@ -278,7 +278,7 @@ class KmeBackendApplicationTests(
 
         val newRestId =
             restBuilder
-                .appendAndSelectRest(Rest(restType = RestType.Sixteenth))
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Sixteenth))
                 .getSelectedRestId()
         assertTrue(restService.existsById(newRestId))
         restBuilder.selectRest(newRestId.groupingEntryId.groupingEntriesOrder).deleteSelectedRest()
@@ -287,7 +287,7 @@ class KmeBackendApplicationTests(
         val rest =
             restService.appendToGrouping(
                 requireNotNull(grouping.groupingId),
-                Rest(restType = RestType.Sixtyfourth),
+                Rest(position = 0, restType = RestType.Sixtyfourth),
             )
         restService.save(rest)
 
@@ -446,13 +446,13 @@ class KmeBackendApplicationTests(
             .buildGroupings()
             .appendAndSelectGrouping(Grouping())
             .buildRests()
-            .appendAndSelectRest(Rest(restType = RestType.Whole))
+            .appendAndSelectRest(Rest(position = 0, restType = RestType.Whole))
             .back().back()
             .appendAndSelectVoice(Voice()) // Voice 2
             .buildGroupings()
             .appendAndSelectGrouping(Grouping())
             .buildRests()
-            .appendAndSelectRest(Rest(restType = RestType.Half))
+            .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
             .back()
             .buildChords()
             .appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
@@ -605,6 +605,7 @@ class KmeBackendApplicationTests(
                 trebleVoice1Rest.restId,
                 trebleVoice1Rest.groupingEntry,
                 RestType.Whole,
+                0,
             ),
             trebleVoice1Rest,
         )
@@ -621,6 +622,7 @@ class KmeBackendApplicationTests(
                 trebleVoice2Rest.restId,
                 trebleVoice2Rest.groupingEntry,
                 RestType.Half,
+                0,
             ),
             trebleVoice2Rest,
         )
@@ -969,7 +971,7 @@ class KmeBackendApplicationTests(
             .buildGroupings()
             .appendAndSelectGrouping(Grouping(metadata = expectedGroupingDTO.metadata))
             .buildRests()
-            .appendAndSelectRest(Rest(restType = expectedRestDTO.restType, metadata = expectedRestDTO.metadata))
+            .appendAndSelectRest(Rest(restType = expectedRestDTO.restType, position = 0, metadata = expectedRestDTO.metadata))
             .back()
             .buildChords()
             .appendAndSelectChord(

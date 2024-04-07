@@ -143,7 +143,7 @@ class StaffSystemController(
                 .buildGroupings()
                 .appendAndSelectGrouping(Grouping())
                 .buildRests()
-                .appendAndSelectRest(Rest(restType = RestType.Whole))
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Whole))
                 .back().back().back().back().back()
                 .buildStaves()
                 .appendAndSelectStaff(Staff())
@@ -204,7 +204,7 @@ class StaffSystemController(
                 .back()
                 .appendAndSelectChord(
                     Chord(
-                        stem = Stem(stemType = StemType.Eight),
+                        stem = Stem(stemType = StemType.Sixteenth),
                         dotCount = 0,
                     ),
                 )
@@ -215,7 +215,11 @@ class StaffSystemController(
                         accidental = Accidental.DoubleSharp,
                     ),
                 )
+                .back().back()
+                .buildRests()
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Sixteenth))
                 .back()
+                .buildChords()
                 .appendAndSelectChord(
                     Chord(
                         stem = Stem(stemType = StemType.Eight),
@@ -255,8 +259,8 @@ class StaffSystemController(
                 .buildGroupings()
                 .appendAndSelectGrouping(Grouping())
                 .buildRests()
-                .appendAndSelectRest(Rest(restType = RestType.Half))
-                .appendAndSelectRest(Rest(restType = RestType.Half))
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
 
             val staffSystem = staffSystemService.findById(staffSystemBuilder.getSelectedStaffSystemId()).orElseThrow()
             return ResponseEntity.ok(staffSystemService.staffSystemToDTO(staffSystem))
