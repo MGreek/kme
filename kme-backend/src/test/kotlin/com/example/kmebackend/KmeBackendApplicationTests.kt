@@ -905,6 +905,7 @@ class KmeBackendApplicationTests(
         val expectedRestDTO =
             RestDTO(
                 restType = RestType.Quarter,
+                position = 0,
                 metadata = "Rest 1",
             )
         val expectedRestGroupingEntryDTO =

@@ -103,6 +103,7 @@ data class RestService(
         }
         return RestDTO(
             restType = rest.restType,
+            position = rest.position,
             metadata = rest.metadata,
         )
     }
