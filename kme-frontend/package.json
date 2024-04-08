@@ -30,6 +30,7 @@
     "@types/node": "^20.12.2",
     "@types/react": "^18.2.73",
     "@types/react-dom": "^18.2.23",
+    "@types/uuid": "^9.0.8",
     "buffer": "^5.5.0||^6.0.0",
     "crypto-browserify": "^3.12.0",
     "events": "^3.1.0",
@@ -50,6 +51,7 @@
     "dotenv": "^16.4.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "uuid": "^9.0.1",
     "vexflow": "^4.2.3",
     "vexflow-repl": "^1.1.1"
   }
