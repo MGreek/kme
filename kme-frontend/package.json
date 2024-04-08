@@ -21,7 +21,7 @@
   "source": "src/index.html",
   "scripts": {
     "start": "parcel",
-    "prebuild": "rimraf ./dist",
+    "prebuild": "rimraf ./dist && rimraf ./.parcel-cache",
     "build": "parcel build"
   },
   "devDependencies": {
