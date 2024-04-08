@@ -1,68 +1,22 @@
-import { useEffect, useRef, useState } from "react";
-import { Factory } from "vexflow";
-import {
-	type FullRenderOptions,
-	type StaffSystem,
-	fullRender,
-} from "vexflow-repl";
+import { useEffect, useState } from "react";
+import type { StaffSystem } from "vexflow-repl";
 import request from "./api/request";
-
-interface State {
-	system: StaffSystem | null;
-	flip: boolean;
-}
+import Editor from "./components/Editor";
+import { Factory } from "vexflow/bravura";
 
 export default function App() {
-	const factoryRef = useRef<Factory | null>(null);
-	const [state, setState] = useState<State>({ system: null, flip: false });
-
-	const onClick = () => {
-		if (state.system != null) {
-			state.system.staves.pop();
-		}
-		setState({ system: state.system, flip: !state.flip });
-	};
+	const [dataReceived, setDataReceived] = useState<StaffSystem | null>(null);
 
 	useEffect(() => {
 		request<StaffSystem>("GET", "/api/staff-system/sample", {}).then(
 			(response) => {
-				console.log(JSON.stringify(response.data));
-				setState({ system: response.data, flip: true });
+				setDataReceived(response.data);
 			},
 		);
-
-		// const div = document.getElementById("output")
-		// if (div instanceof HTMLDivElement) {
-		//   drawSample(div)
-		// }
 	}, []);
-	if (state.system != null) {
-		const div = document.getElementById("output");
-		if (div instanceof HTMLDivElement) {
-			const options: FullRenderOptions = {
-				totalWidth: 1200,
-				totalHeight: 600,
-				x: 15,
-				y: 0,
-				defaultStaveWidth: 350,
-				defaultSystemGap: 12,
-			};
-			if (factoryRef.current == null) {
-				factoryRef.current = Factory.newFromElementId(
-					div.id,
-					options.totalWidth,
-					options.totalHeight,
-				);
-			}
-			fullRender(factoryRef.current, state.system, options);
-		}
+
+	if (dataReceived == null) {
+		return <h1 className="bg-red-500 text-blue-400">Data not received yet</h1>;
 	}
-	return (
-		<>
-			<button className="bg-blue-500" type="button" onClick={onClick}>
-				Pop a stave
-			</button>
-			<div id="output" />
-		</>
-	);
+	return <Editor staffSystem={dataReceived} />;
 }
