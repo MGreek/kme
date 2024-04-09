@@ -38,7 +38,6 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
 				div.clientHeight,
 			);
 		}
-
 		fullRender(factoryRef.current.factory, staffSystem, options);
 	}
 
@@ -46,5 +45,5 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
 		renderStaffSystem();
 	}, []);
 
-	return <div className="w-screen h-screen" ref={divRef} />;
+	return <div className="sheetmusic-page mx-auto bg-blue-50" ref={divRef} />;
 }
