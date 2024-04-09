@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { StaffSystem } from "vexflow-repl";
 import request from "./api/request";
 import Editor from "./components/Editor";
-import { Factory } from "vexflow/bravura";
 
 export default function App() {
 	const [dataReceived, setDataReceived] = useState<StaffSystem | null>(null);
