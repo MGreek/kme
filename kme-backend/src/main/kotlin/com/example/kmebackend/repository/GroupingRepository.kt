@@ -28,18 +28,24 @@ interface GroupingRepository : JpaRepository<Grouping, GroupingId> {
     /**
      * @return the rests which are children of the given Grouping
      */
-    @Query("SELECT r FROM Rest r WHERE r.restId.groupingEntryId.groupingId = ?1 ORDER BY r.restId.groupingEntryId.groupingEntriesOrder")
+    @Query(
+        "SELECT r FROM Rest r WHERE r.restId.groupingEntryId.groupingId = ?1 ORDER BY r.restId.groupingEntryId.groupingEntriesOrder",
+    )
     fun getRests(groupingId: GroupingId): List<Rest>
 
     /**
      * @return the chords which are children of the given Grouping
      */
-    @Query("SELECT c FROM Chord c WHERE c.chordId.groupingEntryId.groupingId = ?1 ORDER BY c.chordId.groupingEntryId.groupingEntriesOrder")
+    @Query(
+        "SELECT c FROM Chord c WHERE c.chordId.groupingEntryId.groupingId = ?1 ORDER BY c.chordId.groupingEntryId.groupingEntriesOrder",
+    )
     fun getChords(groupingId: GroupingId): List<Chord>
 
     /**
      * @return the groupingEntries which are children of the given Grouping
      */
-    @Query("SELECT ge FROM GroupingEntry ge WHERE ge.groupingEntryId.groupingId = ?1 ORDER BY ge.groupingEntryId.groupingEntriesOrder")
+    @Query(
+        "SELECT ge FROM GroupingEntry ge WHERE ge.groupingEntryId.groupingId = ?1 ORDER BY ge.groupingEntryId.groupingEntriesOrder",
+    )
     fun getGroupingEntries(groupingId: GroupingId): List<GroupingEntry>
 }

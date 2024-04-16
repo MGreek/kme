@@ -82,7 +82,9 @@ data class GroupingEntryService(
             throw UnsupportedOperationException("GroupingEntry's ID must not be null")
         }
         if (!existsById(requireNotNull(groupingEntry.groupingEntryId))) {
-            throw NoSuchElementException("GroupingEntry with ID ${requireNotNull(groupingEntry.groupingEntryId)} not found")
+            throw NoSuchElementException(
+                "GroupingEntry with ID ${requireNotNull(groupingEntry.groupingEntryId)} not found",
+            )
         }
 
         var restDTO: RestDTO? = null
