@@ -6,6 +6,7 @@ import com.example.kmebackend.model.dto.NoteDTO
 import com.example.kmebackend.model.dto.StemDTO
 import com.example.kmebackend.repository.ChordRepository
 import com.example.kmebackend.repository.GroupingRepository
+import jakarta.validation.Valid
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.NoSuchElementException
@@ -19,7 +20,7 @@ data class ChordService(
     /**
      * A wrapper around ChordRepository::save
      */
-    fun save(chord: Chord): Chord {
+    fun save(@Valid chord: Chord): Chord {
         return chordRepository.save(chord)
     }
 
