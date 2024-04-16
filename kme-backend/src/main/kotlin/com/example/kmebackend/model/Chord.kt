@@ -58,7 +58,7 @@ data class Chord(
     @Embedded
     @AttributeOverride(name = "metadata", column = Column(name = "stem_metadata"))
     val stem: Stem,
-    @Min(0) @Max(4)
+    @field:[Min(0) Max(4)]
     val dotCount: Long,
     val metadata: String? = null,
 )
