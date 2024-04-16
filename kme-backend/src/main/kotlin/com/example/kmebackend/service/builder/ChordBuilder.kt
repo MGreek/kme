@@ -3,7 +3,6 @@ package com.example.kmebackend.service.builder
 import com.example.kmebackend.model.*
 import com.example.kmebackend.service.ChordService
 import com.example.kmebackend.service.NoteService
-import jakarta.validation.Valid
 
 /**
  * A class that makes building [Chords][Chord] easier and faster.
