@@ -972,12 +972,18 @@ class KmeBackendApplicationTests(
             .buildGroupings()
             .appendAndSelectGrouping(Grouping(metadata = expectedGroupingDTO.metadata))
             .buildRests()
-            .appendAndSelectRest(Rest(restType = expectedRestDTO.restType, position = 0, metadata = expectedRestDTO.metadata))
+            .appendAndSelectRest(
+                Rest(restType = expectedRestDTO.restType, position = 0, metadata = expectedRestDTO.metadata),
+            )
             .back()
             .buildChords()
             .appendAndSelectChord(
                 Chord(
-                    stem = Stem(stemType = expectedChordDTO.stemDTO.stemType, metadata = expectedChordDTO.stemDTO.metadata),
+                    stem =
+                        Stem(
+                            stemType = expectedChordDTO.stemDTO.stemType,
+                            metadata = expectedChordDTO.stemDTO.metadata,
+                        ),
                     dotCount = expectedChordDTO.dotCount,
                     metadata = expectedChordDTO.metadata,
                 ),
@@ -995,5 +1001,60 @@ class KmeBackendApplicationTests(
             expectedStaffSystemDTO,
             staffSystemService.staffSystemToDTO(staffSystem),
         )
+    }
+
+    @Test
+    fun testECPBVA() {
+        // Clear all data
+        staffSystemService.deleteAll()
+
+        val staffSystemBuilder =
+            StaffSystemBuilder(
+                staffSystemService,
+                staffService,
+                measureService,
+                voiceService,
+                groupingService,
+                restService,
+                chordService,
+                noteService,
+            )
+
+        val chordBuilder =
+            staffSystemBuilder.createAndSelectStaffSystem(StaffSystem())
+                .buildStaves().appendAndSelectStaff(Staff())
+                .buildMeasures().appendAndSelectMeasure(
+                    Measure(
+                        clef = Clef.Treble,
+                        keySignature = KeySignature.Sharp3,
+                        timeSignature = TimeSignature.TwoFour,
+                    ),
+                )
+                .buildVoices().appendAndSelectVoice(Voice())
+                .buildGroupings().appendAndSelectGrouping(Grouping())
+                .buildChords()
+
+        assertThrows<Exception> {
+            chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = Long.MIN_VALUE))
+        }
+        assertThrows<Exception> {
+            chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = -1))
+        }
+        assertThrows<Exception> {
+            chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 5))
+        }
+        assertThrows<Exception> {
+            chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = Long.MAX_VALUE))
+        }
+        assertDoesNotThrow {
+            chordBuilder.appendAndSelectChord(
+                Chord(stem = Stem(stemType = StemType.Half), dotCount = 0),
+            )
+        }
+        assertDoesNotThrow {
+            chordBuilder.appendAndSelectChord(
+                Chord(stem = Stem(stemType = StemType.Half), dotCount = 4),
+            )
+        }
     }
 }
