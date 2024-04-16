@@ -20,6 +20,7 @@ data class ChordService(
     /**
      * A wrapper around ChordRepository::save
      */
+    // TODO: add @Valid to other functions as well
     fun save(
         @Valid chord: Chord,
     ): Chord {
