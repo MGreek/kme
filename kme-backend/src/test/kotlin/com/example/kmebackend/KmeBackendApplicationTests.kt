@@ -3,6 +3,7 @@ package com.example.kmebackend
 import com.example.kmebackend.model.*
 import com.example.kmebackend.model.dto.*
 import com.example.kmebackend.service.*
+import com.example.kmebackend.service.builder.ChordBuilder
 import com.example.kmebackend.service.builder.StaffSystemBuilder
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -1056,5 +1057,30 @@ class KmeBackendApplicationTests(
                 Chord(stem = Stem(stemType = StemType.Half), dotCount = 4),
             )
         }
+
+        fun checkCurrentChord(chordBuilder: ChordBuilder, expectedChord: Chord) {
+            val chord = chordService.findById(chordBuilder.getSelectedChordId()).orElseThrow().copy(chordId = null, groupingEntry = null)
+            assertEquals(expectedChord, chord)
+        }
+
+        chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
+            .setMetadata("RandomMetadata")
+            .save()
+        checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Half), dotCount = 0, metadata = "RandomMetadata"))
+
+        chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
+            .setDotCount(2)
+            .save()
+        checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Half), dotCount = 2))
+
+        chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
+            .setStemMetadata("RandomStemMetadata")
+            .save()
+        checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Half, metadata = "RandomStemMetadata"), dotCount = 0))
+
+        chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
+            .setStemType(StemType.Sixteenth)
+            .save()
+        checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Sixteenth), dotCount = 0))
     }
 }
