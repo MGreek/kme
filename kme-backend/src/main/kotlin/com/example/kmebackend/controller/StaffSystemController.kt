@@ -54,7 +54,7 @@ class StaffSystemController(
                     Measure(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
-                        clef = Clef.Treble,
+                        clef = Clef.Bass,
                         metadata = MeasureMetadata(drawClef = true, drawKeySignature = true, drawTimeSignature = true),
                     ),
                 )
