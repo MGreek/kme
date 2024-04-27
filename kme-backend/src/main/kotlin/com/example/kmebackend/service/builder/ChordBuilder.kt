@@ -14,11 +14,9 @@ class ChordBuilder internal constructor(
 ) {
     internal var selectedChordId: ChordId? = null
 
-    private var metadata: String? = null
-    private var overrideMetadata: Boolean = false
+    private var metadata: ChordMetadata? = null
     private var stemType: StemType? = null
-    private var stemMetadata: String? = null
-    private var overrideStemMetadata: Boolean = false
+    private var stemMetadata: StemMetadata? = null
     private var dotCount: Long? = null
 
     /**
@@ -27,9 +25,8 @@ class ChordBuilder internal constructor(
      * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: String?): ChordBuilder {
+    fun setMetadata(newMetadata: ChordMetadata?): ChordBuilder {
         metadata = newMetadata
-        overrideMetadata = true
         return this
     }
 
@@ -50,9 +47,8 @@ class ChordBuilder internal constructor(
      * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
-    fun setStemMetadata(newStemMetadata: String?): ChordBuilder {
+    fun setStemMetadata(newStemMetadata: StemMetadata?): ChordBuilder {
         stemMetadata = newStemMetadata
-        overrideStemMetadata = true
         return this
     }
 
@@ -89,18 +85,18 @@ class ChordBuilder internal constructor(
             throw UnsupportedOperationException("A Chord must be selected")
         }
         var chord = chordService.findById(requireNotNull(selectedChordId)).orElseThrow()
-        if (overrideMetadata) {
-            chord = chord.copy(metadata = metadata)
+        if (metadata != null) {
+            chord = chord.copy(metadata = requireNotNull(metadata))
         }
-        overrideMetadata = false
+        metadata = null
         if (stemType != null) {
             chord = chord.copy(stem = chord.stem.copy(stemType = requireNotNull(stemType)))
         }
         stemType = null
-        if (overrideStemMetadata) {
-            chord = chord.copy(stem = chord.stem.copy(metadata = stemMetadata))
+        if (stemMetadata != null) {
+            chord = chord.copy(stem = chord.stem.copy(metadata = requireNotNull(stemMetadata)))
         }
-        overrideStemMetadata = false
+        stemMetadata = null
         if (dotCount != null) {
             chord = chord.copy(dotCount = requireNotNull(dotCount))
         }

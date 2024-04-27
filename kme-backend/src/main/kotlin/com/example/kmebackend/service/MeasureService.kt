@@ -130,7 +130,6 @@ data class MeasureService(
         }
 
         return MeasureDTO(
-            measuresOrder = requireNotNull(measure.measureId).measuresOrder,
             metadata = measure.metadata,
             keySignature = measure.keySignature,
             timeSignature = measure.timeSignature,

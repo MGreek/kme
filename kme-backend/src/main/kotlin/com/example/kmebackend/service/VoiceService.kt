@@ -130,7 +130,6 @@ data class VoiceService(
         }
 
         return VoiceDTO(
-            voicesOrder = requireNotNull(voice.voiceId).voicesOrder,
             metadata = voice.metadata,
             groupingDTOs = groupingDTOs,
         )

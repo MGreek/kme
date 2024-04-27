@@ -3,6 +3,11 @@ package com.example.kmebackend.model
 import jakarta.persistence.*
 
 @Embeddable
+data class VoiceMetadata(
+    val placeholder: String = "",
+)
+
+@Embeddable
 data class VoiceId(
     @Embedded
     val measureId: MeasureId,
@@ -37,5 +42,6 @@ data class Voice(
         ),
     )
     val measure: Measure? = null,
-    val metadata: String? = null,
+    @Embedded
+    val metadata: VoiceMetadata = VoiceMetadata(),
 )

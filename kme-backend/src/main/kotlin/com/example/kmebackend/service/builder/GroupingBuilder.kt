@@ -2,6 +2,7 @@ package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.Grouping
 import com.example.kmebackend.model.GroupingId
+import com.example.kmebackend.model.GroupingMetadata
 import com.example.kmebackend.model.Voice
 import com.example.kmebackend.service.*
 
@@ -17,8 +18,7 @@ class GroupingBuilder internal constructor(
 ) {
     internal var selectedGroupingId: GroupingId? = null
 
-    private var metadata: String? = null
-    private var overrideMetadata: Boolean = false
+    private var metadata: GroupingMetadata? = null
 
     /**
      * Stores [newMetadata] that will be used to override the selected [Grouping's][Grouping] [Grouping.metadata].
@@ -26,9 +26,8 @@ class GroupingBuilder internal constructor(
      * @return the same [GroupingBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: String?): GroupingBuilder {
+    fun setMetadata(newMetadata: GroupingMetadata?): GroupingBuilder {
         metadata = newMetadata
-        overrideMetadata = true
         return this
     }
 
@@ -54,10 +53,10 @@ class GroupingBuilder internal constructor(
             throw UnsupportedOperationException("A Grouping must be selected")
         }
         var grouping = groupingService.findById(requireNotNull(selectedGroupingId)).orElseThrow()
-        if (overrideMetadata) {
-            grouping = grouping.copy(metadata = metadata)
+        if (metadata != null) {
+            grouping = grouping.copy(metadata = requireNotNull(metadata))
         }
-        overrideMetadata = false
+        metadata = null
 
         groupingService.save(grouping)
         return this

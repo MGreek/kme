@@ -5,6 +5,11 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 
 @Embeddable
+data class ChordMetadata(
+    val placeholder: String = "",
+)
+
+@Embeddable
 data class ChordId(
     @Embedded
     val groupingEntryId: GroupingEntryId,
@@ -56,8 +61,8 @@ data class Chord(
     )
     val groupingEntry: GroupingEntry? = null,
     @Embedded
-    @AttributeOverride(name = "metadata", column = Column(name = "stem_metadata"))
     val stem: Stem,
     @field:[Min(0) Max(4)] val dotCount: Long,
-    val metadata: String? = null,
+    @Embedded
+    val metadata: ChordMetadata = ChordMetadata(),
 )

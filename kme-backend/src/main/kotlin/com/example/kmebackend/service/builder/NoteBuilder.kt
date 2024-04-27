@@ -1,9 +1,6 @@
 package com.example.kmebackend.service.builder
 
-import com.example.kmebackend.model.Accidental
-import com.example.kmebackend.model.Chord
-import com.example.kmebackend.model.Note
-import com.example.kmebackend.model.NoteId
+import com.example.kmebackend.model.*
 import com.example.kmebackend.service.NoteService
 
 /**
@@ -16,8 +13,7 @@ class NoteBuilder internal constructor(
     private var selectedNoteId: NoteId? = null
 
     private var accidental: Accidental? = null
-    private var metadata: String? = null
-    private var overrideMetadata: Boolean = false
+    private var metadata: NoteMetadata? = null
 
     /**
      * Stores [newAccidental] that will be used to override the selected [Note's][Note] [Note.accidental].
@@ -36,9 +32,8 @@ class NoteBuilder internal constructor(
      * @return the same [NoteBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: String?): NoteBuilder {
+    fun setMetadata(newMetadata: NoteMetadata?): NoteBuilder {
         metadata = newMetadata
-        overrideMetadata = true
         return this
     }
 
@@ -67,8 +62,8 @@ class NoteBuilder internal constructor(
         if (accidental != null) {
             note = note.copy(accidental = requireNotNull(accidental))
         }
-        if (overrideMetadata) {
-            note = note.copy(metadata = metadata)
+        if (metadata != null) {
+            note = note.copy(metadata = requireNotNull(metadata))
         }
         noteService.save(note)
         return this

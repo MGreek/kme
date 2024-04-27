@@ -2,6 +2,11 @@ package com.example.kmebackend.model
 
 import jakarta.persistence.*
 
+@Embeddable
+data class NoteMetadata(
+    val placeholder: String = "",
+)
+
 enum class Accidental {
     DoubleFlat,
     Flat,
@@ -65,5 +70,6 @@ data class Note(
     val chord: Chord? = null,
     @Enumerated(EnumType.STRING)
     val accidental: Accidental,
-    val metadata: String? = null,
+    @Embedded
+    val metadata: NoteMetadata = NoteMetadata(),
 )

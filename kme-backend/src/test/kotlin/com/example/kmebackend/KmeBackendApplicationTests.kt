@@ -106,7 +106,7 @@ class KmeBackendApplicationTests(
         staffSystemService.save(staffSystem)
         assertTrue(staffSystemService.existsById(requireNotNull(staffSystem.staffSystemId)))
 
-        val staffSystemMetadata = randomMetadata()
+        val staffSystemMetadata = StaffSystemMetadata()
         staffSystemBuilder.selectStaffSystem(requireNotNull(staffSystem.staffSystemId))
             .setMetadata(staffSystemMetadata)
             .save()
@@ -133,13 +133,13 @@ class KmeBackendApplicationTests(
         staffBuilder.selectStaff(newStaffId.stavesOrder).deleteSelectedStaff()
         assertFalse(staffService.existsById(newStaffId))
 
-        val staffMetadata = randomMetadata()
+        val staffMetadata = StaffMetadata(randomMetadata())
         staffBuilder.appendAndSelectStaff(Staff(metadata = staffMetadata))
         var storedStaff = staffService.findById(requireNotNull(staffBuilder.selectedStaffId)).orElseThrow()
         assertEquals(staffMetadata, storedStaff.metadata)
         val otherStaffBuilder = staffSystemBuilder.buildStaves().selectStaff(0)
         assertNotEquals(staffBuilder, otherStaffBuilder)
-        val newStaffMetadata = randomMetadata()
+        val newStaffMetadata = StaffMetadata(randomMetadata())
         otherStaffBuilder.setMetadata(newStaffMetadata).save()
         storedStaff = staffService.findById(requireNotNull(staffBuilder.selectedStaffId)).orElseThrow()
         assertEquals(newStaffMetadata, storedStaff.metadata)
@@ -180,7 +180,7 @@ class KmeBackendApplicationTests(
             )
         measureService.save(measure)
 
-        val measureMetadata = randomMetadata()
+        val measureMetadata = MeasureMetadata()
         measureBuilder.selectMeasure(0)
             .setKeySignature(KeySignature.Flat7)
             .setMetadata(measureMetadata)
@@ -225,7 +225,7 @@ class KmeBackendApplicationTests(
             )
         voiceService.save(voice)
 
-        val voiceMetadata = randomMetadata()
+        val voiceMetadata = VoiceMetadata()
         voiceBuilder.selectVoice(0)
             .setMetadata(voiceMetadata)
             .save()
@@ -259,7 +259,7 @@ class KmeBackendApplicationTests(
         val grouping = groupingService.appendToVoice(requireNotNull(voice.voiceId), Grouping())
         groupingService.save(grouping)
 
-        val groupingMetadata = randomMetadata()
+        val groupingMetadata = GroupingMetadata()
         groupingBuilder.selectGrouping(0)
             .setMetadata(groupingMetadata)
             .save()
@@ -292,7 +292,7 @@ class KmeBackendApplicationTests(
             )
         restService.save(rest)
 
-        val restMetadata = randomMetadata()
+        val restMetadata = RestMetadata()
         restBuilder.selectRest(0)
             .setRestType(RestType.Sixteenth)
             .setMetadata(restMetadata)
@@ -335,15 +335,14 @@ class KmeBackendApplicationTests(
             chordService.appendToGrouping(
                 requireNotNull(grouping.groupingId),
                 Chord(
-                    stem = Stem(stemType = StemType.Quarter, metadata = randomMetadata()),
+                    stem = Stem(stemType = StemType.Quarter),
                     dotCount = 1,
-                    metadata = randomMetadata(),
                 ),
             )
         chordService.save(chord)
 
-        val chordMetadata = randomMetadata()
-        val stemMetadata = randomMetadata()
+        val chordMetadata = ChordMetadata()
+        val stemMetadata = StemMetadata()
         chordBuilder.selectChord(1)
             .setStemType(StemType.Whole)
             .setStemMetadata(stemMetadata)
@@ -390,12 +389,11 @@ class KmeBackendApplicationTests(
                 Note(
                     noteId = NoteId(position = 1),
                     accidental = Accidental.DoubleFlat,
-                    metadata = randomMetadata(),
                 ),
             )
         noteService.save(note)
 
-        val noteMetadata = randomMetadata()
+        val noteMetadata = NoteMetadata()
         noteBuilder.selectNote(1)
             .setAccidental(Accidental.DoubleSharp)
             .setMetadata(noteMetadata)
@@ -888,13 +886,13 @@ class KmeBackendApplicationTests(
             NoteDTO(
                 position = 3,
                 accidental = Accidental.None,
-                metadata = "Note 1",
+                metadata = NoteMetadata(),
             )
         val expectedChordDTO =
             ChordDTO(
-                stemDTO = StemDTO(stemType = StemType.Quarter, metadata = "Stem 1"),
+                stemDTO = StemDTO(stemType = StemType.Quarter, metadata = StemMetadata()),
                 dotCount = 0,
-                metadata = "Chord 1",
+                metadata = ChordMetadata(),
                 noteDTOs = listOf(expectedNoteDTO),
             )
         val expectedChordGroupingEntryDTO =
@@ -907,7 +905,7 @@ class KmeBackendApplicationTests(
             RestDTO(
                 restType = RestType.Quarter,
                 position = 0,
-                metadata = "Rest 1",
+                metadata = RestMetadata(),
             )
         val expectedRestGroupingEntryDTO =
             GroupingEntryDTO(
@@ -917,35 +915,31 @@ class KmeBackendApplicationTests(
             )
         val expectedGroupingDTO =
             GroupingDTO(
-                groupingsOrder = 0,
-                metadata = "Grouping 1",
+                metadata = GroupingMetadata(),
                 groupingEntryDTOs = listOf(expectedRestGroupingEntryDTO, expectedChordGroupingEntryDTO),
             )
         val expectedVoiceDTO =
             VoiceDTO(
-                voicesOrder = 0,
-                metadata = "Voice 1",
+                metadata = VoiceMetadata(),
                 groupingDTOs = listOf(expectedGroupingDTO),
             )
         val expectedMeasureDTO =
             MeasureDTO(
-                measuresOrder = 0,
                 keySignature = KeySignature.Flat3,
                 timeSignature = TimeSignature.TwoFour,
                 clef = Clef.Treble,
-                metadata = "Measure 1",
+                metadata = MeasureMetadata(),
                 voiceDTOs = listOf(expectedVoiceDTO),
             )
         val expectedStaffDTO =
             StaffDTO(
-                stavesOrder = 0,
-                metadata = "Staff 1",
+                metadata = StaffMetadata(),
                 measureDTOs = listOf(expectedMeasureDTO),
             )
         val expectedStaffSystemDTO =
             StaffSystemDTO(
                 id = UUID.randomUUID().toString(),
-                metadata = "StaffSystem 1",
+                metadata = StaffSystemMetadata(),
                 staffDTOs = listOf(expectedStaffDTO),
             )
 
@@ -1058,15 +1052,24 @@ class KmeBackendApplicationTests(
             )
         }
 
-        fun checkCurrentChord(chordBuilder: ChordBuilder, expectedChord: Chord) {
-            val chord = chordService.findById(chordBuilder.getSelectedChordId()).orElseThrow().copy(chordId = null, groupingEntry = null)
+        fun checkCurrentChord(
+            chordBuilder: ChordBuilder,
+            expectedChord: Chord,
+        ) {
+            val chord =
+                chordService.findById(
+                    chordBuilder.getSelectedChordId(),
+                ).orElseThrow().copy(chordId = null, groupingEntry = null)
             assertEquals(expectedChord, chord)
         }
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
-            .setMetadata("RandomMetadata")
+            .setMetadata(ChordMetadata())
             .save()
-        checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Half), dotCount = 0, metadata = "RandomMetadata"))
+        checkCurrentChord(
+            chordBuilder,
+            Chord(stem = Stem(stemType = StemType.Half), dotCount = 0, metadata = ChordMetadata()),
+        )
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
             .setDotCount(2)
@@ -1074,9 +1077,12 @@ class KmeBackendApplicationTests(
         checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Half), dotCount = 2))
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
-            .setStemMetadata("RandomStemMetadata")
+            .setStemMetadata(StemMetadata())
             .save()
-        checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Half, metadata = "RandomStemMetadata"), dotCount = 0))
+        checkCurrentChord(
+            chordBuilder,
+            Chord(stem = Stem(stemType = StemType.Half, metadata = StemMetadata()), dotCount = 0),
+        )
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
             .setStemType(StemType.Sixteenth)

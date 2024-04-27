@@ -2,6 +2,11 @@ package com.example.kmebackend.model
 
 import jakarta.persistence.*
 
+@Embeddable
+data class RestMetadata(
+    val placeholder: String = "",
+)
+
 enum class RestType {
     Whole,
     Half,
@@ -66,5 +71,6 @@ data class Rest(
     @Enumerated(EnumType.STRING)
     val restType: RestType,
     val position: Int,
-    val metadata: String? = null,
+    @Embedded
+    val metadata: RestMetadata = RestMetadata(),
 )
