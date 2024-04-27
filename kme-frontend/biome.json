@@ -17,7 +17,14 @@
     "ignore": [
       "node_modules/**/*",
       "dist/**/*"
-    ]
+    ],
+    "enabled": true,
+    "formatWithErrors": true,
+    "attributePosition": "auto",
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 80
   },
   "linter": {
     "enabled": true,
