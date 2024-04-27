@@ -4,18 +4,18 @@ import request from "./api/request";
 import Editor from "./components/Editor";
 
 export default function App() {
-	const [dataReceived, setDataReceived] = useState<StaffSystem | null>(null);
+  const [dataReceived, setDataReceived] = useState<StaffSystem | null>(null);
 
-	useEffect(() => {
-		request<StaffSystem>("GET", "/api/staff-system/sample", {}).then(
-			(response) => {
-				setDataReceived(response.data);
-			},
-		);
-	}, []);
+  useEffect(() => {
+    request<StaffSystem>("GET", "/api/staff-system/sample", {}).then(
+      (response) => {
+        setDataReceived(response.data);
+      },
+    );
+  }, []);
 
-	if (dataReceived == null) {
-		return <h1 className="bg-red-500 text-blue-400">Data not received yet</h1>;
-	}
-	return <Editor staffSystem={dataReceived} />;
+  if (dataReceived == null) {
+    return <h1 className="bg-red-500 text-blue-400">Data not received yet</h1>;
+  }
+  return <Editor staffSystem={dataReceived} />;
 }
