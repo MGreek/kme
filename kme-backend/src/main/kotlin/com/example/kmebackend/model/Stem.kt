@@ -2,6 +2,11 @@ package com.example.kmebackend.model
 
 import jakarta.persistence.*
 
+@Embeddable
+data class StemMetadata(
+    val stemPlaceholder: String = "",
+)
+
 enum class StemType {
     Whole,
     Half,
@@ -16,5 +21,6 @@ enum class StemType {
 data class Stem(
     @Enumerated(EnumType.STRING)
     val stemType: StemType,
-    val metadata: String? = null,
+    @Embedded
+    val metadata: StemMetadata = StemMetadata(),
 )

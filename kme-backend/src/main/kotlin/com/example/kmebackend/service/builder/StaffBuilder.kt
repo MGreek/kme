@@ -2,6 +2,7 @@ package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.Staff
 import com.example.kmebackend.model.StaffId
+import com.example.kmebackend.model.StaffMetadata
 import com.example.kmebackend.model.StaffSystem
 import com.example.kmebackend.service.*
 
@@ -19,8 +20,7 @@ class StaffBuilder internal constructor(
     private val noteService: NoteService,
 ) {
     internal var selectedStaffId: StaffId? = null
-    private var metadata: String? = null
-    private var overrideMetadata: Boolean = false
+    private var metadata: StaffMetadata? = null
 
     /**
      * Stores [newMetadata] that will be used to override the selected [Staff's][Staff] [metadata][Staff.metadata].
@@ -28,9 +28,8 @@ class StaffBuilder internal constructor(
      * @return the same [StaffBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: String?): StaffBuilder {
+    fun setMetadata(newMetadata: StaffMetadata?): StaffBuilder {
         metadata = newMetadata
-        overrideMetadata = true
         return this
     }
 
@@ -56,10 +55,11 @@ class StaffBuilder internal constructor(
             throw UnsupportedOperationException("A Staff must be selected")
         }
         var staff = staffService.findById(requireNotNull(selectedStaffId)).orElseThrow()
-        if (overrideMetadata) {
-            staff = staff.copy(metadata = metadata)
+        if (metadata != null) {
+            staff = staff.copy(metadata = requireNotNull(metadata))
         }
-        overrideMetadata = false
+        metadata = null
+
         staffService.save(staff)
         return this
     }

@@ -178,7 +178,6 @@ data class GroupingService(
         }
 
         return GroupingDTO(
-            groupingsOrder = requireNotNull(grouping.groupingId).groupingsOrder,
             metadata = grouping.metadata,
             groupingEntryDTOs = groupingEntryDTOs,
         )

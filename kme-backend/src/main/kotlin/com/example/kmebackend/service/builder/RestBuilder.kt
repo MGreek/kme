@@ -13,8 +13,7 @@ class RestBuilder internal constructor(
     private var selectedRestId: RestId? = null
 
     private var restType: RestType? = null
-    private var metadata: String? = null
-    private var overrideMetadata: Boolean = false
+    private var metadata: RestMetadata? = null
 
     /**
      * Stores [newRestType] that will be used to override the selected [Rest's][Rest] [Rest.restType].
@@ -33,9 +32,8 @@ class RestBuilder internal constructor(
      * @return the same [RestBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: String?): RestBuilder {
+    fun setMetadata(newMetadata: RestMetadata?): RestBuilder {
         metadata = newMetadata
-        overrideMetadata = true
         return this
     }
 
@@ -65,10 +63,10 @@ class RestBuilder internal constructor(
             rest = rest.copy(restType = requireNotNull(restType))
         }
         restType = null
-        if (overrideMetadata) {
-            rest = rest.copy(metadata = metadata)
+        if (metadata != null) {
+            rest = rest.copy(metadata = requireNotNull(metadata))
         }
-        overrideMetadata = false
+        metadata = null
 
         restService.save(rest)
         return this

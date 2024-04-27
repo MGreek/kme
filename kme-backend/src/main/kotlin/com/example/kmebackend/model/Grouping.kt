@@ -3,6 +3,11 @@ package com.example.kmebackend.model
 import jakarta.persistence.*
 
 @Embeddable
+data class GroupingMetadata(
+    val placeholder: String = "",
+)
+
+@Embeddable
 data class GroupingId(
     @Embedded
     val voiceId: VoiceId,
@@ -43,5 +48,6 @@ data class Grouping(
         ),
     )
     val voice: Voice? = null,
-    val metadata: String? = null,
+    @Embedded
+    val metadata: GroupingMetadata = GroupingMetadata(),
 )

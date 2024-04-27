@@ -2,6 +2,7 @@ package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.StaffSystem
 import com.example.kmebackend.model.StaffSystemId
+import com.example.kmebackend.model.StaffSystemMetadata
 import com.example.kmebackend.service.*
 
 /**
@@ -19,8 +20,7 @@ class StaffSystemBuilder(
 ) {
     internal var selectedStaffSystemId: StaffSystemId? = null
 
-    private var metadata: String? = null
-    private var overrideMetadata: Boolean = false
+    private var metadata: StaffSystemMetadata? = null
 
     /**
      * Stores [newMetadata] that will be used to override the selected [StaffSystem's][StaffSystem] [metadata][StaffSystem.metadata].
@@ -28,9 +28,8 @@ class StaffSystemBuilder(
      * @return the same [StaffSystemBuilder] instance that called this function
      * @see save
      */
-    fun setMetadata(newMetadata: String?): StaffSystemBuilder {
+    fun setMetadata(newMetadata: StaffSystemMetadata?): StaffSystemBuilder {
         metadata = newMetadata
-        overrideMetadata = true
         return this
     }
 
@@ -56,10 +55,11 @@ class StaffSystemBuilder(
             throw UnsupportedOperationException("A StaffSystem must be selected")
         }
         var staffSystem = staffSystemService.findById(requireNotNull(selectedStaffSystemId)).orElseThrow()
-        if (overrideMetadata) {
-            staffSystem = staffSystem.copy(metadata = metadata)
+        if (metadata != null) {
+            staffSystem = staffSystem.copy(metadata = requireNotNull(metadata))
         }
-        overrideMetadata = false
+        metadata = null
+
         staffSystemService.save(staffSystem)
         return this
     }

@@ -134,7 +134,6 @@ data class StaffService(
         }
 
         return StaffDTO(
-            stavesOrder = requireNotNull(staff.staffId).stavesOrder,
             metadata = staff.metadata,
             measureDTOs = measureDTOs,
         )

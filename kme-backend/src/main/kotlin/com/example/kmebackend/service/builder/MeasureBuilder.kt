@@ -20,8 +20,7 @@ class MeasureBuilder internal constructor(
     private var keySignature: KeySignature? = null
     private var timeSignature: TimeSignature? = null
     private var clef: Clef? = null
-    private var metadata: String? = null
-    private var overrideMetadata: Boolean = false
+    private var metadata: MeasureMetadata? = null
 
     /**
      * Stores [newKeySignature] that will be used to override the selected [Measure's][Measure] [Measure.keySignature].
@@ -62,9 +61,8 @@ class MeasureBuilder internal constructor(
      * @return the same [MeasureBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: String?): MeasureBuilder {
+    fun setMetadata(newMetadata: MeasureMetadata?): MeasureBuilder {
         metadata = newMetadata
-        overrideMetadata = true
         return this
     }
 
@@ -102,10 +100,10 @@ class MeasureBuilder internal constructor(
             measure = measure.copy(clef = requireNotNull(clef))
         }
         clef = null
-        if (overrideMetadata) {
-            measure = measure.copy(metadata = metadata)
+        if (metadata != null) {
+            measure = measure.copy(metadata = requireNotNull(metadata))
         }
-        overrideMetadata = false
+        metadata = null
 
         measureService.save(measure)
         return this

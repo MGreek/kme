@@ -34,6 +34,13 @@ enum class Clef {
 }
 
 @Embeddable
+data class MeasureMetadata(
+    val drawClef: Boolean = false,
+    val drawKeySignature: Boolean = false,
+    val drawTimeSignature: Boolean = false,
+)
+
+@Embeddable
 data class MeasureId(
     @Embedded
     val staffId: StaffId,
@@ -68,5 +75,6 @@ data class Measure(
     val timeSignature: TimeSignature,
     @Enumerated(EnumType.STRING)
     val clef: Clef,
-    val metadata: String? = null,
+    @Embedded
+    val metadata: MeasureMetadata = MeasureMetadata(),
 )
