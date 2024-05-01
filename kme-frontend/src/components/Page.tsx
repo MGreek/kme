@@ -6,5 +6,11 @@ interface PageProps {
 }
 
 export default function Page({ staffSystem }: PageProps) {
-  return <Row staffSystem={staffSystem} />;
+  return (
+    <>
+      <div className="sheetmusic-page flex flex-col items-start justify-start bg-blue-50">
+        <Row staffSystem={staffSystem} />
+      </div>
+    </>
+  );
 }
