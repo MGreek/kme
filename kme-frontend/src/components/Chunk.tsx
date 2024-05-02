@@ -16,10 +16,17 @@ import {
 
 interface ChunkProps {
   staffSystem: StaffSystem;
-  index: number;
+  chunkIndex: number;
+  bounds: DOMRect;
+  onWrapEnter: (chunkIndex: number) => void;
 }
 
-export default function Chunk({ staffSystem, index }: ChunkProps) {
+export default function Chunk({
+  staffSystem,
+  chunkIndex: index,
+  onWrapEnter,
+  bounds,
+}: ChunkProps) {
   function renderAtIndex(div: HTMLDivElement) {
     if (staffSystem.staves.length === 0) {
       return;
@@ -72,10 +79,16 @@ export default function Chunk({ staffSystem, index }: ChunkProps) {
     (div: HTMLDivElement | null) => {
       if (div != null) {
         renderAtIndex(div);
+        const rect = div.getBoundingClientRect();
+
+        if (rect.x + rect.width > bounds.x + bounds.width) {
+          onWrapEnter(index);
+        }
       }
     },
-    [renderAtIndex],
+    [renderAtIndex, onWrapEnter, index, bounds],
   );
+
   return <div ref={doRenderRef} />;
 }
 
