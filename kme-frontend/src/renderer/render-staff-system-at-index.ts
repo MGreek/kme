@@ -83,12 +83,6 @@ export function renderStaffSystemAtIndex(
     modifiers.push(...crtModifiers);
 
     const bounds = getBounds(crtStave, crtStemmableNotes);
-    // renderContext.rect(
-    //   bounds.getX(),
-    //   bounds.getY(),
-    //   bounds.getW(),
-    //   bounds.getH(),
-    // );
 
     offsetY += options.defaultSystemGap + bounds.getH();
   }
