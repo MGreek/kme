@@ -2814,13 +2814,6 @@ uuid@^9.0.1:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
   integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
-vexflow-repl@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/vexflow-repl/-/vexflow-repl-2.0.0.tgz#567db7e0dbc3d35f03d46c83aa3fc9bb8a4fd712"
-  integrity sha512-m0kM1DDiDPapgguxWUtsPgFji8LeobcSc+Qmqrq5NRqdA401v1JgbvqswiWjMjQfwsc5LaBESXP1m18EFzp4Rw==
-  dependencies:
-    vexflow "^4.2.3"
-
 vexflow@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/vexflow/-/vexflow-4.2.3.tgz#2db536297fc97fd1f502cdc042ccc6caefd9bc11"
