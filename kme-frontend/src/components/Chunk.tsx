@@ -18,13 +18,17 @@ interface ChunkProps {
   staffSystem: StaffSystem;
   chunkIndex: number;
   bounds: DOMRect;
-  onWrapEnter: (chunkIndex: number) => void;
+  onOutOfBounds: (
+    chunkIndex: number,
+    widthExceeded: boolean,
+    heightExceded: boolean,
+  ) => void;
 }
 
 export default function Chunk({
   staffSystem,
   chunkIndex,
-  onWrapEnter,
+  onOutOfBounds,
   bounds,
 }: ChunkProps) {
   function renderAtIndex(div: HTMLDivElement) {
@@ -81,12 +85,14 @@ export default function Chunk({
         renderAtIndex(div);
         const rect = div.getBoundingClientRect();
 
-        if (rect.x + rect.width > bounds.x + bounds.width) {
-          onWrapEnter(chunkIndex);
+        const widthExceeded = rect.x + rect.width > bounds.x + bounds.width;
+        const heightExceeded = rect.y + rect.height > bounds.y + bounds.height;
+        if (widthExceeded || heightExceeded) {
+          onOutOfBounds(chunkIndex, widthExceeded, heightExceeded);
         }
       }
     },
-    [renderAtIndex, onWrapEnter, chunkIndex, bounds],
+    [renderAtIndex, onOutOfBounds, chunkIndex, bounds],
   );
 
   return <div ref={doRenderRef} />;
