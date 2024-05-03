@@ -43,7 +43,7 @@ export default function Row({ staffSystem, bounds }: RowProps) {
   return (
     <div
       ref={onRenderRef}
-      className="relative flex flex-row flex-nowrap gap-0 items-start justify-start"
+      className="flex flex-row flex-nowrap gap-0 items-start justify-start"
     >
       {chunks}
     </div>
