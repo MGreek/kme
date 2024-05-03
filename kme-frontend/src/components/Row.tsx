@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import type { StaffSystem } from "vexflow-repl";
+import type { StaffSystem } from "../model/staff-system";
 import Chunk from "./Chunk";
 
 interface RowProps {

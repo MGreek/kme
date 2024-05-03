@@ -7,12 +7,12 @@ import {
   StaveConnector,
   type StemmableNote,
 } from "vexflow";
+import type { StaffSystem } from "../model/staff-system";
 import {
   type RenderOptions,
-  type StaffSystem,
   renderStaffSystemAtIndex,
-  requireNotNull,
-} from "vexflow-repl";
+} from "../renderer/render-staff-system-at-index";
+import { requireNotNull } from "../util/require-not-null";
 
 interface ChunkProps {
   staffSystem: StaffSystem;
@@ -23,7 +23,7 @@ interface ChunkProps {
 
 export default function Chunk({
   staffSystem,
-  chunkIndex: index,
+  chunkIndex,
   onWrapEnter,
   bounds,
 }: ChunkProps) {
@@ -45,7 +45,7 @@ export default function Chunk({
     const { offsetX, offsetY } = getOffsets(
       renderContext,
       staffSystem,
-      index,
+      chunkIndex,
       options,
     );
     options.x = offsetX;
@@ -54,7 +54,7 @@ export default function Chunk({
     const { staves, stemmableNotes, connectors } = renderStaffSystemAtIndex(
       renderContext,
       staffSystem,
-      index,
+      chunkIndex,
       options,
     );
 
@@ -82,11 +82,11 @@ export default function Chunk({
         const rect = div.getBoundingClientRect();
 
         if (rect.x + rect.width > bounds.x + bounds.width) {
-          onWrapEnter(index);
+          onWrapEnter(chunkIndex);
         }
       }
     },
-    [renderAtIndex, onWrapEnter, index, bounds],
+    [renderAtIndex, onWrapEnter, chunkIndex, bounds],
   );
 
   return <div ref={doRenderRef} />;

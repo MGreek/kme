@@ -1,7 +1,7 @@
-import type { StaffSystem } from "vexflow-repl";
-import Row from "./Row";
 import { useCallback, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import type { StaffSystem } from "../model/staff-system";
+import Row from "./Row";
 
 interface PageProps {
   staffSystem: StaffSystem;

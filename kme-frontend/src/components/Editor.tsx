@@ -1,4 +1,4 @@
-import type { StaffSystem } from "vexflow-repl";
+import type { StaffSystem } from "../model/staff-system";
 import Page from "./Page";
 
 export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
