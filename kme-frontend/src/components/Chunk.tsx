@@ -66,13 +66,6 @@ export default function Chunk({
       getBounds(staves, stemmableNotes, connectors),
     );
 
-    // renderContext.rect(
-    //   bounds.getX(),
-    //   bounds.getY(),
-    //   bounds.getW(),
-    //   bounds.getH(),
-    // );
-
     renderContext.resize(bounds.getW(), bounds.getH());
 
     div.style.width = `${bounds.getW()}px`;
