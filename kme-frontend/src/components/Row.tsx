@@ -93,6 +93,7 @@ export default function Row({ staffSystem, bounds }: RowProps) {
         return;
       }
       if (!canAppend()) {
+        stopAppendingRef.current = true;
         createAndAlignChunks();
         return;
       }
