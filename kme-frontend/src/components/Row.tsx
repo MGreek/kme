@@ -32,12 +32,11 @@ export default function Row({ staffSystem, bounds }: RowProps) {
     });
   }
 
-  const onChunkOutOfBounds = (
-    chunkIndex: number,
-    widthExceeded: boolean,
-    heightExceeded: boolean,
-  ) => {
-    popAndStopAppending();
+  function canAppend(): boolean {
+    return staffSystem.staves.at(0)?.measures.at(chunks.length) != null;
+  }
+
+  function createAndAlignChunks() {
     const coordsY = getCoordsY();
     const newChunks = [];
     for (let index = 0; index < chunks.length; index++) {
@@ -55,6 +54,30 @@ export default function Row({ staffSystem, bounds }: RowProps) {
       newChunks.push(newChunk);
     }
     setChunks(newChunks);
+  }
+
+  function appendChunk() {
+    const newChunk = (
+      <Chunk
+        key={uuidv4()}
+        staffSystem={staffSystem}
+        chunkIndex={chunks.length}
+        bounds={bounds}
+        onOutOfBounds={onChunkOutOfBounds}
+        onRender={onChunkRender}
+        overrideYs={null}
+      />
+    );
+    setChunks([...chunks, newChunk]);
+  }
+
+  const onChunkOutOfBounds = (
+    chunkIndex: number,
+    widthExceeded: boolean,
+    heightExceeded: boolean,
+  ) => {
+    popAndStopAppending();
+    createAndAlignChunks();
   };
 
   const onChunkRender = (chunkIndex: number, chunkYs: number[]) => {
@@ -63,30 +86,19 @@ export default function Row({ staffSystem, bounds }: RowProps) {
 
   const onRenderRef = useCallback(
     (div: HTMLDivElement | null) => {
-      if (stopAppendingRef.current || div == null) {
+      if (div == null) {
         return;
       }
-      const newChunk = (
-        <Chunk
-          key={uuidv4()}
-          staffSystem={staffSystem}
-          chunkIndex={chunks.length}
-          bounds={bounds}
-          onOutOfBounds={onChunkOutOfBounds}
-          onRender={onChunkRender}
-          overrideYs={null}
-        />
-      );
-      setChunks([...chunks, newChunk]);
+      if (stopAppendingRef.current) {
+        return;
+      }
+      if (!canAppend()) {
+        createAndAlignChunks();
+        return;
+      }
+      appendChunk();
     },
-    [
-      chunks,
-      chunks.length,
-      onChunkOutOfBounds,
-      onChunkRender,
-      staffSystem,
-      bounds,
-    ],
+    [canAppend, createAndAlignChunks, appendChunk],
   );
 
   return (
