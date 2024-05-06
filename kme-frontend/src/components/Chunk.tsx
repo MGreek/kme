@@ -104,16 +104,17 @@ export default function Chunk({
 
   const doRenderRef = useCallback(
     (div: HTMLDivElement | null) => {
-      if (div != null) {
-        renderAtIndex(div);
-        const rect = div.getBoundingClientRect();
+      if (div == null) {
+        return;
+      }
+      renderAtIndex(div);
+      const rect = div.getBoundingClientRect();
 
-        const widthExceeded = rect.x + rect.width > bounds.x + bounds.width;
-        const heightExceeded = rect.y + rect.height > bounds.y + bounds.height;
-        if (widthExceeded || heightExceeded) {
-          if (onOutOfBounds != null) {
-            onOutOfBounds(chunkIndex, widthExceeded, heightExceeded);
-          }
+      const widthExceeded = rect.x + rect.width > bounds.x + bounds.width;
+      const heightExceeded = rect.y + rect.height > bounds.y + bounds.height;
+      if (widthExceeded || heightExceeded) {
+        if (onOutOfBounds != null) {
+          onOutOfBounds(chunkIndex, widthExceeded, heightExceeded);
         }
       }
     },
