@@ -18,18 +18,24 @@ interface ChunkProps {
   staffSystem: StaffSystem;
   chunkIndex: number;
   bounds: DOMRect;
-  onOutOfBounds: (
-    chunkIndex: number,
-    widthExceeded: boolean,
-    heightExceded: boolean,
-  ) => void;
+  overrideYs: number[] | null;
+  onOutOfBounds:
+    | ((
+        chunkIndex: number,
+        widthExceeded: boolean,
+        heightExceded: boolean,
+      ) => void)
+    | null;
+  onRender: ((chunkIndex: number, coordsY: number[]) => void) | null;
 }
 
 export default function Chunk({
   staffSystem,
   chunkIndex,
-  onOutOfBounds,
   bounds,
+  overrideYs,
+  onOutOfBounds,
+  onRender,
 }: ChunkProps) {
   function renderAtIndex(div: HTMLDivElement) {
     if (staffSystem.staves.length === 0) {
@@ -42,7 +48,8 @@ export default function Chunk({
       defaultStaveWidth: 350,
       defaultSystemGap: 0,
       clear: true,
-      drawConnector: true,
+      drawConnector: chunkIndex === 0,
+      overrideYs: overrideYs,
     };
 
     const renderContext = new SVGContext(div);
@@ -66,10 +73,21 @@ export default function Chunk({
       getBounds(staves, stemmableNotes, connectors),
     );
 
-    renderContext.resize(bounds.getW(), bounds.getH());
+    const renderWidth = bounds.getX() + bounds.getW();
+    const renderHeight = bounds.getY() + bounds.getH();
 
-    div.style.width = `${bounds.getW()}px`;
-    div.style.height = `${bounds.getH()}px`;
+    renderContext.resize(renderWidth, renderHeight);
+
+    div.style.width = `${renderWidth}px`;
+    div.style.height = `${renderHeight}px`;
+
+    const coordsY: number[] = [];
+    for (const stave of staves) {
+      coordsY.push(stave.getY());
+    }
+    if (onRender != null) {
+      onRender(chunkIndex, coordsY);
+    }
   }
 
   const doRenderRef = useCallback(
@@ -81,7 +99,9 @@ export default function Chunk({
         const widthExceeded = rect.x + rect.width > bounds.x + bounds.width;
         const heightExceeded = rect.y + rect.height > bounds.y + bounds.height;
         if (widthExceeded || heightExceeded) {
-          onOutOfBounds(chunkIndex, widthExceeded, heightExceeded);
+          if (onOutOfBounds != null) {
+            onOutOfBounds(chunkIndex, widthExceeded, heightExceeded);
+          }
         }
       }
     },

@@ -24,6 +24,7 @@ export interface RenderOptions {
   y: number;
   defaultStaveWidth: number;
   defaultSystemGap: number;
+  overrideYs: number[] | null;
   clear: boolean;
   drawConnector: boolean;
 }
@@ -63,7 +64,7 @@ export function renderStaffSystemAtIndex(
   const stemmableNotes = [];
   const modifiers = [];
   let offsetY = options.y;
-  for (const staff of staffSystem.staves) {
+  for (const [staffIndex, staff] of staffSystem.staves.entries()) {
     const {
       stave: crtStave,
       beams: crtBeams,
@@ -74,7 +75,7 @@ export function renderStaffSystemAtIndex(
       staff,
       index,
       options.x,
-      offsetY,
+      options.overrideYs?.at(staffIndex) ?? offsetY,
       options.defaultStaveWidth,
     );
     staves.push(crtStave);
