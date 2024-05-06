@@ -22,12 +22,12 @@ interface ChunkProps {
   bounds: DOMRect;
   overrideYs: number[] | null;
   onOutOfBounds:
-    | ((
-        chunkIndex: number,
-        widthExceeded: boolean,
-        heightExceded: boolean,
-      ) => void)
-    | null;
+  | ((
+    chunkIndex: number,
+    widthExceeded: boolean,
+    heightExceded: boolean,
+  ) => void)
+  | null;
   onRender: ((chunkIndex: number, coordsY: number[]) => void) | null;
 }
 
