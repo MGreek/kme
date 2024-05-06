@@ -300,6 +300,42 @@ class StaffSystemController(
                 .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
                 .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
 
+            staffSystemBuilder.buildStaves().selectStaff(0)
+                .buildMeasures()
+                .appendAndSelectMeasure(
+                    Measure(
+                        keySignature = KeySignature.Flat2,
+                        timeSignature = TimeSignature.FourFour,
+                        clef = Clef.Treble,
+                        metadata = MeasureMetadata(),
+                    ),
+                )
+                .buildVoices()
+                .appendAndSelectVoice(Voice())
+                .buildGroupings()
+                .appendAndSelectGrouping(Grouping())
+                .buildRests()
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
+
+            staffSystemBuilder.buildStaves().selectStaff(1)
+                .buildMeasures()
+                .appendAndSelectMeasure(
+                    Measure(
+                        keySignature = KeySignature.Flat2,
+                        timeSignature = TimeSignature.FourFour,
+                        clef = Clef.Treble,
+                        metadata = MeasureMetadata(),
+                    ),
+                )
+                .buildVoices()
+                .appendAndSelectVoice(Voice())
+                .buildGroupings()
+                .appendAndSelectGrouping(Grouping())
+                .buildRests()
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
+                .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
+
             val staffSystem = staffSystemService.findById(staffSystemBuilder.getSelectedStaffSystemId()).orElseThrow()
             return ResponseEntity.ok(staffSystemService.staffSystemToDTO(staffSystem))
         } catch (_: Exception) {
