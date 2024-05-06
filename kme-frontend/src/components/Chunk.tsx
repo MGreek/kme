@@ -9,6 +9,8 @@ import {
 } from "vexflow";
 import type { StaffSystem } from "../model/staff-system";
 import {
+  type CoordinatesStacking,
+  type GapStacking,
   type RenderOptions,
   renderStaffSystemAtIndex,
 } from "../renderer/render-staff-system-at-index";
@@ -42,11 +44,17 @@ export default function Chunk({
       return;
     }
 
+    let stacking: GapStacking | CoordinatesStacking | null = null;
+    if (overrideYs == null) {
+      stacking = { x: 0, y: 0, gap: 0 };
+    } else {
+      stacking = { x: 0, ys: overrideYs };
+    }
+    stacking = requireNotNull(stacking);
+
     const options: RenderOptions = {
-      x: 0,
-      y: 0,
+      stacking,
       defaultStaveWidth: 350,
-      defaultSystemGap: 0,
       clear: true,
       drawConnector: chunkIndex === 0,
       overrideYs: overrideYs,
@@ -59,8 +67,12 @@ export default function Chunk({
       chunkIndex,
       options,
     );
-    options.x = offsetX;
-    options.y = offsetY;
+    if ("y" in options.stacking) {
+      options.stacking.x = offsetX;
+      options.stacking.y = offsetY;
+    } else {
+      options.stacking.x = offsetX;
+    }
 
     const { staves, stemmableNotes, connectors } = renderStaffSystemAtIndex(
       renderContext,

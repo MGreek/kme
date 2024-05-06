@@ -20,13 +20,22 @@ import {
 import { requireNotNull } from "../util/require-not-null";
 
 export interface RenderOptions {
-  x: number;
-  y: number;
+  stacking: CoordinatesStacking | GapStacking;
   defaultStaveWidth: number;
-  defaultSystemGap: number;
   overrideYs: number[] | null;
   clear: boolean;
   drawConnector: boolean;
+}
+
+export interface CoordinatesStacking {
+  x: number;
+  ys: number[];
+}
+
+export interface GapStacking {
+  x: number;
+  y: number;
+  gap: number;
 }
 
 export function renderStaffSystemAtIndex(
@@ -63,8 +72,16 @@ export function renderStaffSystemAtIndex(
   const beams = [];
   const stemmableNotes = [];
   const modifiers = [];
-  let offsetY = options.y;
+  let offsetY = "y" in options.stacking ? options.stacking.y : null;
   for (const [staffIndex, staff] of staffSystem.staves.entries()) {
+    let y = null;
+    if ("y" in options.stacking) {
+      y = offsetY;
+    } else {
+      y = options.stacking.ys.at(staffIndex);
+    }
+    y = requireNotNull(y);
+
     const {
       stave: crtStave,
       beams: crtBeams,
@@ -74,8 +91,8 @@ export function renderStaffSystemAtIndex(
       renderContext,
       staff,
       index,
-      options.x,
-      options.overrideYs?.at(staffIndex) ?? offsetY,
+      options.stacking.x,
+      y,
       options.defaultStaveWidth,
     );
     staves.push(crtStave);
@@ -85,7 +102,9 @@ export function renderStaffSystemAtIndex(
 
     const bounds = getBounds(crtStave, crtStemmableNotes);
 
-    offsetY += options.defaultSystemGap + bounds.getH();
+    if ("gap" in options.stacking && offsetY != null) {
+      offsetY += options.stacking.gap + bounds.getH();
+    }
   }
 
   const topStave = requireNotNull(staves.at(0));
