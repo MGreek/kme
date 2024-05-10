@@ -16,12 +16,13 @@ import { requireNotNull } from "../util/require-not-null";
 
 interface ChunkProps {
   staffSystem: StaffSystem;
+  stavesYs: number[] | null;
   onRender:
-  | ((width: number, height: number, chunkStavesYs: number[]) => void)
-  | null;
+    | ((width: number, height: number, chunkStavesYs: number[]) => void)
+    | null;
 }
 
-export default function Chunk({ staffSystem, onRender }: ChunkProps) {
+export default function Chunk({ staffSystem, stavesYs, onRender }: ChunkProps) {
   const divRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -37,8 +38,10 @@ export default function Chunk({ staffSystem, onRender }: ChunkProps) {
     }
 
     const renderContext = new SVGContext(div);
+    const stacking =
+      stavesYs != null ? { x: 0, ys: stavesYs } : { x: 0, y: 0, gap: 20 };
     const options = {
-      stacking: { x: 0, y: 0, gap: 20 }, // TODO: make `gap` a prop
+      stacking,
       defaultStaveWidth: 350,
       clear: true,
       drawConnector: false,
@@ -51,7 +54,11 @@ export default function Chunk({ staffSystem, onRender }: ChunkProps) {
     );
 
     options.stacking.x = offsetX;
-    options.stacking.y = offsetY;
+    if ("y" in options.stacking) {
+      options.stacking.y = offsetY;
+    } else {
+      options.stacking.ys = options.stacking.ys.map((y) => y + offsetY);
+    }
 
     const { staves, stemmableNotes, connectors } = renderStaffSystemAtIndex(
       renderContext,
@@ -70,7 +77,6 @@ export default function Chunk({ staffSystem, onRender }: ChunkProps) {
     renderContext.resize(width, height);
     div.style.width = `${width}px`;
     div.style.height = `${height}px`;
-    div.style.background = "white";
 
     if (onRender != null) {
       const chunkStavesYs = [];
@@ -79,7 +85,7 @@ export default function Chunk({ staffSystem, onRender }: ChunkProps) {
       }
       onRender(width, height, chunkStavesYs);
     }
-  }, [staffSystem, onRender]);
+  }, [staffSystem, stavesYs, onRender]);
 
   return <div ref={divRef} />;
 }
@@ -181,6 +187,6 @@ function getOffsets(
   const bounds = getBounds(staves, stemmableNotes, connectors);
   return {
     offsetX: -requireNotNull(bounds).getX(),
-    offsetY: -requireNotNull(bounds).getY(),
+    offsetY: "ys" in options.stacking ? 0 : -requireNotNull(bounds).getY(),
   };
 }

@@ -22,7 +22,6 @@ import { requireNotNull } from "../util/require-not-null";
 export interface RenderOptions {
   stacking: CoordinatesStacking | GapStacking;
   defaultStaveWidth: number;
-  overrideYs: number[] | null;
   clear: boolean;
   drawConnector: boolean;
 }
@@ -181,7 +180,12 @@ function renderStaffAtIndex(
   const { vexVoices, beams, stemmableNotes, modifiers } =
     getVexVoicesFromMeasure(renderContext, measure);
 
-  const stave = new Stave(x, y, width).setContext(renderContext).draw();
+  const stave = new Stave(x, y, width, {
+    space_below_staff_ln: 0,
+    space_above_staff_ln: 0,
+  })
+    .setContext(renderContext)
+    .draw();
 
   if (measure.metadata.drawClef) {
     stave.addClef(getClefNameFromClef(measure.clef));
