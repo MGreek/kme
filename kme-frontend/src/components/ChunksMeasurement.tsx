@@ -49,7 +49,11 @@ export default function ChunksMeasurement({
 
   useEffect(() => {
     measurementsRef.current = { widths: [], heights: [], chunksStavesYs: [] };
-    chunksRef.current = getChunksFromStaffSystem(staffSystem, onChunkRenderRef);
+    chunksRef.current = getChunksFromStaffSystem(
+      staffSystem,
+      null,
+      onChunkRenderRef,
+    );
     if (chunksRef.current.length === 0) {
       onMeasurements(measurementsRef.current);
     }
