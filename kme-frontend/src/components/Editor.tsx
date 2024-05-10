@@ -145,7 +145,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
         const newRow = (
           <div
             key={uuidv4()}
-            className="flex flex-row gap-0 items-start justify-start"
+            className="flex flex-row flex-nowrap gap-0 items-start justify-start"
           >
             {chunks}
           </div>
@@ -164,7 +164,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
         <div
           key={uuidv4()}
           style={{ width: pageWidth, height: pageHeight }}
-          className="bg-white flex flex-col gap-0 p-6 items-start justify-start"
+          className="bg-white flex flex-col flex-nowrap gap-0 p-6 items-start justify-start"
         >
           {rows}
         </div>
@@ -212,7 +212,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
 
   return (
     <>
-      <div className="flex flex-col gap-4 items-center justify-center">
+      <div className="flex flex-col flex-nowrap gap-4 items-center justify-center">
         {pages == null ? chunksMeasurement : pages}
       </div>
     </>
