@@ -16,6 +16,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
   const gap = 16;
   const pageWidth = 210 * 4;
   const pageHeight = 297 * 4;
+
   const [pages, setPages] = useState<JSX.Element[] | null>(null);
   const [chunksMeasurement, setChunksMeasurement] =
     useState<JSX.Element | null>(null);
