@@ -12,11 +12,20 @@ interface MeasurementsRow {
 }
 
 export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
+  const padding = 16;
   const pageWidth = 210 * 4;
   const pageHeight = 297 * 4;
   const [pages, setPages] = useState<JSX.Element[] | null>(null);
   const [chunksMeasurement, setChunksMeasurement] =
     useState<JSX.Element | null>(null);
+
+  const getMusicWidthRef = useCallback(() => {
+    return pageWidth - 2 * padding;
+  }, []);
+
+  const getMusicHeightRef = useCallback(() => {
+    return pageHeight - 2 * padding;
+  }, []);
 
   const getMeasurementsRangeAndRestRef = useCallback(
     (
@@ -40,7 +49,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
       let totalWidth = 0;
       for (const [index, width] of measurements.widths.entries()) {
         totalWidth += width;
-        if (totalWidth > pageWidth) {
+        if (totalWidth > getMusicWidthRef()) {
           if (rangeEnd === -1) {
             rangeEnd = index;
           }
@@ -62,7 +71,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
         },
       };
     },
-    [],
+    [getMusicWidthRef],
   );
 
   const getMeasurementsRowsRef = useCallback(
@@ -106,7 +115,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
       let totalHeight = 0;
       for (const [index, measurementRow] of measurementsRows.entries()) {
         totalHeight += measurementRow.height;
-        if (totalHeight > pageHeight) {
+        if (totalHeight > getMusicHeightRef()) {
           if (rangeEnd === -1) {
             rangeEnd = index;
           }
@@ -119,7 +128,7 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
         rest: measurementsRows.slice(rangeEnd + 1),
       };
     },
-    [],
+    [getMusicHeightRef],
   );
 
   const getChunksFromMeasurementsRowRef = useCallback(
@@ -163,8 +172,8 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
       return (
         <div
           key={uuidv4()}
-          style={{ width: pageWidth, height: pageHeight }}
-          className="bg-white flex flex-col flex-nowrap gap-0 p-6 items-start justify-start"
+          style={{ width: pageWidth, height: pageHeight, padding: padding }}
+          className="bg-white flex flex-col flex-nowrap gap-0 items-start justify-start"
         >
           {rows}
         </div>
