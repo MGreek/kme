@@ -13,6 +13,7 @@ interface MeasurementsRow {
 
 export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
   const padding = 16;
+  const gap = 16;
   const pageWidth = 210 * 4;
   const pageHeight = 297 * 4;
   const [pages, setPages] = useState<JSX.Element[] | null>(null);
@@ -115,6 +116,9 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
       let totalHeight = 0;
       for (const [index, measurementRow] of measurementsRows.entries()) {
         totalHeight += measurementRow.height;
+        if (index > 0) {
+          totalHeight += gap;
+        }
         if (totalHeight > getMusicHeightRef()) {
           if (rangeEnd === -1) {
             rangeEnd = index;
@@ -172,8 +176,13 @@ export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
       return (
         <div
           key={uuidv4()}
-          style={{ width: pageWidth, height: pageHeight, padding: padding }}
-          className="bg-white flex flex-col flex-nowrap gap-0 items-start justify-start"
+          style={{
+            width: pageWidth,
+            height: pageHeight,
+            padding: padding,
+            gap: gap,
+          }}
+          className="bg-white flex flex-col flex-nowrap items-start justify-start"
         >
           {rows}
         </div>
