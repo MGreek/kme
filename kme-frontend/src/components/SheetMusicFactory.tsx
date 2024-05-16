@@ -1,11 +1,7 @@
-import { cloneElement, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { StaffSystem } from "../model/staff-system";
-import {
-  getChunkFromStaffSystemAtIndex,
-  getStaffSystemAtIndex,
-} from "../util/misc";
+import { getStaffSystemAtIndex } from "../util/misc";
 import { requireNotNull } from "../util/require-not-null";
-import { v4 as uuidv4 } from "uuid";
 import Chunk from "./Chunk";
 
 export interface ChunksMeasurementProps {
