@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { StaffSystem } from "vexflow-repl";
 import request from "./api/request";
-import Editor from "./components/Editor";
+import SheetMusicDisplay from "./components/SheetMusicDisplay";
+import type { StaffSystem } from "./model/staff-system";
 
 export default function App() {
   const [dataReceived, setDataReceived] = useState<StaffSystem | null>(null);
@@ -17,5 +17,5 @@ export default function App() {
   if (dataReceived == null) {
     return <h1 className="bg-red-500 text-blue-400">Data not received yet</h1>;
   }
-  return <Editor staffSystem={dataReceived} />;
+  return <SheetMusicDisplay staffSystem={dataReceived} />;
 }
