@@ -7,13 +7,27 @@ export function getStaffSystemAtIndex(
   staffSystem: StaffSystem,
   index: number,
 ): StaffSystem {
-  const staffSystemSlice = { ...staffSystem };
-  staffSystemSlice.staves = staffSystem.staves.map((staff) => {
-    const staffSlice = { ...staff };
-    staffSlice.measures = [requireNotNull(staff.measures.at(index))];
-    return staffSlice;
+  const staffSystemClone = structuredClone(staffSystem);
+  staffSystemClone.staves = staffSystem.staves.map((staff) => {
+    const staffClone = structuredClone(staff);
+    staffClone.measures = [
+      structuredClone(requireNotNull(staff.measures.at(index))),
+    ];
+    return staffClone;
   });
-  return staffSystemSlice;
+  return staffSystemClone;
+}
+
+export function getStaffSystemSlice(
+  staffSystem: StaffSystem,
+  start: number,
+  end: number,
+): StaffSystem {
+  const staffSystemClone = structuredClone(staffSystem);
+  for (const staveClone of staffSystemClone.staves) {
+    staveClone.measures = staveClone.measures.slice(start, end);
+  }
+  return staffSystemClone;
 }
 
 export function getChunksFromStaffSystem(
@@ -58,4 +72,27 @@ export function getChunksFromStaffSystem(
   }
 
   return chunks;
+}
+
+export function getChunkFromStaffSystemAtIndex(
+  staffSystem: StaffSystem,
+  index: number,
+  stavesYs: number[] | null,
+  onRender:
+    | ((
+        chunkIndex: number,
+        width: number,
+        height: number,
+        stavesCoords: number[],
+      ) => void)
+    | null,
+): JSX.Element {
+  const slice = getStaffSystemSlice(staffSystem, index, index + 1);
+  // console.log(slice.staves[0]?.measures.length, index);
+
+  const array = getChunksFromStaffSystem(slice, stavesYs, onRender);
+  if (array.length !== 1) {
+    throw new Error("Bad index");
+  }
+  return requireNotNull(array[0]);
 }
