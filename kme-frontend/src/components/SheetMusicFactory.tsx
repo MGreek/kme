@@ -34,7 +34,6 @@ export default function SheetMusicFactory({
   const crtIndex = useRef<number>(0);
   const measureCountRef = useRef<number>(0);
   const [chunkToRender, setChunkToRender] = useState<JSX.Element | null>(null);
-  const oldStaffSystem = useRef<StaffSystem | null>(null);
 
   const getStavesYsFromRow = useCallback((row: ChunkInfo[]) => {
     return row
@@ -191,9 +190,6 @@ export default function SheetMusicFactory({
 
   const bumpIndexRef = useCallback(() => {
     if (crtIndex.current >= measureCountRef.current) {
-      console.log(
-        JSON.stringify(oldStaffSystem.current) === JSON.stringify(staffSystem),
-      );
       flushCrtRowRef();
       flushCrtPageRef();
       onSheetMusic(createSheetMusicRef());
@@ -226,7 +222,6 @@ export default function SheetMusicFactory({
   ]);
 
   useEffect(() => {
-    oldStaffSystem.current = structuredClone(staffSystem);
     crtRow.current = [];
     crtIndex.current = 0;
     measureCountRef.current = 0;
