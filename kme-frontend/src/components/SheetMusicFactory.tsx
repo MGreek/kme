@@ -53,39 +53,69 @@ export default function SheetMusicFactory({
       });
   }, []);
 
-  const getIdFromChunkInfoRef = useCallback(
+  const getChunkIdRef = useCallback(
     (info: ChunkInfo) => {
       return JSON.stringify({
         staffSystemId: staffSystem.id,
+        type: "chunk",
         index: info.index,
       });
     },
     [staffSystem],
   );
 
+  const getRowIdRef = useCallback(
+    (rowIndex: number) => {
+      return JSON.stringify({
+        staffSystemId: staffSystem.id,
+        type: "row",
+        index: rowIndex,
+      });
+    },
+    [staffSystem],
+  );
+
   const getRowDivFromRow = useCallback(
-    (row: ChunkInfo[]) => {
+    (row: ChunkInfo[], rowIndex: number) => {
       const stavesYs = getStavesYsFromRow(row);
       const chunks = row.map((chunkInfo) => {
         return (
           <Chunk
-            key={getIdFromChunkInfoRef(chunkInfo)}
+            key={getChunkIdRef(chunkInfo)}
             staffSystem={getStaffSystemAtIndex(staffSystem, chunkInfo.index)}
             stavesYs={stavesYs}
             onRender={null}
           />
         );
       });
-      return <div className="flex flex-row flex-nowrap">{chunks}</div>;
+      return (
+        <div key={getRowIdRef(rowIndex)} className="flex flex-row flex-nowrap">
+          {chunks}
+        </div>
+      );
     },
-    [staffSystem, getStavesYsFromRow, getIdFromChunkInfoRef],
+    [staffSystem, getStavesYsFromRow, getChunkIdRef, getRowIdRef],
   );
 
-  const getPageDivFromPage = useCallback(
-    (page: ChunkInfo[][]) => {
-      const rowDivs = page.map((row) => getRowDivFromRow(row));
+  const getPageIdRef = useCallback(
+    (pageIndex: number) => {
+      return JSON.stringify({
+        staffSystemId: staffSystem.id,
+        type: "page",
+        index: pageIndex,
+      });
+    },
+    [staffSystem],
+  );
+
+  const getPageDivFromPageRef = useCallback(
+    (page: ChunkInfo[][], pageIndex: number) => {
+      const rowDivs = page.map((row, rowIndex) =>
+        getRowDivFromRow(row, rowIndex),
+      );
       return (
         <div
+          key={getPageIdRef(pageIndex)}
           className="flex flex-col flex-nowrap bg-white"
           style={{ width: pageWidth, height: pageHeight, gap: gap }}
         >
@@ -93,13 +123,15 @@ export default function SheetMusicFactory({
         </div>
       );
     },
-    [getRowDivFromRow],
+    [getRowDivFromRow, getPageIdRef],
   );
 
   const createSheetMusicRef = useCallback(() => {
-    const pageDivs = pages.current.map((page) => getPageDivFromPage(page));
+    const pageDivs = pages.current.map((page, pageIndex) =>
+      getPageDivFromPageRef(page, pageIndex),
+    );
     return <div className="flex flex-col gap-4">{pageDivs}</div>;
-  }, [getPageDivFromPage]);
+  }, [getPageDivFromPageRef]);
 
   const getPageClientWidth = useCallback(() => {
     return pageWidth;
