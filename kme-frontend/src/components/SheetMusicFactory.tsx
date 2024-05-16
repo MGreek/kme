@@ -23,6 +23,7 @@ export default function SheetMusicFactory({
   const pageWidth = 210 * 4;
   const pageHeight = 297 * 4;
   const gap = 20;
+  const padding = 20;
 
   const pages = useRef<ChunkInfo[][][]>([]);
   const crtPage = useRef<ChunkInfo[][]>([]);
@@ -112,7 +113,12 @@ export default function SheetMusicFactory({
         <div
           key={getPageIdRef(pageIndex)}
           className="flex flex-col flex-nowrap bg-white"
-          style={{ width: pageWidth, height: pageHeight, gap: gap }}
+          style={{
+            width: pageWidth,
+            height: pageHeight,
+            gap: gap,
+            padding: padding,
+          }}
         >
           {rowDivs}
         </div>
@@ -129,11 +135,11 @@ export default function SheetMusicFactory({
   }, [getPageDivFromPageRef]);
 
   const getPageClientWidth = useCallback(() => {
-    return pageWidth;
+    return pageWidth - 2 * padding;
   }, []);
 
   const getPageClientHeight = useCallback(() => {
-    return pageHeight;
+    return pageHeight - 2 * padding;
   }, []);
 
   const getCrtRowWidth = useCallback(() => {
