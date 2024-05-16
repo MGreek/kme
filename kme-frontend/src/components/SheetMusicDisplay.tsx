@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import type { StaffSystem } from "../model/staff-system";
 import SheetMusicFactory from "./SheetMusicFactory";
 
-export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
+export default function SheetMusicDisplay({
+  staffSystem,
+}: { staffSystem: StaffSystem }) {
   const [music, setMusic] = useState<JSX.Element | null>(null);
   const [chunksMeasurement, setChunksMeasurement] =
     useState<JSX.Element | null>(null);
