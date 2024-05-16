@@ -6,7 +6,7 @@ export default function SheetMusicDisplay({
   staffSystem,
 }: { staffSystem: StaffSystem }) {
   const [music, setMusic] = useState<JSX.Element | null>(null);
-  const [chunksMeasurement, setChunksMeasurement] =
+  const [sheetMusicFactory, setSheetMusicFactory] =
     useState<JSX.Element | null>(null);
 
   const onSheetMusicRef = useCallback((music: JSX.Element) => {
@@ -20,13 +20,13 @@ export default function SheetMusicDisplay({
         onSheetMusic={onSheetMusicRef}
       />
     );
-    setChunksMeasurement(newChunksMeasurement);
+    setSheetMusicFactory(newChunksMeasurement);
   }, [staffSystem, onSheetMusicRef]);
 
   return (
     <>
       <div className="grid place-items-center">
-        {music == null ? chunksMeasurement : music}
+        {music == null ? sheetMusicFactory : music}
       </div>
     </>
   );
