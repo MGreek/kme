@@ -88,7 +88,6 @@ export function getChunkFromStaffSystemAtIndex(
     | null,
 ): JSX.Element {
   const slice = getStaffSystemSlice(staffSystem, index, index + 1);
-  // console.log(slice.staves[0]?.measures.length, index);
 
   const array = getChunksFromStaffSystem(slice, stavesYs, onRender);
   if (array.length !== 1) {
