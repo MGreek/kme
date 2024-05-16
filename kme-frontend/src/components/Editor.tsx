@@ -2,12 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import type { StaffSystem } from "../model/staff-system";
 import SheetMusicFactory from "./SheetMusicFactory";
 
-interface MeasurementsRow {
-  height: number;
-  stavesYs: number[];
-  range: { start: number; end: number };
-}
-
 export default function Editor({ staffSystem }: { staffSystem: StaffSystem }) {
   const [music, setMusic] = useState<JSX.Element | null>(null);
   const [chunksMeasurement, setChunksMeasurement] =
