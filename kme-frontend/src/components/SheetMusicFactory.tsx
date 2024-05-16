@@ -142,6 +142,22 @@ export default function SheetMusicFactory({
       .reduce((prev, crt) => prev + crt, 0);
   }, []);
 
+  const getRowHeightRef = useCallback((row: ChunkInfo[]) => {
+    return row
+      .map((elem) => elem.height)
+      .reduce((prev, crt) => Math.max(prev, crt), 0);
+  }, []);
+
+  const getCrtPageHeight = useCallback(() => {
+    if (crtPage.current.length === 0) {
+      return 0;
+    }
+
+    return crtPage.current
+      .map((row) => getRowHeightRef(row))
+      .reduce((prev, crt) => prev + gap + crt);
+  }, [getRowHeightRef]);
+
   const flushCrtPageRef = useCallback(() => {
     if (crtPage.current.length === 0) {
       return;
@@ -157,8 +173,15 @@ export default function SheetMusicFactory({
     }
 
     crtPage.current.push(crtRow.current);
+    const crtPageHeight = getCrtPageHeight();
+    if (crtPageHeight > getPageClientHeight()) {
+      crtPage.current.pop();
+      flushCrtPageRef();
+      crtPage.current.push(crtRow.current);
+    }
+
     crtRow.current = [];
-  }, []);
+  }, [getCrtPageHeight, flushCrtPageRef, getPageClientHeight]);
 
   const onChunkRenderRef = useCallback(
     (
@@ -167,18 +190,20 @@ export default function SheetMusicFactory({
       height: number,
       chunkStavesYs: number[],
     ) => {
-      console.log(chunkIndex);
-      const crtRowWidth = getCrtRowWidth();
-
-      if (crtRowWidth + width > getPageClientWidth()) {
-        flushCrtRowRef();
-      }
-      crtRow.current.push({
+      const newChunkInfo = {
         index: chunkIndex,
         width: width,
         height: height,
         stavesYs: chunkStavesYs,
-      });
+      };
+      crtRow.current.push(newChunkInfo);
+      const crtRowWidth = getCrtRowWidth();
+
+      if (crtRowWidth > getPageClientWidth()) {
+        crtRow.current.pop();
+        flushCrtRowRef();
+        crtRow.current.push(newChunkInfo);
+      }
       bumpIndexRef();
     },
     [getPageClientWidth, flushCrtRowRef, getCrtRowWidth],
