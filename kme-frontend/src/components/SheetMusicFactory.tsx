@@ -16,6 +16,7 @@ interface ChunkInfo {
   stavesYs: number[];
 }
 
+// TODO: add logic to handle engraving a connector at the start of each row
 export default function SheetMusicFactory({
   staffSystem,
   onSheetMusic,
