@@ -14,9 +14,11 @@ interface ChunkInfo {
   width: number;
   height: number;
   stavesYs: number[];
+  drawConnector: boolean;
+  drawSingleLineLeft: boolean;
+  drawSingleLineRight: boolean;
 }
 
-// TODO: add logic to handle engraving a connector at the start of each row
 export default function SheetMusicFactory({
   staffSystem,
   onSheetMusic,
@@ -82,6 +84,9 @@ export default function SheetMusicFactory({
             staffSystem={getStaffSystemAtIndex(staffSystem, chunkInfo.index)}
             stavesYs={stavesYs}
             onRender={null}
+            drawConnector={chunkInfo.drawConnector}
+            drawSingleLineLeft={chunkInfo.drawSingleLineLeft}
+            drawSingleLineRight={chunkInfo.drawSingleLineRight}
           />
         );
       });
@@ -196,12 +201,18 @@ export default function SheetMusicFactory({
       width: number,
       height: number,
       chunkStavesYs: number[],
+      drawConnector: boolean,
+      drawSingleLineLeft: boolean,
+      drawSingleLineRight: boolean,
     ) => {
       const newChunkInfo = {
         index: chunkIndex,
         width: width,
         height: height,
         stavesYs: chunkStavesYs,
+        drawConnector,
+        drawSingleLineLeft,
+        drawSingleLineRight,
       };
       crtRow.current.push(newChunkInfo);
       const crtRowWidth = getCrtRowWidth();
@@ -209,6 +220,9 @@ export default function SheetMusicFactory({
       if (crtRowWidth > getPageClientWidth()) {
         crtRow.current.pop();
         flushCrtRowRef();
+        // FIX: width is not being updated even though a connector might be drawn due to overflow
+        newChunkInfo.drawConnector = true;
+        newChunkInfo.drawSingleLineLeft = true;
         crtRow.current.push(newChunkInfo);
       }
       bumpIndexRef();
@@ -226,13 +240,34 @@ export default function SheetMusicFactory({
 
     const index = crtIndex.current;
 
+    const drawConnector = crtRow.current.length === 0;
+    const drawSingleLineLeft = crtRow.current.length === 0;
+
     const chunkToRender = (
       <Chunk
         staffSystem={getStaffSystemAtIndex(staffSystem, index)}
         stavesYs={null}
-        onRender={(width, height, chunkStavesYs) =>
-          onChunkRenderRef(index, width, height, chunkStavesYs)
+        onRender={(
+          width,
+          height,
+          chunkStavesYs,
+          drawConnector,
+          drawSingleLineLeft,
+          drawSingleLineRight,
+        ) =>
+          onChunkRenderRef(
+            index,
+            width,
+            height,
+            chunkStavesYs,
+            drawConnector,
+            drawSingleLineLeft,
+            drawSingleLineRight,
+          )
         }
+        drawConnector={drawConnector}
+        drawSingleLineLeft={drawSingleLineLeft}
+        drawSingleLineRight={true}
       />
     );
 
