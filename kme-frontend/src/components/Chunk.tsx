@@ -90,10 +90,6 @@ export default function Chunk({ staffSystem, stavesYs, onRender }: ChunkProps) {
   return <div ref={divRef} />;
 }
 
-function getBoundingBoxFromDOMRect(rect: DOMRect): BoundingBox {
-  return new BoundingBox(rect.x, rect.y, rect.width, rect.height);
-}
-
 function getBounds(
   staves: Stave[],
   stemmableNotes: StemmableNote[],
@@ -102,11 +98,7 @@ function getBounds(
   let boundingBox: BoundingBox | null = null;
 
   for (const stave of staves) {
-    const staveRect = getBoundingBoxFromDOMRect(
-      requireNotNull(stave.getSVGElement()).getBoundingClientRect(),
-    );
-    staveRect.x = stave.getX();
-    staveRect.y = stave.getTopLineTopY();
+    const staveRect = stave.getBoundingBox();
 
     if (boundingBox != null) {
       boundingBox = boundingBox.mergeWith(staveRect);
