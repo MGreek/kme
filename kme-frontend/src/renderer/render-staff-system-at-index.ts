@@ -24,6 +24,8 @@ export interface RenderOptions {
   defaultStaveWidth: number;
   clear: boolean;
   drawConnector: boolean;
+  drawSingleLineLeft: boolean;
+  drawSingleLineRight: boolean;
 }
 
 export interface CoordinatesStacking {
@@ -110,19 +112,24 @@ export function renderStaffSystemAtIndex(
   const bottomStave = requireNotNull(staves.at(-1));
 
   const connectors = [];
-  connectors.push(
-    new StaveConnector(topStave, bottomStave)
-      .setContext(renderContext)
-      .setType("singleLeft"),
-  );
-  requireNotNull(connectors.at(-1)).draw();
 
-  connectors.push(
-    new StaveConnector(topStave, bottomStave)
-      .setContext(renderContext)
-      .setType("singleRight"),
-  );
-  requireNotNull(connectors.at(-1)).draw();
+  if (options.drawSingleLineLeft) {
+    connectors.push(
+      new StaveConnector(topStave, bottomStave)
+        .setContext(renderContext)
+        .setType("singleLeft"),
+    );
+    requireNotNull(connectors.at(-1)).draw();
+  }
+
+  if (options.drawSingleLineRight) {
+    connectors.push(
+      new StaveConnector(topStave, bottomStave)
+        .setContext(renderContext)
+        .setType("singleRight"),
+    );
+    requireNotNull(connectors.at(-1)).draw();
+  }
 
   if (options.drawConnector) {
     connectors.push(
