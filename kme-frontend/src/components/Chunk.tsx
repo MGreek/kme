@@ -17,12 +17,29 @@ import { requireNotNull } from "../util/require-not-null";
 interface ChunkProps {
   staffSystem: StaffSystem;
   stavesYs: number[] | null;
+  drawConnector: boolean;
+  drawSingleLineLeft: boolean;
+  drawSingleLineRight: boolean;
   onRender:
-    | ((width: number, height: number, chunkStavesYs: number[]) => void)
-    | null;
+  | ((
+    width: number,
+    height: number,
+    chunkStavesYs: number[],
+    drawConnector: boolean,
+    drawSingleLineLeft: boolean,
+    drawSingleLineRight: boolean,
+  ) => void)
+  | null;
 }
 
-export default function Chunk({ staffSystem, stavesYs, onRender }: ChunkProps) {
+export default function Chunk({
+  staffSystem,
+  stavesYs,
+  drawConnector,
+  drawSingleLineLeft,
+  drawSingleLineRight,
+  onRender,
+}: ChunkProps) {
   const divRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -44,7 +61,9 @@ export default function Chunk({ staffSystem, stavesYs, onRender }: ChunkProps) {
       stacking,
       defaultStaveWidth: 350,
       clear: true,
-      drawConnector: false,
+      drawConnector: drawConnector,
+      drawSingleLineLeft: drawSingleLineLeft,
+      drawSingleLineRight: drawSingleLineRight,
     };
 
     const { offsetX, offsetY } = getOffsets(
@@ -83,9 +102,23 @@ export default function Chunk({ staffSystem, stavesYs, onRender }: ChunkProps) {
       for (const stave of staves) {
         chunkStavesYs.push(stave.getY());
       }
-      onRender(width, height, chunkStavesYs);
+      onRender(
+        width,
+        height,
+        chunkStavesYs,
+        options.drawConnector,
+        options.drawSingleLineLeft,
+        options.drawSingleLineRight,
+      );
     }
-  }, [staffSystem, stavesYs, onRender]);
+  }, [
+    staffSystem,
+    stavesYs,
+    onRender,
+    drawConnector,
+    drawSingleLineRight,
+    drawSingleLineLeft,
+  ]);
 
   return <div ref={divRef} />;
 }
