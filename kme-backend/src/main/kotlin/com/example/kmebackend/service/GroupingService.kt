@@ -1,8 +1,6 @@
 package com.example.kmebackend.service
 
 import com.example.kmebackend.model.*
-import com.example.kmebackend.model.dto.GroupingDTO
-import com.example.kmebackend.model.dto.GroupingEntryDTO
 import com.example.kmebackend.repository.GroupingRepository
 import com.example.kmebackend.repository.VoiceRepository
 import org.springframework.stereotype.Service
@@ -156,30 +154,5 @@ data class GroupingService(
             groupingEntryService.deleteById(requireNotNull(child.groupingEntryId))
         }
         groupingRepository.deleteById(groupingId)
-    }
-
-    /**
-     * Turns a [Grouping] into a [GroupingDTO].
-     * @param grouping the instance that is used to create the [GroupingDTO].
-     * @return a [GroupingDTO] that is derived from the given [Grouping].
-     * @throws UnsupportedOperationException if [grouping's][grouping] ID is null.
-     * @throws NoSuchElementException if [grouping] is not found.
-     */
-    fun groupingToDTO(grouping: Grouping): GroupingDTO {
-        if (grouping.groupingId == null) {
-            throw UnsupportedOperationException("Groupings ID must not be null")
-        }
-        if (!existsById(requireNotNull(grouping.groupingId))) {
-            throw NoSuchElementException("Grouping with ID ${requireNotNull(grouping.groupingId)} not found")
-        }
-        val groupingEntryDTOs = mutableListOf<GroupingEntryDTO>()
-        for (child in getChildren(requireNotNull(grouping.groupingId))) {
-            groupingEntryDTOs.add(groupingEntryService.groupingEntryToDTO(child))
-        }
-
-        return GroupingDTO(
-            metadata = grouping.metadata,
-            groupingEntryDTOs = groupingEntryDTOs,
-        )
     }
 }
