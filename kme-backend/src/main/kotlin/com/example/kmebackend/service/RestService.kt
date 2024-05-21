@@ -1,7 +1,6 @@
 package com.example.kmebackend.service
 
 import com.example.kmebackend.model.*
-import com.example.kmebackend.model.dto.RestDTO
 import com.example.kmebackend.repository.GroupingEntryRepository
 import com.example.kmebackend.repository.GroupingRepository
 import com.example.kmebackend.repository.RestRepository
@@ -85,26 +84,5 @@ data class RestService(
             throw NoSuchElementException("Rest with ID $restId not found")
         }
         restRepository.deleteById(restId)
-    }
-
-    /**
-     * Turns a [Rest] into a [RestDTO].
-     * @param rest the instance that is used to create the [RestDTO].
-     * @return a [RestDTO] that is derived from the given [Rest].
-     * @throws UnsupportedOperationException if [rest's][rest] ID is null.
-     * @throws NoSuchElementException if [rest] is not found.
-     */
-    fun restToDTO(rest: Rest): RestDTO {
-        if (rest.restId == null) {
-            throw UnsupportedOperationException("Rest's ID must not be null")
-        }
-        if (!existsById(requireNotNull(rest.restId))) {
-            throw NoSuchElementException("Rest with ID ${requireNotNull(rest.restId)} not found")
-        }
-        return RestDTO(
-            restType = rest.restType,
-            position = rest.position,
-            metadata = rest.metadata,
-        )
     }
 }

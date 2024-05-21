@@ -1,8 +1,6 @@
 package com.example.kmebackend.service
 
 import com.example.kmebackend.model.*
-import com.example.kmebackend.model.dto.GroupingDTO
-import com.example.kmebackend.model.dto.VoiceDTO
 import com.example.kmebackend.repository.MeasureRepository
 import com.example.kmebackend.repository.VoiceRepository
 import org.springframework.stereotype.Service
@@ -108,30 +106,5 @@ data class VoiceService(
             groupingService.deleteById(requireNotNull(child.groupingId))
         }
         voiceRepository.deleteById(voiceId)
-    }
-
-    /**
-     * Turns a [Voice] into a [VoiceDTO].
-     * @param voice the instance that is used to create the [VoiceDTO].
-     * @return a [VoiceDTO] that is derived from the given [Voice].
-     * @throws UnsupportedOperationException if [voice's][voice] ID is null.
-     * @throws NoSuchElementException if [voice] is not found.
-     */
-    fun voiceToDTO(voice: Voice): VoiceDTO {
-        if (voice.voiceId == null) {
-            throw UnsupportedOperationException("Voices ID must not be null")
-        }
-        if (!existsById(requireNotNull(voice.voiceId))) {
-            throw NoSuchElementException("Voice with ID ${requireNotNull(voice.voiceId)} not found")
-        }
-        val groupingDTOs = mutableListOf<GroupingDTO>()
-        for (child in getChildren(requireNotNull(voice.voiceId))) {
-            groupingDTOs.add(groupingService.groupingToDTO(child))
-        }
-
-        return VoiceDTO(
-            metadata = voice.metadata,
-            groupingDTOs = groupingDTOs,
-        )
     }
 }

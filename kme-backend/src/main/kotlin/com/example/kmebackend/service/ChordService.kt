@@ -1,9 +1,6 @@
 package com.example.kmebackend.service
 
 import com.example.kmebackend.model.*
-import com.example.kmebackend.model.dto.ChordDTO
-import com.example.kmebackend.model.dto.NoteDTO
-import com.example.kmebackend.model.dto.StemDTO
 import com.example.kmebackend.repository.ChordRepository
 import com.example.kmebackend.repository.GroupingRepository
 import jakarta.validation.Valid
@@ -118,43 +115,5 @@ data class ChordService(
             noteService.deleteById(requireNotNull(child.noteId))
         }
         chordRepository.deleteById(chordId)
-    }
-
-    /**
-     * Turns a [Chord] into a [ChordDTO].
-     * @param chord the instance that is used to create the [ChordDTO].
-     * @return a [ChordDTO] that is derived from the given [Chord].
-     * @throws UnsupportedOperationException if [chord's][chord] ID is null.
-     * @throws NoSuchElementException if [chord] is not found.
-     */
-    fun chordToDTO(chord: Chord): ChordDTO {
-        if (chord.chordId == null) {
-            throw UnsupportedOperationException("Chord's ID must not be null")
-        }
-        if (!existsById(requireNotNull(chord.chordId))) {
-            throw NoSuchElementException("Chord with ID ${requireNotNull(chord.chordId)} not found")
-        }
-        val noteDTOs = mutableListOf<NoteDTO>()
-        for (child in getChildren(requireNotNull(chord.chordId))) {
-            noteDTOs.add(noteService.noteToDTO(child))
-        }
-        return ChordDTO(
-            stemDTO = stemToDTO(chord.stem),
-            dotCount = chord.dotCount,
-            metadata = chord.metadata,
-            noteDTOs = noteDTOs,
-        )
-    }
-
-    /**
-     * Turns a [Stem] into a [StemDTO].
-     * @param stem the instance that is used to create the [StemDTO].
-     * @return a [StemDTO] that is derived from the given [Stem].
-     */
-    private fun stemToDTO(stem: Stem): StemDTO {
-        return StemDTO(
-            stemType = stem.stemType,
-            metadata = stem.metadata,
-        )
     }
 }
