@@ -11,6 +11,10 @@ import {
 import type { Staff } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
 import {
+  parseMeasureMetadata,
+  parseStaffSystemMetadata,
+} from "../util/metadata";
+import {
   getClefNameFromClef,
   getKeySignatureNameFromKeySignature,
   getTimeSignatureStringFromTimeSignature,
@@ -137,7 +141,7 @@ export function renderStaffSystemAtIndex(
         .setContext(renderContext)
         .setType(
           getVexStaveConnectorTypeFromConnectorType(
-            staffSystem.metadata.connectorType,
+            parseStaffSystemMetadata(staffSystem).connectorType,
           ),
         ),
     );
@@ -194,15 +198,17 @@ function renderStaffAtIndex(
     .setContext(renderContext)
     .draw();
 
-  if (measure.metadata.drawClef) {
+  const measureMetadata = parseMeasureMetadata(measure);
+
+  if (measureMetadata.drawClef) {
     stave.addClef(getClefNameFromClef(measure.clef));
   }
-  if (measure.metadata.drawKeySignature) {
+  if (measureMetadata.drawKeySignature) {
     stave.addKeySignature(
       getKeySignatureNameFromKeySignature(measure.keySignature),
     );
   }
-  if (measure.metadata.drawTimeSignature) {
+  if (measureMetadata.drawTimeSignature) {
     stave.addTimeSignature(
       getTimeSignatureStringFromTimeSignature(measure.timeSignature),
     );
