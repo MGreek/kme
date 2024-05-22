@@ -202,7 +202,7 @@ export function getVexStemmableNotesFromGrouping(
       const chord = groupingEntry.chord;
       const staveNote = new StaveNote({
         keys: chord.notes.map((note) =>
-          getKeyFromPosition(note.position + noteOffset),
+          getKeyFromPosition(note.noteId.position + noteOffset),
         ),
         duration: getDurationFromStemType(chord.stem.stemType),
         auto_stem: true,
