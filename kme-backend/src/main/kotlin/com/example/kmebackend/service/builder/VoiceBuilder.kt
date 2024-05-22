@@ -3,7 +3,6 @@ package com.example.kmebackend.service.builder
 import com.example.kmebackend.model.Measure
 import com.example.kmebackend.model.Voice
 import com.example.kmebackend.model.VoiceId
-import com.example.kmebackend.model.VoiceMetadata
 import com.example.kmebackend.service.*
 
 /**
@@ -19,16 +18,16 @@ class VoiceBuilder internal constructor(
 ) {
     internal var selectedVoiceId: VoiceId? = null
 
-    private var metadata: VoiceMetadata? = null
+    private var metadataJson: String? = null
 
     /**
-     * Stores [newMetadata] that will be used to override the selected [Voice's][Voice] [Voice.metadata].
-     * @param newMetadata the data that will be used to override the selected [Voice's][Voice] [Voice.metadata].
+     * Stores [newMetadataJson] that will be used to override the selected [Voice's][Voice] [Voice.metadataJson].
+     * @param newMetadataJson the data that will be used to override the selected [Voice's][Voice] [Voice.metadataJson].
      * @return the same [VoiceBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: VoiceMetadata?): VoiceBuilder {
-        metadata = newMetadata
+    fun setMetadata(newMetadataJson: String?): VoiceBuilder {
+        metadataJson = newMetadataJson
         return this
     }
 
@@ -54,10 +53,10 @@ class VoiceBuilder internal constructor(
             throw UnsupportedOperationException("A Voice must be selected")
         }
         var voice = voiceService.findById(requireNotNull(selectedVoiceId)).orElseThrow()
-        if (metadata != null) {
-            voice = voice.copy(metadata = requireNotNull(metadata))
+        if (metadataJson != null) {
+            voice = voice.copy(metadataJson = requireNotNull(metadataJson))
         }
-        metadata = null
+        metadataJson = null
 
         voiceService.save(voice)
         return this

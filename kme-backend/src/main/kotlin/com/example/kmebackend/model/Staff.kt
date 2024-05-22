@@ -3,11 +3,6 @@ package com.example.kmebackend.model
 import jakarta.persistence.*
 
 @Embeddable
-data class StaffMetadata(
-    val placeholder: String = "",
-)
-
-@Embeddable
 data class StaffId(
     @Embedded
     val staffSystemId: StaffSystemId,
@@ -27,6 +22,5 @@ data class Staff(
         updatable = false,
     )
     val staffSystem: StaffSystem? = null,
-    @Embedded
-    val metadata: StaffMetadata = StaffMetadata(),
+    val metadataJson: String = "",
 )

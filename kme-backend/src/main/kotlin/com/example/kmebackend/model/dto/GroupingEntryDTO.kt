@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GroupingEntryDTO(
     val groupingEntryId: GroupingEntryId,
-    val groupingEntriesOrder: Int,
     @JsonProperty("rest")
     val restDTO: RestDTO?,
     @JsonProperty("chord")

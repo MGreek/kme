@@ -20,7 +20,7 @@ class MeasureBuilder internal constructor(
     private var keySignature: KeySignature? = null
     private var timeSignature: TimeSignature? = null
     private var clef: Clef? = null
-    private var metadata: MeasureMetadata? = null
+    private var metadataJson: String? = null
 
     /**
      * Stores [newKeySignature] that will be used to override the selected [Measure's][Measure] [Measure.keySignature].
@@ -56,13 +56,13 @@ class MeasureBuilder internal constructor(
     }
 
     /**
-     * Stores [newMetadata] that will be used to override the selected [Measure's][Measure] [Measure.metadata].
-     * @param newMetadata the data that will be used to override the selected [Measure's][Measure] [Measure.metadata].
+     * Stores [newMetadataJson] that will be used to override the selected [Measure's][Measure] [Measure.metadataJson].
+     * @param newMetadataJson the data that will be used to override the selected [Measure's][Measure] [Measure.metadataJson].
      * @return the same [MeasureBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: MeasureMetadata?): MeasureBuilder {
-        metadata = newMetadata
+    fun setMetadata(newMetadataJson: String?): MeasureBuilder {
+        metadataJson = newMetadataJson
         return this
     }
 
@@ -100,10 +100,10 @@ class MeasureBuilder internal constructor(
             measure = measure.copy(clef = requireNotNull(clef))
         }
         clef = null
-        if (metadata != null) {
-            measure = measure.copy(metadata = requireNotNull(metadata))
+        if (metadataJson != null) {
+            measure = measure.copy(metadataJson = requireNotNull(metadataJson))
         }
-        metadata = null
+        metadataJson = null
 
         measureService.save(measure)
         return this
