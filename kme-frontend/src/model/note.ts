@@ -1,14 +1,21 @@
+import type { ChordId } from "./chord";
+
 export enum Accidental {
-	DoubleFlat = "DoubleFlat",
-	Flat = "Flat",
-	None = "None",
-	Natural = "Natural",
-	Sharp = "Sharp",
-	DoubleSharp = "DoubleSharp",
+  DoubleFlat = "DoubleFlat",
+  Flat = "Flat",
+  None = "None",
+  Natural = "Natural",
+  Sharp = "Sharp",
+  DoubleSharp = "DoubleSharp",
+}
+
+export interface NoteId {
+  chordId: ChordId;
+  position: number;
 }
 
 export interface Note {
-	position: number;
-	accidental: Accidental;
-	metadata: string | null;
+  noteId: NoteId;
+  accidental: Accidental;
+  metadataJson: string;
 }

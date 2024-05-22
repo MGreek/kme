@@ -1,3 +1,4 @@
+import type { StaffId } from "./staff";
 import type { Voice } from "./voice";
 
 export enum KeySignature {
@@ -31,12 +32,14 @@ export enum Clef {
   Bass = "Bass",
 }
 
+export interface MeasureId {
+  staffId: StaffId;
+  measuresOrder: number;
+}
+
 export interface Measure {
-  metadata: {
-    drawClef: boolean;
-    drawKeySignature: boolean;
-    drawTimeSignature: boolean;
-  };
+  measureId: MeasureId;
+  metadataJson: string;
   keySignature: KeySignature;
   timeSignature: TimeSignature;
   clef: Clef;

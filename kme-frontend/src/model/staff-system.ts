@@ -6,12 +6,12 @@ export enum ConnectorType {
   Bracket = "Bracket",
 }
 
-export interface StaffSystemMetadata {
-  connectorType: ConnectorType;
+export interface StaffSystemId {
+  staffSystemId: string;
 }
 
 export interface StaffSystem {
-  id: string;
-  metadata: StaffSystemMetadata;
+  staffSystemId: StaffSystemId;
+  metadataJson: string;
   staves: Staff[];
 }
