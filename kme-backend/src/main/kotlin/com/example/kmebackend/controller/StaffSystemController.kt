@@ -49,7 +49,14 @@ class StaffSystemController(
                     noteService,
                 )
 
-            staffSystemBuilder.createAndSelectStaffSystem(StaffSystem())
+            staffSystemBuilder.createAndSelectStaffSystem(
+                StaffSystem(
+                    metadataJson =
+                        """
+                        {"connectorType":"Brace"}
+                        """,
+                ),
+            )
                 .buildStaves()
                 .appendAndSelectStaff(Staff())
                 .buildMeasures()
@@ -58,7 +65,10 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Bass,
-                        metadata = MeasureMetadata(drawClef = true, drawKeySignature = true, drawTimeSignature = true),
+                        metadataJson =
+                            """
+                            {"drawClef":true,"drawKeySignature":true,"drawTimeSignature":true}
+                            """,
                     ),
                 )
                 .buildVoices()
@@ -140,7 +150,6 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
-                        metadata = MeasureMetadata(),
                     ),
                 )
                 .buildVoices()
@@ -158,7 +167,6 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
-                        metadata = MeasureMetadata(),
                     ),
                 )
                 .buildVoices()
@@ -258,7 +266,6 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
-                        metadata = MeasureMetadata(),
                     ),
                 )
                 .buildVoices()
@@ -275,7 +282,6 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
-                        metadata = MeasureMetadata(),
                     ),
                 )
                 .buildVoices()
@@ -292,7 +298,6 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
-                        metadata = MeasureMetadata(),
                     ),
                 )
                 .buildVoices()
@@ -310,7 +315,6 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
-                        metadata = MeasureMetadata(),
                     ),
                 )
                 .buildVoices()
@@ -328,7 +332,6 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
-                        metadata = MeasureMetadata(),
                     ),
                 )
                 .buildVoices()
