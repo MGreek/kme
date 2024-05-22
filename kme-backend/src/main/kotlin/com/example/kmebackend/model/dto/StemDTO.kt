@@ -1,9 +1,8 @@
 package com.example.kmebackend.model.dto
 
-import com.example.kmebackend.model.StemMetadata
 import com.example.kmebackend.model.StemType
 
 data class StemDTO(
     val stemType: StemType,
-    val metadata: StemMetadata,
+    val metadataJson: String,
 )

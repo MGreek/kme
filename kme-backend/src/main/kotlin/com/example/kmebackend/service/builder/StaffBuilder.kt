@@ -2,7 +2,6 @@ package com.example.kmebackend.service.builder
 
 import com.example.kmebackend.model.Staff
 import com.example.kmebackend.model.StaffId
-import com.example.kmebackend.model.StaffMetadata
 import com.example.kmebackend.model.StaffSystem
 import com.example.kmebackend.service.*
 
@@ -20,16 +19,16 @@ class StaffBuilder internal constructor(
     private val noteService: NoteService,
 ) {
     internal var selectedStaffId: StaffId? = null
-    private var metadata: StaffMetadata? = null
+    private var metadataJson: String? = null
 
     /**
-     * Stores [newMetadata] that will be used to override the selected [Staff's][Staff] [metadata][Staff.metadata].
-     * @param newMetadata the data that will be used to override the selected [Staff's][Staff] [metadata][Staff.metadata].
+     * Stores [newMetadataJson] that will be used to override the selected [Staff's][Staff] [metadata][Staff.metadataJson].
+     * @param newMetadataJson the data that will be used to override the selected [Staff's][Staff] [metadata][Staff.metadataJson].
      * @return the same [StaffBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: StaffMetadata?): StaffBuilder {
-        metadata = newMetadata
+    fun setMetadata(newMetadataJson: String?): StaffBuilder {
+        metadataJson = newMetadataJson
         return this
     }
 
@@ -55,10 +54,10 @@ class StaffBuilder internal constructor(
             throw UnsupportedOperationException("A Staff must be selected")
         }
         var staff = staffService.findById(requireNotNull(selectedStaffId)).orElseThrow()
-        if (metadata != null) {
-            staff = staff.copy(metadata = requireNotNull(metadata))
+        if (metadataJson != null) {
+            staff = staff.copy(metadataJson = requireNotNull(metadataJson))
         }
-        metadata = null
+        metadataJson = null
 
         staffService.save(staff)
         return this

@@ -14,19 +14,19 @@ class ChordBuilder internal constructor(
 ) {
     internal var selectedChordId: ChordId? = null
 
-    private var metadata: ChordMetadata? = null
+    private var metadataJson: String? = null
     private var stemType: StemType? = null
-    private var stemMetadata: StemMetadata? = null
+    private var stemMetadataJson: String? = null
     private var dotCount: Long? = null
 
     /**
-     * Stores [newMetadata] that will be used to override the selected [Chord's][Chord] [Chord.metadata].
-     * @param newMetadata the data that will be used to override the selected [Chord's][Chord] [Chord.metadata].
+     * Stores [newMetadataJson] that will be used to override the selected [Chord's][Chord] [Chord.metadataJson].
+     * @param newMetadataJson the data that will be used to override the selected [Chord's][Chord] [Chord.metadataJson].
      * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: ChordMetadata?): ChordBuilder {
-        metadata = newMetadata
+    fun setMetadata(newMetadataJson: String?): ChordBuilder {
+        metadataJson = newMetadataJson
         return this
     }
 
@@ -42,13 +42,13 @@ class ChordBuilder internal constructor(
     }
 
     /**
-     * Stores [newStemMetadata] that will be used to override the selected [Chord's][Chord] [stemMetadata][Stem.metadata].
-     * @param newStemMetadata the data that will be used to override the selected [Chord's][Chord] [stemMetadata][Stem.metadata].
+     * Stores [stemMetadataJson] that will be used to override the selected [Chord's][Chord] [stemMetadata][Stem.metadataJson].
+     * @param stemMetadataJson the data that will be used to override the selected [Chord's][Chord] [stemMetadata][Stem.metadataJson].
      * @return the same [ChordBuilder] instance that called this function.
      * @see save
      */
-    fun setStemMetadata(newStemMetadata: StemMetadata?): ChordBuilder {
-        stemMetadata = newStemMetadata
+    fun setStemMetadata(stemMetadataJson: String?): ChordBuilder {
+        this.stemMetadataJson = stemMetadataJson
         return this
     }
 
@@ -85,18 +85,18 @@ class ChordBuilder internal constructor(
             throw UnsupportedOperationException("A Chord must be selected")
         }
         var chord = chordService.findById(requireNotNull(selectedChordId)).orElseThrow()
-        if (metadata != null) {
-            chord = chord.copy(metadata = requireNotNull(metadata))
+        if (metadataJson != null) {
+            chord = chord.copy(metadataJson = requireNotNull(metadataJson))
         }
-        metadata = null
+        metadataJson = null
         if (stemType != null) {
             chord = chord.copy(stem = chord.stem.copy(stemType = requireNotNull(stemType)))
         }
         stemType = null
-        if (stemMetadata != null) {
-            chord = chord.copy(stem = chord.stem.copy(metadata = requireNotNull(stemMetadata)))
+        if (stemMetadataJson != null) {
+            chord = chord.copy(stem = chord.stem.copy(metadataJson = requireNotNull(stemMetadataJson)))
         }
-        stemMetadata = null
+        stemMetadataJson = null
         if (dotCount != null) {
             chord = chord.copy(dotCount = requireNotNull(dotCount))
         }

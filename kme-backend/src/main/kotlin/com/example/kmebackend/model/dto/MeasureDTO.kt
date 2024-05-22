@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class MeasureDTO(
     val measureId: MeasureId,
-    val metadata: MeasureMetadata,
+    val metadataJson: String,
     val keySignature: KeySignature,
     val timeSignature: TimeSignature,
     val clef: Clef,

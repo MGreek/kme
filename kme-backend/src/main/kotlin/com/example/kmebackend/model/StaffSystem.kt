@@ -10,12 +10,6 @@ enum class ConnectorType {
 }
 
 @Embeddable
-data class StaffSystemMetadata(
-    @Enumerated(EnumType.STRING)
-    val connectorType: ConnectorType = ConnectorType.Brace,
-)
-
-@Embeddable
 data class StaffSystemId(
     @Column(name = "staff_system_id")
     val staffSystemId: String = UUID.randomUUID().toString(),
@@ -25,6 +19,5 @@ data class StaffSystemId(
 data class StaffSystem(
     @EmbeddedId
     val staffSystemId: StaffSystemId? = null,
-    @Embedded
-    val metadata: StaffSystemMetadata = StaffSystemMetadata(),
+    val metadataJson: String = "",
 )

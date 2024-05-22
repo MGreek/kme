@@ -13,7 +13,7 @@ class NoteBuilder internal constructor(
     private var selectedNoteId: NoteId? = null
 
     private var accidental: Accidental? = null
-    private var metadata: NoteMetadata? = null
+    private var metadataJson: String? = null
 
     /**
      * Stores [newAccidental] that will be used to override the selected [Note's][Note] [Note.accidental].
@@ -27,13 +27,13 @@ class NoteBuilder internal constructor(
     }
 
     /**
-     * Stores [newMetadata] that will be used to override the selected [Note's][Note] [Note.metadata].
-     * @param newMetadata the data that will be used to override the selected [Note's][Note] [Note.metadata].
+     * Stores [newMetadataJson] that will be used to override the selected [Note's][Note] [Note.metadataJson].
+     * @param newMetadataJson the data that will be used to override the selected [Note's][Note] [Note.metadataJson].
      * @return the same [NoteBuilder] instance that called this function.
      * @see save
      */
-    fun setMetadata(newMetadata: NoteMetadata?): NoteBuilder {
-        metadata = newMetadata
+    fun setMetadata(newMetadataJson: String?): NoteBuilder {
+        metadataJson = newMetadataJson
         return this
     }
 
@@ -62,8 +62,8 @@ class NoteBuilder internal constructor(
         if (accidental != null) {
             note = note.copy(accidental = requireNotNull(accidental))
         }
-        if (metadata != null) {
-            note = note.copy(metadata = requireNotNull(metadata))
+        if (metadataJson != null) {
+            note = note.copy(metadataJson = requireNotNull(metadataJson))
         }
         noteService.save(note)
         return this
