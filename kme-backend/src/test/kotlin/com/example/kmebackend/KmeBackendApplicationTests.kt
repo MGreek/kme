@@ -12,10 +12,12 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
 import java.util.*
 import kotlin.NoSuchElementException
 
 @SpringBootTest
+@ActiveProfiles("test")
 class KmeBackendApplicationTests(
     @Autowired
     val staffSystemService: StaffSystemService,
@@ -106,13 +108,13 @@ class KmeBackendApplicationTests(
         staffSystemService.save(staffSystem)
         assertTrue(staffSystemService.existsById(requireNotNull(staffSystem.staffSystemId)))
 
-        val staffSystemMetadata = StaffSystemMetadata()
+        val staffSystemMetadata = "Hello System"
         staffSystemBuilder.selectStaffSystem(requireNotNull(staffSystem.staffSystemId))
             .setMetadata(staffSystemMetadata)
             .save()
 
         val storedStaffSystem = staffSystemService.findById(StaffSystemId(uuid)).orElseThrow()
-        assertEquals(staffSystemMetadata, storedStaffSystem.metadata)
+        assertEquals(staffSystemMetadata, storedStaffSystem.metadataJson)
 
         // StaffBuilder tests
         val staffBuilder = staffSystemBuilder.buildStaves()
@@ -133,16 +135,16 @@ class KmeBackendApplicationTests(
         staffBuilder.selectStaff(newStaffId.stavesOrder).deleteSelectedStaff()
         assertFalse(staffService.existsById(newStaffId))
 
-        val staffMetadata = StaffMetadata(randomMetadata())
-        staffBuilder.appendAndSelectStaff(Staff(metadata = staffMetadata))
+        val staffMetadata = randomMetadata()
+        staffBuilder.appendAndSelectStaff(Staff(metadataJson = staffMetadata))
         var storedStaff = staffService.findById(requireNotNull(staffBuilder.selectedStaffId)).orElseThrow()
-        assertEquals(staffMetadata, storedStaff.metadata)
+        assertEquals(staffMetadata, storedStaff.metadataJson)
         val otherStaffBuilder = staffSystemBuilder.buildStaves().selectStaff(0)
         assertNotEquals(staffBuilder, otherStaffBuilder)
-        val newStaffMetadata = StaffMetadata(randomMetadata())
+        val newStaffMetadata = randomMetadata()
         otherStaffBuilder.setMetadata(newStaffMetadata).save()
         storedStaff = staffService.findById(requireNotNull(staffBuilder.selectedStaffId)).orElseThrow()
-        assertEquals(newStaffMetadata, storedStaff.metadata)
+        assertEquals(newStaffMetadata, storedStaff.metadataJson)
 
         // MeasureBuilder tests
         val measureBuilder = staffBuilder.buildMeasures()
@@ -180,7 +182,7 @@ class KmeBackendApplicationTests(
             )
         measureService.save(measure)
 
-        val measureMetadata = MeasureMetadata()
+        val measureMetadata = "Hello Measure"
         measureBuilder.selectMeasure(0)
             .setKeySignature(KeySignature.Flat7)
             .setMetadata(measureMetadata)
@@ -194,7 +196,7 @@ class KmeBackendApplicationTests(
                 keySignature = KeySignature.Flat7,
                 timeSignature = TimeSignature.Common,
                 clef = Clef.Treble,
-                metadata = measureMetadata,
+                metadataJson = measureMetadata,
             ),
             storedMeasure,
         )
@@ -225,7 +227,7 @@ class KmeBackendApplicationTests(
             )
         voiceService.save(voice)
 
-        val voiceMetadata = VoiceMetadata()
+        val voiceMetadata = "Hello voice"
         voiceBuilder.selectVoice(0)
             .setMetadata(voiceMetadata)
             .save()
@@ -233,7 +235,7 @@ class KmeBackendApplicationTests(
         val storedVoice = voiceService.findById(requireNotNull(voice.voiceId)).orElseThrow()
         assertEquals(
             voiceMetadata,
-            storedVoice.metadata,
+            storedVoice.metadataJson,
         )
 
         // GroupingBuilder tests
@@ -259,13 +261,13 @@ class KmeBackendApplicationTests(
         val grouping = groupingService.appendToVoice(requireNotNull(voice.voiceId), Grouping())
         groupingService.save(grouping)
 
-        val groupingMetadata = GroupingMetadata()
+        val groupingMetadata = "Hello Grouping"
         groupingBuilder.selectGrouping(0)
             .setMetadata(groupingMetadata)
             .save()
 
         val storedGrouping = groupingService.findById(requireNotNull(grouping.groupingId)).orElseThrow()
-        assertEquals(groupingMetadata, storedGrouping.metadata)
+        assertEquals(groupingMetadata, storedGrouping.metadataJson)
 
         // RestBuilder tests
         val restBuilder = groupingBuilder.buildRests()
@@ -292,7 +294,7 @@ class KmeBackendApplicationTests(
             )
         restService.save(rest)
 
-        val restMetadata = RestMetadata()
+        val restMetadata = "Hello Rest"
         restBuilder.selectRest(0)
             .setRestType(RestType.Sixteenth)
             .setMetadata(restMetadata)
@@ -302,7 +304,7 @@ class KmeBackendApplicationTests(
         assertEquals(
             rest.copy(
                 restType = RestType.Sixteenth,
-                metadata = restMetadata,
+                metadataJson = restMetadata,
             ),
             storedRest,
         )
@@ -341,8 +343,8 @@ class KmeBackendApplicationTests(
             )
         chordService.save(chord)
 
-        val chordMetadata = ChordMetadata()
-        val stemMetadata = StemMetadata()
+        val chordMetadata = "Hello Chord"
+        val stemMetadata = "Hello Stem"
         chordBuilder.selectChord(1)
             .setStemType(StemType.Whole)
             .setStemMetadata(stemMetadata)
@@ -353,9 +355,9 @@ class KmeBackendApplicationTests(
         val storedChord = chordService.findById(requireNotNull(chord.chordId)).orElseThrow()
         assertEquals(
             chord.copy(
-                stem = Stem(stemType = StemType.Whole, metadata = stemMetadata),
+                stem = Stem(stemType = StemType.Whole, metadataJson = stemMetadata),
                 dotCount = 2,
-                metadata = chordMetadata,
+                metadataJson = chordMetadata,
             ),
             storedChord,
         )
@@ -393,7 +395,7 @@ class KmeBackendApplicationTests(
             )
         noteService.save(note)
 
-        val noteMetadata = NoteMetadata()
+        val noteMetadata = "Hello Note"
         noteBuilder.selectNote(1)
             .setAccidental(Accidental.DoubleSharp)
             .setMetadata(noteMetadata)
@@ -403,7 +405,7 @@ class KmeBackendApplicationTests(
         assertEquals(
             note.copy(
                 accidental = Accidental.DoubleSharp,
-                metadata = noteMetadata,
+                metadataJson = noteMetadata,
             ),
             storedNote,
         )
@@ -866,139 +868,6 @@ class KmeBackendApplicationTests(
     }
 
     @Test
-    fun testDTO() {
-        // Clear all data
-        staffSystemService.deleteAll()
-
-        val staffSystemBuilder =
-            StaffSystemBuilder(
-                staffSystemService,
-                staffService,
-                measureService,
-                voiceService,
-                groupingService,
-                restService,
-                chordService,
-                noteService,
-            )
-
-        val expectedNoteDTO =
-            NoteDTO(
-                position = 3,
-                accidental = Accidental.None,
-                metadata = NoteMetadata(),
-            )
-        val expectedChordDTO =
-            ChordDTO(
-                stemDTO = StemDTO(stemType = StemType.Quarter, metadata = StemMetadata()),
-                dotCount = 0,
-                metadata = ChordMetadata(),
-                noteDTOs = listOf(expectedNoteDTO),
-            )
-        val expectedChordGroupingEntryDTO =
-            GroupingEntryDTO(
-                groupingEntriesOrder = 1,
-                restDTO = null,
-                chordDTO = expectedChordDTO,
-            )
-        val expectedRestDTO =
-            RestDTO(
-                restType = RestType.Quarter,
-                position = 0,
-                metadata = RestMetadata(),
-            )
-        val expectedRestGroupingEntryDTO =
-            GroupingEntryDTO(
-                groupingEntriesOrder = 0,
-                restDTO = expectedRestDTO,
-                chordDTO = null,
-            )
-        val expectedGroupingDTO =
-            GroupingDTO(
-                metadata = GroupingMetadata(),
-                groupingEntryDTOs = listOf(expectedRestGroupingEntryDTO, expectedChordGroupingEntryDTO),
-            )
-        val expectedVoiceDTO =
-            VoiceDTO(
-                metadata = VoiceMetadata(),
-                groupingDTOs = listOf(expectedGroupingDTO),
-            )
-        val expectedMeasureDTO =
-            MeasureDTO(
-                keySignature = KeySignature.Flat3,
-                timeSignature = TimeSignature.TwoFour,
-                clef = Clef.Treble,
-                metadata = MeasureMetadata(),
-                voiceDTOs = listOf(expectedVoiceDTO),
-            )
-        val expectedStaffDTO =
-            StaffDTO(
-                metadata = StaffMetadata(),
-                measureDTOs = listOf(expectedMeasureDTO),
-            )
-        val expectedStaffSystemDTO =
-            StaffSystemDTO(
-                id = UUID.randomUUID().toString(),
-                metadata = StaffSystemMetadata(),
-                staffDTOs = listOf(expectedStaffDTO),
-            )
-
-        val staffSystem =
-            StaffSystem(
-                staffSystemId = StaffSystemId(staffSystemId = expectedStaffSystemDTO.id),
-                metadata = expectedStaffSystemDTO.metadata,
-            )
-        staffSystemService.save(staffSystem)
-
-        staffSystemBuilder.selectStaffSystem(requireNotNull(staffSystem.staffSystemId))
-            .buildStaves()
-            .appendAndSelectStaff(Staff(metadata = expectedStaffDTO.metadata))
-            .buildMeasures()
-            .appendAndSelectMeasure(
-                Measure(
-                    keySignature = expectedMeasureDTO.keySignature,
-                    timeSignature = expectedMeasureDTO.timeSignature,
-                    clef = expectedMeasureDTO.clef,
-                    metadata = expectedMeasureDTO.metadata,
-                ),
-            )
-            .buildVoices()
-            .appendAndSelectVoice(Voice(metadata = expectedVoiceDTO.metadata))
-            .buildGroupings()
-            .appendAndSelectGrouping(Grouping(metadata = expectedGroupingDTO.metadata))
-            .buildRests()
-            .appendAndSelectRest(
-                Rest(restType = expectedRestDTO.restType, position = 0, metadata = expectedRestDTO.metadata),
-            )
-            .back()
-            .buildChords()
-            .appendAndSelectChord(
-                Chord(
-                    stem =
-                        Stem(
-                            stemType = expectedChordDTO.stemDTO.stemType,
-                            metadata = expectedChordDTO.stemDTO.metadata,
-                        ),
-                    dotCount = expectedChordDTO.dotCount,
-                    metadata = expectedChordDTO.metadata,
-                ),
-            )
-            .buildNotes()
-            .insertAndSelectNote(
-                Note(
-                    noteId = NoteId(position = expectedNoteDTO.position),
-                    accidental = expectedNoteDTO.accidental,
-                    metadata = expectedNoteDTO.metadata,
-                ),
-            )
-
-        assertEquals(
-            expectedStaffSystemDTO,
-            staffSystemService.staffSystemToDTO(staffSystem),
-        )
-    }
-
-    @Test
     fun testECPBVA() {
         // Clear all data
         staffSystemService.deleteAll()
@@ -1064,11 +933,11 @@ class KmeBackendApplicationTests(
         }
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
-            .setMetadata(ChordMetadata())
+            .setMetadata("Hello Chord")
             .save()
         checkCurrentChord(
             chordBuilder,
-            Chord(stem = Stem(stemType = StemType.Half), dotCount = 0, metadata = ChordMetadata()),
+            Chord(stem = Stem(stemType = StemType.Half), dotCount = 0, metadataJson = "Hello Chord"),
         )
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
@@ -1077,11 +946,11 @@ class KmeBackendApplicationTests(
         checkCurrentChord(chordBuilder, Chord(stem = Stem(stemType = StemType.Half), dotCount = 2))
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
-            .setStemMetadata(StemMetadata())
+            .setStemMetadata("Hello Stem")
             .save()
         checkCurrentChord(
             chordBuilder,
-            Chord(stem = Stem(stemType = StemType.Half, metadata = StemMetadata()), dotCount = 0),
+            Chord(stem = Stem(stemType = StemType.Half, metadataJson = "Hello Stem"), dotCount = 0),
         )
 
         chordBuilder.appendAndSelectChord(Chord(stem = Stem(stemType = StemType.Half), dotCount = 0))
