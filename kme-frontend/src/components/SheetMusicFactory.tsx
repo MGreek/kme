@@ -55,7 +55,7 @@ export default function SheetMusicFactory({
   const getChunkIdRef = useCallback(
     (info: ChunkInfo) => {
       return JSON.stringify({
-        staffSystemId: staffSystem.id,
+        staffSystemId: staffSystem.staffSystemId.staffSystemId,
         type: "chunk",
         index: info.index,
       });
@@ -66,7 +66,7 @@ export default function SheetMusicFactory({
   const getRowIdRef = useCallback(
     (rowIndex: number) => {
       return JSON.stringify({
-        staffSystemId: staffSystem.id,
+        staffSystemId: staffSystem.staffSystemId.staffSystemId,
         type: "row",
         index: rowIndex,
       });
@@ -102,7 +102,7 @@ export default function SheetMusicFactory({
   const getPageIdRef = useCallback(
     (pageIndex: number) => {
       return JSON.stringify({
-        staffSystemId: staffSystem.id,
+        staffSystemId: staffSystem.staffSystemId.staffSystemId,
         type: "page",
         index: pageIndex,
       });
