@@ -167,6 +167,10 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
+                        metadataJson =
+                            """
+                            {"drawClef":true,"drawKeySignature":true,"drawTimeSignature":true}
+                            """,
                     ),
                 )
                 .buildVoices()
@@ -282,6 +286,10 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
+                        metadataJson =
+                            """
+                            {"drawClef":true,"drawKeySignature":true,"drawTimeSignature":true}
+                            """,
                     ),
                 )
                 .buildVoices()
@@ -298,6 +306,10 @@ class StaffSystemController(
                         keySignature = KeySignature.Flat2,
                         timeSignature = TimeSignature.FourFour,
                         clef = Clef.Treble,
+                        metadataJson =
+                            """
+                            {"drawClef":true,"drawKeySignature":true,"drawTimeSignature":true}
+                            """,
                     ),
                 )
                 .buildVoices()
