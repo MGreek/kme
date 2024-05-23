@@ -4,6 +4,7 @@ import com.example.kmebackend.model.*
 import com.example.kmebackend.model.dto.StaffSystemDTO
 import com.example.kmebackend.service.*
 import com.example.kmebackend.service.builder.StaffSystemBuilder
+import com.example.kmebackend.service.converter.StaffSystemConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -30,6 +31,8 @@ class StaffSystemController(
     val chordService: ChordService,
     @Autowired
     val noteService: NoteService,
+    @Autowired
+    val staffSystemConverter: StaffSystemConverter,
 ) {
     @RequestMapping("/sample")
     fun getSampleStaffSystem(): ResponseEntity<StaffSystemDTO> {
@@ -337,7 +340,7 @@ class StaffSystemController(
                 .appendAndSelectRest(Rest(position = 0, restType = RestType.Half))
 
             val staffSystem = staffSystemService.findById(staffSystemBuilder.getSelectedStaffSystemId()).orElseThrow()
-            return ResponseEntity.ok(staffSystemService.staffSystemToDTO(staffSystem))
+            return ResponseEntity.ok(staffSystemConverter.staffSystemToDto(staffSystem))
         } catch (_: Exception) {
             return ResponseEntity.internalServerError().build()
         }
