@@ -21,15 +21,15 @@ interface ChunkProps {
   drawSingleLineLeft: boolean;
   drawSingleLineRight: boolean;
   onRender:
-  | ((
-    width: number,
-    height: number,
-    chunkStavesYs: number[],
-    drawConnector: boolean,
-    drawSingleLineLeft: boolean,
-    drawSingleLineRight: boolean,
-  ) => void)
-  | null;
+    | ((
+        width: number,
+        height: number,
+        chunkStavesYs: number[],
+        drawConnector: boolean,
+        drawSingleLineLeft: boolean,
+        drawSingleLineRight: boolean,
+      ) => void)
+    | null;
 }
 
 export default function Chunk({
