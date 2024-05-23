@@ -105,7 +105,7 @@ export function renderStaffSystemAtIndex(
     stemmableNotes.push(...crtStemmableNotes);
     modifiers.push(...crtModifiers);
 
-    const bounds = getBounds(crtStave, crtStemmableNotes);
+    const bounds = requireNotNull(getBounds([crtStave], crtStemmableNotes, []));
 
     if ("gap" in options.stacking && offsetY != null) {
       offsetY += options.stacking.gap + bounds.getH();
@@ -151,27 +151,78 @@ export function renderStaffSystemAtIndex(
   return { staves, beams, stemmableNotes, modifiers, connectors };
 }
 
-function getBoundingBoxFromDOMRect(rect: DOMRect): BoundingBox {
-  return new BoundingBox(rect.x, rect.y, rect.width, rect.height);
-}
+export function getBounds(
+  staves: Stave[],
+  stemmableNotes: StemmableNote[],
+  connectors: StaveConnector[],
+): BoundingBox | null {
+  let boundingBox: BoundingBox | null = null;
 
-function getBounds(crtStave: Stave, crtStemmableNotes: StemmableNote[]) {
-  const staveRect = requireNotNull(
-    crtStave.getSVGElement(),
-  ).getBoundingClientRect();
-  staveRect.x = crtStave.getX();
-  staveRect.y = crtStave.getTopLineTopY();
+  for (const stave of staves) {
+    const staveRect = stave.getBoundingBox();
 
-  const noteRects = crtStemmableNotes.map((note) =>
-    requireNotNull(note.getBoundingBox()),
-  );
+    if (boundingBox != null) {
+      boundingBox = boundingBox.mergeWith(staveRect);
+    } else {
+      boundingBox = staveRect;
+    }
+  }
 
-  const mergedBoundingBox = [
-    getBoundingBoxFromDOMRect(staveRect),
-    ...noteRects,
-  ].reduce((prev, crt) => prev.mergeWith(crt));
+  for (const stemmableNote of stemmableNotes) {
+    const stemmableNoteRect = requireNotNull(stemmableNote.getBoundingBox());
 
-  return mergedBoundingBox;
+    if (boundingBox != null) {
+      boundingBox = boundingBox.mergeWith(stemmableNoteRect);
+    } else {
+      boundingBox = stemmableNoteRect;
+    }
+  }
+
+  for (const connector of connectors) {
+    const topStave = connector.top_stave;
+    const bottomStave = connector.bottom_stave;
+    let connectorRect: BoundingBox | null = null;
+    if (connector.getType() === StaveConnector.type.BRACE) {
+      // TODO: use something other than hardcoded width
+      const hardcodedWidth = 15;
+      connectorRect = new BoundingBox(
+        topStave.getX() - hardcodedWidth,
+        topStave.getYForLine(0),
+        hardcodedWidth,
+        bottomStave.getYForLine(4) - topStave.getYForLine(0),
+      );
+    } else if (connector.getType() === StaveConnector.type.SINGLE_RIGHT) {
+      // TODO: use something other than hardcoded width
+      const hardcodedWidth = 1;
+      connectorRect = new BoundingBox(
+        topStave.getX() + topStave.getWidth(),
+        topStave.getYForLine(0),
+        hardcodedWidth,
+        bottomStave.getYForLine(4) - topStave.getYForLine(0),
+      );
+    } else if (connector.getType() === StaveConnector.type.SINGLE_LEFT) {
+      // TODO: use something other than hardcoded width
+      const hardcodedWidth = 1;
+      connectorRect = new BoundingBox(
+        topStave.getX() - hardcodedWidth,
+        topStave.getYForLine(0),
+        hardcodedWidth,
+        bottomStave.getYForLine(4) - topStave.getYForLine(0),
+      );
+    }
+
+    if (connectorRect == null) {
+      continue;
+    }
+
+    if (boundingBox != null) {
+      boundingBox = boundingBox.mergeWith(connectorRect);
+    } else {
+      boundingBox = connectorRect;
+    }
+  }
+
+  return boundingBox;
 }
 
 function renderStaffAtIndex(
