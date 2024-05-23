@@ -7,7 +7,7 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   let object = null;
   try {
     object = JSON.parse(staffSystem.metadataJson);
-  } catch { }
+  } catch {}
 
   let connectorType = ConnectorType.None;
   if (
@@ -30,7 +30,7 @@ export function parseMeasureMetadata(measure: Measure): {
   let object = null;
   try {
     object = JSON.parse(measure.metadataJson);
-  } catch (error) { }
+  } catch (error) {}
 
   let drawClef = false;
   if (
