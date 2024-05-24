@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { StaffSystem } from "../model/staff-system";
-import { SVGContext } from "vexflow";
+import { BoundingBox, SVGContext } from "vexflow";
 import { renderStaffAtIndex } from "../renderer/render-staff-system-at-index";
 import { requireNotNull } from "../util/require-not-null";
 
@@ -89,6 +89,19 @@ export default function StaffSystemElement({
     return result;
   }, []);
 
+  const getNewElementsBounds = useCallback(() => {
+    const toBoudingBox = (rect: DOMRect) =>
+      new BoundingBox(rect.x, rect.y, rect.width, rect.height);
+    const elements = collectNewElements();
+    const boundingBox = elements
+      .map((element) => toBoudingBox(element.getBoundingClientRect()))
+      .reduce(
+        (prev: BoundingBox | null, crt) => prev?.mergeWith(crt) ?? crt,
+        null,
+      );
+    return boundingBox;
+  }, [collectNewElements]);
+
   useEffect(() => {
     if (divRef.current == null) {
       return;
@@ -103,8 +116,8 @@ export default function StaffSystemElement({
       0,
       350,
     );
-    console.log(collectNewElements());
-  }, [staffSystem.staves[1], collectNewElements]);
+    console.log(getNewElementsBounds());
+  }, [staffSystem.staves[1], getNewElementsBounds]);
 
   return <div ref={divRef} />;
 }
