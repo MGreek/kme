@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef } from "react";
+import { BoundingBox, type RenderContext, SVGContext } from "vexflow";
 import type { StaffSystem } from "../model/staff-system";
-import { BoundingBox, SVGContext } from "vexflow";
 import { renderStaffAtIndex } from "../renderer/render-staff-system-at-index";
 import { requireNotNull } from "../util/require-not-null";
 
 export default function StaffSystemElement({
   staffSystem,
-}: { staffSystem: StaffSystem }) {
+  measureIndex,
+}: { staffSystem: StaffSystem; measureIndex: number }) {
   const divRef = useRef<HTMLDivElement | null>(null);
   const crtStaveIdsRef = useRef<Set<string>>(new Set<string>());
   const crtClefIdsRef = useRef<Set<string>>(new Set<string>());
@@ -90,11 +91,26 @@ export default function StaffSystemElement({
   }, []);
 
   const getNewElementsBounds = useCallback(() => {
+    const div = requireNotNull(
+      divRef.current,
+      "Expected divRef to be initialized",
+    );
+
     const toBoudingBox = (rect: DOMRect) =>
       new BoundingBox(rect.x, rect.y, rect.width, rect.height);
+
+    const divRect = toBoudingBox(div.getBoundingClientRect());
+
+    const normalize = (rect: DOMRect) => {
+      const bb = toBoudingBox(rect);
+      bb.x -= divRect.x;
+      bb.y -= divRect.y;
+      return bb;
+    };
+
     const elements = collectNewElements();
     const boundingBox = elements
-      .map((element) => toBoudingBox(element.getBoundingClientRect()))
+      .map((element) => normalize(element.getBoundingClientRect()))
       .reduce(
         (prev: BoundingBox | null, crt) => prev?.mergeWith(crt) ?? crt,
         null,
@@ -102,22 +118,86 @@ export default function StaffSystemElement({
     return boundingBox;
   }, [collectNewElements]);
 
+  const clearAndNewContext = useCallback((renderContext: RenderContext) => {
+    renderContext.clear();
+    const div = requireNotNull(divRef.current);
+    div.innerHTML = "";
+    crtStaveIdsRef.current.clear();
+    crtClefIdsRef.current.clear();
+    crtStavebarlineIdsRef.current.clear();
+    crtKeysignatureIdsRef.current.clear();
+    crtTimesignatureIdsRef.current.clear();
+    crtStavenoteIdsRef.current.clear();
+    crtBeamIdsRef.current.clear();
+    crtStemIdsRef.current.clear();
+    return new SVGContext(div);
+  }, []);
+
   useEffect(() => {
     if (divRef.current == null) {
       return;
     }
 
-    const renderContext = new SVGContext(divRef.current);
-    renderStaffAtIndex(
-      renderContext,
-      requireNotNull(staffSystem.staves[1]),
-      0,
-      0,
-      0,
-      350,
-    );
-    console.log(getNewElementsBounds());
-  }, [staffSystem.staves[1], getNewElementsBounds]);
+    if (staffSystem.staves.length === 0) {
+      return;
+    }
 
-  return <div ref={divRef} />;
+    if (
+      staffSystem.staves.some(
+        (staff) => staff.measures.at(measureIndex) == null,
+      )
+    ) {
+      throw new Error(
+        `All staves must have a measure at index: ${measureIndex}`,
+      );
+    }
+
+    // TODO: get gap from metadata
+    const gap = 20;
+
+    let renderContext = new SVGContext(divRef.current);
+    let x = 0;
+    const stavesYs = [];
+    // outer block used for limiting scope
+    {
+      let y = 0;
+      for (const staff of staffSystem.staves) {
+        renderStaffAtIndex(renderContext, staff, measureIndex, 0, 0);
+        const bounds = requireNotNull(getNewElementsBounds());
+        if (x < bounds.x) {
+          x = bounds.x;
+        }
+        stavesYs.push(y - bounds.y);
+        y += bounds.h + gap;
+        renderContext = clearAndNewContext(renderContext);
+      }
+    }
+
+    renderContext = clearAndNewContext(renderContext);
+    for (const [index, staff] of staffSystem.staves.entries()) {
+      renderStaffAtIndex(
+        renderContext,
+        staff,
+        measureIndex,
+        x,
+        requireNotNull(stavesYs[index]),
+      );
+    }
+
+    const totalBounds = getNewElementsBounds();
+    const width = (totalBounds?.x ?? 0) + (totalBounds?.w ?? 0);
+    const height = (totalBounds?.y ?? 0) + (totalBounds?.h ?? 0);
+
+    renderContext.resize(width, height);
+    const div = divRef.current;
+    div.style.width = `${width}px`;
+    div.style.height = `${height}px`;
+  }, [
+    staffSystem.staves,
+    measureIndex,
+    getNewElementsBounds,
+    clearAndNewContext,
+  ]);
+
+  return <div className="bg-red-300" ref={divRef} />;
 }
