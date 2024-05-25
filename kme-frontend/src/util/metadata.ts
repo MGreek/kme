@@ -34,6 +34,21 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   return { connectorType, gap };
 }
 
+export function parseStaffMetadata(staff: Staff): {
+  width: number;
+} {
+  let object = null;
+  try {
+    object = JSON.parse(staff.metadataJson);
+  } catch (error) {}
+
+  let width = 350;
+  if (object != null && "width" in object && typeof object.width === "number") {
+    width = object.width;
+  }
+  return { width };
+}
+
 export function parseMeasureMetadata(measure: Measure): {
   drawClef: boolean;
   drawKeySignature: boolean;
