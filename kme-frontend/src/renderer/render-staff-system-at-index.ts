@@ -1,6 +1,6 @@
 import { Formatter, type RenderContext, Stave } from "vexflow";
 import type { Staff } from "../model/staff";
-import { parseMeasureMetadata } from "../util/metadata";
+import { parseMeasureMetadata, parseStaffMetadata } from "../util/metadata";
 import {
   getClefNameFromClef,
   getKeySignatureNameFromKeySignature,
@@ -25,12 +25,12 @@ export function renderStaffAtIndex(
   x: number,
   y: number,
 ): Stave {
-  // TODO: use width from metadata not hardcoded value
-  const width = 350;
+  const staffMetadata = parseStaffMetadata(staff);
+
   const measure = requireNotNull(staff.measures[index]);
   const { vexVoices, beams } = getVexVoicesFromMeasure(renderContext, measure);
 
-  const stave = new Stave(x, y, width, {
+  const stave = new Stave(x, y, staffMetadata.width, {
     space_below_staff_ln: 0,
     space_above_staff_ln: 0,
     left_bar: false,
