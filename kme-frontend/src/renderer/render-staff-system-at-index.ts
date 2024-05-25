@@ -18,14 +18,14 @@ export interface RenderOptions {
   drawSingleLineRight: boolean;
 }
 
-// TODO: use width from metadata not param
 export function renderStaffAtIndex(
   renderContext: RenderContext,
   staff: Staff,
   index: number,
   x: number,
   y: number,
-) {
+): Stave {
+  // TODO: use width from metadata not hardcoded value
   const width = 350;
   const measure = requireNotNull(staff.measures[index]);
   const { vexVoices, beams } = getVexVoicesFromMeasure(renderContext, measure);
@@ -65,4 +65,6 @@ export function renderStaffAtIndex(
   for (const beam of beams) {
     beam.draw();
   }
+
+  return stave;
 }
