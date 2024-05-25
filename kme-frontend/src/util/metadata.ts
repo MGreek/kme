@@ -1,8 +1,10 @@
 import type { Measure } from "../model/measure";
+import type { Staff } from "../model/staff";
 import { ConnectorType, type StaffSystem } from "../model/staff-system";
 
 export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   connectorType: ConnectorType;
+  gap: number;
 } {
   let object = null;
   try {
@@ -19,7 +21,17 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
     connectorType = object.connectorType;
   }
 
-  return { connectorType };
+  let gap = 20;
+  if (
+    object != null &&
+    "gap" in object &&
+    typeof object.gap === "number" &&
+    object.gap >= 0
+  ) {
+    gap = object.gap;
+  }
+
+  return { connectorType, gap };
 }
 
 export function parseMeasureMetadata(measure: Measure): {
