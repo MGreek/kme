@@ -1,22 +1,33 @@
 import { useCallback, useEffect, useRef } from "react";
-import { BoundingBox, type RenderContext, SVGContext } from "vexflow";
+import {
+  BoundingBox,
+  type RenderContext,
+  SVGContext,
+  StaveConnector,
+} from "vexflow";
 import type { StaffSystem } from "../model/staff-system";
 import { renderStaffAtIndex } from "../renderer/render-staff-system-at-index";
+import { parseStaffSystemMetadata } from "../util/metadata";
+import { connectorTypeToVex } from "../util/model-to-vexflow";
 import { requireNotNull } from "../util/require-not-null";
 
 export default function StaffSystemElement({
   staffSystem,
   measureIndex,
-}: { staffSystem: StaffSystem; measureIndex: number }) {
+  drawConnector,
+  drawLeftLine,
+  drawRightLine,
+  overridenStavesYs,
+}: {
+  staffSystem: StaffSystem;
+  measureIndex: number;
+  drawConnector: boolean;
+  drawLeftLine: boolean;
+  drawRightLine: boolean;
+  overridenStavesYs: number[] | null;
+}) {
   const divRef = useRef<HTMLDivElement | null>(null);
-  const crtStaveIdsRef = useRef<Set<string>>(new Set<string>());
-  const crtClefIdsRef = useRef<Set<string>>(new Set<string>());
-  const crtStavebarlineIdsRef = useRef<Set<string>>(new Set<string>());
-  const crtKeysignatureIdsRef = useRef<Set<string>>(new Set<string>());
-  const crtTimesignatureIdsRef = useRef<Set<string>>(new Set<string>());
-  const crtStavenoteIdsRef = useRef<Set<string>>(new Set<string>());
-  const crtBeamIdsRef = useRef<Set<string>>(new Set<string>());
-  const crtStemIdsRef = useRef<Set<string>>(new Set<string>());
+  const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
 
   const collectNewElements = useCallback(() => {
     const div = requireNotNull(
@@ -24,70 +35,18 @@ export default function StaffSystemElement({
       "Expected divRef to be initialized",
     );
 
-    const staveElements = Array.from(div.querySelectorAll(".vf-stave"));
-    const clefElements = Array.from(div.querySelectorAll(".vf-clef"));
-    const stavebarlineElements = Array.from(
-      div.querySelectorAll(".vf-stavebarline"),
-    );
-    const keysignatureElements = Array.from(
-      div.querySelectorAll(".vf-keysignature"),
-    );
-    const timesignatureElements = Array.from(
-      div.querySelectorAll(".vf-timesignature"),
-    );
-    const stavenoteElements = Array.from(div.querySelectorAll(".vf-stavenote"));
-    const beamElements = Array.from(div.querySelectorAll(".vf-beam"));
-    const stemElements = Array.from(div.querySelectorAll(".vf-stem"));
-
-    const result = [
-      staveElements.filter((stave) => !crtStaveIdsRef.current.has(stave.id)),
-      clefElements.filter((clef) => !crtClefIdsRef.current.has(clef.id)),
-      stavebarlineElements.filter(
-        (stavebarline) => !crtStavebarlineIdsRef.current.has(stavebarline.id),
-      ),
-      keysignatureElements.filter(
-        (keysignature) => !crtKeysignatureIdsRef.current.has(keysignature.id),
-      ),
-      timesignatureElements.filter(
-        (timesignature) =>
-          !crtTimesignatureIdsRef.current.has(timesignature.id),
-      ),
-      stavenoteElements.filter(
-        (stavenote) => !crtStavenoteIdsRef.current.has(stavenote.id),
-      ),
-      beamElements.filter((beam) => !crtBeamIdsRef.current.has(beam.id)),
-      stemElements.filter((stem) => !crtStemIdsRef.current.has(stem.id)),
-    ].flat();
-
-    for (const staveElement of staveElements) {
-      crtStaveIdsRef.current.add(staveElement.id);
-    }
-    for (const clefElement of clefElements) {
-      crtClefIdsRef.current.add(clefElement.id);
-    }
-    for (const stavebarlineElement of stavebarlineElements) {
-      crtStavebarlineIdsRef.current.add(stavebarlineElement.id);
-    }
-    for (const keysignatureElement of keysignatureElements) {
-      crtKeysignatureIdsRef.current.add(keysignatureElement.id);
-    }
-    for (const timesignatureElement of timesignatureElements) {
-      crtTimesignatureIdsRef.current.add(timesignatureElement.id);
-    }
-    for (const stavenoteElement of stavenoteElements) {
-      crtStavenoteIdsRef.current.add(stavenoteElement.id);
-    }
-    for (const beamElement of beamElements) {
-      crtBeamIdsRef.current.add(beamElement.id);
-    }
-    for (const stemElement of stemElements) {
-      crtStemIdsRef.current.add(stemElement.id);
-    }
-    for (const staveElement of staveElements) {
-      crtStaveIdsRef.current.add(staveElement.id);
+    const svg = requireNotNull(div.children.item(0));
+    if (!(svg instanceof SVGElement)) {
+      throw new Error("Expected divRef to have svg child on first position");
     }
 
-    return result;
+    const newElements = Array.from(svg.children).filter(
+      (element) => !crtElementIdsRef.current.has(element.id),
+    );
+    for (const newElement of newElements) {
+      crtElementIdsRef.current.add(newElement.id);
+    }
+    return newElements;
   }, []);
 
   const getNewElementsBounds = useCallback(() => {
@@ -122,14 +81,7 @@ export default function StaffSystemElement({
     renderContext.clear();
     const div = requireNotNull(divRef.current);
     div.innerHTML = "";
-    crtStaveIdsRef.current.clear();
-    crtClefIdsRef.current.clear();
-    crtStavebarlineIdsRef.current.clear();
-    crtKeysignatureIdsRef.current.clear();
-    crtTimesignatureIdsRef.current.clear();
-    crtStavenoteIdsRef.current.clear();
-    crtBeamIdsRef.current.clear();
-    crtStemIdsRef.current.clear();
+    crtElementIdsRef.current.clear();
     return new SVGContext(div);
   }, []);
 
@@ -152,36 +104,108 @@ export default function StaffSystemElement({
       );
     }
 
-    // TODO: get gap from metadata
-    const gap = 20;
+    if (
+      overridenStavesYs != null &&
+      staffSystem.staves.length !== overridenStavesYs.length
+    ) {
+      throw new Error("stavesYs and staffSystem.staves have different lengths");
+    }
+
+    if (
+      overridenStavesYs?.some((y, index, stavesYs) => {
+        if (index > 0) {
+          return y < requireNotNull(stavesYs[index - 1]);
+        }
+        return false;
+      })
+    ) {
+      throw new Error("stavesYs must be sorted ascendingly");
+    }
+
+    const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
 
     let renderContext = new SVGContext(divRef.current);
-    let x = 0;
-    const stavesYs = [];
-    // outer block used for limiting scope
+    let vexStaves = [];
+    let stavesXs = [];
+    let stavesYs = [];
+    // outer block used for limiting variables' scope
     {
       let y = 0;
       for (const staff of staffSystem.staves) {
-        renderStaffAtIndex(renderContext, staff, measureIndex, 0, 0);
+        vexStaves.push(
+          renderStaffAtIndex(renderContext, staff, measureIndex, 0, 0),
+        );
         const bounds = requireNotNull(getNewElementsBounds());
-        if (x < bounds.x) {
-          x = bounds.x;
-        }
+        stavesXs.push(-bounds.x);
         stavesYs.push(y - bounds.y);
-        y += bounds.h + gap;
+        y += bounds.h + staffSystemMetadata.gap;
         renderContext = clearAndNewContext(renderContext);
       }
     }
 
+    if (overridenStavesYs != null) {
+      stavesYs = [...overridenStavesYs];
+    }
+
+    let topStave = requireNotNull(vexStaves.at(0));
+    let bottomStave = requireNotNull(vexStaves.at(-1));
+
+    if (drawConnector) {
+      new StaveConnector(topStave, bottomStave)
+        .setContext(renderContext)
+        .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
+        .draw();
+      const connectorBounds = getNewElementsBounds();
+      if (connectorBounds != null) {
+        stavesXs = stavesXs.map((x) => -Math.min(x, connectorBounds.x));
+      }
+    }
+    if (drawLeftLine) {
+      new StaveConnector(topStave, bottomStave)
+        .setContext(renderContext)
+        .setType("singleLeft")
+        .draw();
+      const connectorBounds = getNewElementsBounds();
+      if (connectorBounds != null) {
+        stavesXs = stavesXs.map((x) => -Math.min(x, connectorBounds.x));
+      }
+    }
+
+    // begin rendering the real deal
     renderContext = clearAndNewContext(renderContext);
+    vexStaves = [];
     for (const [index, staff] of staffSystem.staves.entries()) {
-      renderStaffAtIndex(
-        renderContext,
-        staff,
-        measureIndex,
-        x,
-        requireNotNull(stavesYs[index]),
+      vexStaves.push(
+        renderStaffAtIndex(
+          renderContext,
+          staff,
+          measureIndex,
+          requireNotNull(stavesXs[index]),
+          requireNotNull(stavesYs[index]),
+        ),
       );
+    }
+
+    topStave = requireNotNull(vexStaves.at(0));
+    bottomStave = requireNotNull(vexStaves.at(-1));
+
+    if (drawConnector) {
+      new StaveConnector(topStave, bottomStave)
+        .setContext(renderContext)
+        .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
+        .draw();
+    }
+    if (drawLeftLine) {
+      new StaveConnector(topStave, bottomStave)
+        .setContext(renderContext)
+        .setType("singleLeft")
+        .draw();
+    }
+    if (drawRightLine) {
+      new StaveConnector(topStave, bottomStave)
+        .setContext(renderContext)
+        .setType("singleRight")
+        .draw();
     }
 
     const totalBounds = getNewElementsBounds();
@@ -193,8 +217,12 @@ export default function StaffSystemElement({
     div.style.width = `${width}px`;
     div.style.height = `${height}px`;
   }, [
-    staffSystem.staves,
+    staffSystem,
     measureIndex,
+    drawConnector,
+    drawLeftLine,
+    drawRightLine,
+    overridenStavesYs,
     getNewElementsBounds,
     clearAndNewContext,
   ]);
