@@ -251,7 +251,7 @@ function tryBeamNotes(
   return beams;
 }
 
-export function getVexStaveConnectorTypeFromConnectorType(
+export function connectorTypeToVex(
   connectorType: ConnectorType,
 ): VexStaveConnectorType {
   switch (connectorType) {
