@@ -33,6 +33,8 @@ export function renderStaffAtIndex(
   const stave = new Stave(x, y, width, {
     space_below_staff_ln: 0,
     space_above_staff_ln: 0,
+    left_bar: false,
+    right_bar: false,
   })
     .setContext(renderContext)
     .draw();
