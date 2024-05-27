@@ -18,6 +18,7 @@ export default function StaffSystemElement({
   drawLeftLine,
   drawRightLine,
   overridenStavesYs,
+  onRender,
 }: {
   staffSystem: StaffSystem;
   measureIndex: number;
@@ -25,6 +26,9 @@ export default function StaffSystemElement({
   drawLeftLine: boolean;
   drawRightLine: boolean;
   overridenStavesYs: number[] | null;
+  onRender:
+  | ((width: number, height: number, stavesYs: number[]) => void)
+  | null;
 }) {
   const divRef = useRef<HTMLDivElement | null>(null);
   const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
@@ -216,6 +220,10 @@ export default function StaffSystemElement({
     const div = divRef.current;
     div.style.width = `${width}px`;
     div.style.height = `${height}px`;
+
+    if (onRender != null) {
+      onRender(width, height, stavesYs);
+    }
   }, [
     staffSystem,
     measureIndex,
@@ -223,6 +231,7 @@ export default function StaffSystemElement({
     drawLeftLine,
     drawRightLine,
     overridenStavesYs,
+    onRender,
     getNewElementsBounds,
     clearAndNewContext,
   ]);
