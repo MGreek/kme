@@ -1,7 +1,8 @@
-import { cloneElement, useCallback, useEffect, useRef } from "react";
+import { useRef, useState } from "react";
 import type { StaffSystem } from "../model/staff-system";
 import { getStaffSystemMeasureCount } from "../util/misc";
 import { requireNotNull } from "../util/require-not-null";
+import RawRowDisplay from "./RawRowDisplay";
 import StaffSystemElement from "./StaffSystemElement";
 
 export default function RowDisplay({
@@ -13,192 +14,141 @@ export default function RowDisplay({
   staffSystem: StaffSystem;
   startMeasureIndex: number;
   maxWidth: number;
-  onStats: ((width: number, height: number, key: string) => void) | null;
+  onStats:
+  | ((width: number, height: number, endMeasureIndex: number) => void)
+  | null;
 }) {
   const totalMeasureCountRef = useRef<number | null>(null);
-  const lastElementMeasureIndexRef = useRef<number | null>(null);
+  const elementMeasureIndexRef = useRef<number | null>(null);
   const crtWidthRef = useRef<number | null>(null);
   const crtHeightRef = useRef<number | null>(null);
-  const crtOverrideStavesYsRef = useRef<number[] | null>(null);
+  const crtOverridenStavesYsRef = useRef<number[] | null>(null);
 
-  const divRef = useRef<HTMLDivElement | null>(null);
+  const tryUpdateWidth = (width: number) => {
+    const totalWidth = (crtWidthRef.current ?? 0) + width;
+    if (totalWidth > maxWidth) {
+      return false;
+    }
+    crtWidthRef.current = totalWidth;
+    return true;
+  };
 
-  const elementsRef = useRef<JSX.Element[]>([]);
+  const updateHeight = (height: number) => {
+    crtHeightRef.current = Math.max(crtHeightRef.current ?? 0, height);
+  };
 
-  const updateOverrideStavesYsRef = useCallback((stavesYs: number[]) => {
-    if (crtOverrideStavesYsRef.current == null) {
-      crtOverrideStavesYsRef.current = [...stavesYs];
+  const updateOverrideStavesYs = (stavesYs: number[]) => {
+    if (crtOverridenStavesYsRef.current == null) {
+      crtOverridenStavesYsRef.current = [...stavesYs];
     } else {
-      for (const [index, y] of crtOverrideStavesYsRef.current.entries()) {
+      for (const [index, y] of crtOverridenStavesYsRef.current.entries()) {
         const otherY = requireNotNull(
           stavesYs[index],
           `Expected stavesYs to have an element at index: ${index}`,
         );
         if (y < otherY) {
-          crtOverrideStavesYsRef.current[index] = otherY;
+          crtOverridenStavesYsRef.current[index] = otherY;
         }
       }
     }
-  }, []);
+  };
 
-  const tryUpdateWidthRef = useCallback(
-    (width: number) => {
-      const totalWidth = (crtWidthRef.current ?? 0) + width;
-      if (totalWidth > maxWidth) {
-        return false;
-      }
-      crtWidthRef.current = totalWidth;
-      return true;
-    },
-    [maxWidth],
-  );
-
-  const updateHeightRef = useCallback((height: number) => {
-    crtHeightRef.current = Math.max(crtHeightRef.current ?? 0, height);
-  }, []);
-
-  const removeLastElementRef = useCallback(() => {
-    if (lastElementMeasureIndexRef.current == null) {
-      throw new Error("Expected lastElementMeasureIndexRef to be initialized");
-    }
-    elementsRef.current.pop();
-    lastElementMeasureIndexRef.current--;
-  }, []);
-
-  const finalizeElements = useCallback(() => {
-    if (crtWidthRef.current == null) {
-      throw new Error("Expected crtWidthRef to be initialized");
-    }
-    if (crtHeightRef.current == null) {
-      throw new Error("Expected crtHeightRef to be initialized");
-    }
-    if (lastElementMeasureIndexRef.current == null) {
-      throw new Error("Expected lastElementMeasureIndexRef to be initialized");
-    }
-    if (crtOverrideStavesYsRef.current == null) {
-      throw new Error("Expected crtOverrideStavesYsRef to be initialized");
-    }
-
-    const newElements = elementsRef.current.map((element) =>
-      cloneElement(element, {
-        onRender: null,
-        overrideStavesYs: crtOverrideStavesYsRef.current,
-      }),
+  const createRawRowDisplay = () => {
+    const endMeasureIndex = requireNotNull(
+      elementMeasureIndexRef.current,
+      "Expected elementMeasureIndexRef to be initialized",
     );
-    elementsRef.current = newElements;
+    const overridenStavesYs = requireNotNull(
+      crtOverridenStavesYsRef.current,
+      "Expected crtOverridenStavesYsRef to be initialized",
+    );
+    const totalWidth = requireNotNull(
+      crtWidthRef.current,
+      "Expected totalWidth to be initialized",
+    );
+    const totalHeight = requireNotNull(
+      crtHeightRef.current,
+      "Expected crtHeightRef to be initialized",
+    );
 
+    const key = JSON.stringify({
+      staffSystemId: staffSystem.staffSystemId.staffSystemId,
+      startMeasureIndex,
+      endMeasureIndex,
+    });
+
+    const rawRowDisplay = (
+      <RawRowDisplay
+        key={key}
+        staffSystem={staffSystem}
+        startMeasureIndex={startMeasureIndex}
+        endMeasureIndex={endMeasureIndex}
+        overridenStavesYs={overridenStavesYs}
+      />
+    );
+    setElement(rawRowDisplay);
     if (onStats != null) {
-      onStats(
-        crtWidthRef.current,
-        crtHeightRef.current,
-        JSON.stringify({
-          staffSystemId: staffSystem.staffSystemId.staffSystemId,
-          startMeasureIndex: startMeasureIndex,
-          endMeasureIndex: lastElementMeasureIndexRef.current,
-        }),
-      );
+      onStats(totalWidth, totalHeight, endMeasureIndex);
     }
-  }, [staffSystem, onStats, startMeasureIndex]);
+  };
 
-  const onLastElementRenderRef = useCallback(
-    (width: number, height: number, stavesYs: number[]) => {
-      if (totalMeasureCountRef.current == null) {
-        throw new Error("Expected totalMeasureCountRef to be initialized");
+  const onElementRenderRef = (
+    width: number,
+    height: number,
+    stavesYs: number[],
+  ) => {
+    if (totalMeasureCountRef.current == null) {
+      totalMeasureCountRef.current = getStaffSystemMeasureCount(staffSystem);
+    }
+    if (elementMeasureIndexRef.current == null) {
+      elementMeasureIndexRef.current = startMeasureIndex;
+    }
+
+    if (!tryUpdateWidth(width)) {
+      if (elementMeasureIndexRef.current !== startMeasureIndex) {
+        elementMeasureIndexRef.current--;
       }
-      if (lastElementMeasureIndexRef.current == null) {
-        throw new Error(
-          "Expected lastElementMeasureIndexRef to be initialized",
-        );
-      }
+      createRawRowDisplay();
+      return;
+    }
+    updateHeight(height);
+    updateOverrideStavesYs(stavesYs);
 
-      if (!tryUpdateWidthRef(width)) {
-        removeLastElementRef();
-        finalizeElements();
-        return;
-      }
-      updateHeightRef(height);
-      updateOverrideStavesYsRef(stavesYs);
-
-      if (lastElementMeasureIndexRef.current === totalMeasureCountRef.current) {
-        finalizeElements();
-        return;
-      }
-
-      prepareLastElement(elementsRef.current);
-      lastElementMeasureIndexRef.current++;
-      const newElement = (
-        <StaffSystemElement
-          key={JSON.stringify({
-            staffSystemId: staffSystem.staffSystemId.staffSystemId,
-            measureIndex: lastElementMeasureIndexRef.current,
-          })}
-          staffSystem={staffSystem}
-          measureIndex={lastElementMeasureIndexRef.current}
-          drawConnector={false}
-          drawLeftLine={false}
-          drawRightLine={true}
-          overridenStavesYs={null}
-          onRender={onLastElementRenderRef}
-        />
-      );
-      elementsRef.current = [...elementsRef.current, newElement];
-    },
-    [
-      staffSystem,
-      tryUpdateWidthRef,
-      updateHeightRef,
-      updateOverrideStavesYsRef,
-      removeLastElementRef,
-      finalizeElements,
-    ],
-  );
-
-  useEffect(() => {
-    if (divRef.current == null) {
+    if (elementMeasureIndexRef.current === totalMeasureCountRef.current) {
+      createRawRowDisplay();
       return;
     }
 
-    totalMeasureCountRef.current = getStaffSystemMeasureCount(staffSystem);
-
-    if (totalMeasureCountRef.current === 0) {
-      return;
-    }
-
-    lastElementMeasureIndexRef.current = startMeasureIndex;
+    elementMeasureIndexRef.current++;
     const newElement = (
       <StaffSystemElement
         key={JSON.stringify({
           staffSystemId: staffSystem.staffSystemId.staffSystemId,
-          measureIndex: lastElementMeasureIndexRef.current,
+          measureIndex: elementMeasureIndexRef.current,
         })}
         staffSystem={staffSystem}
-        measureIndex={lastElementMeasureIndexRef.current}
-        drawConnector={true}
-        drawLeftLine={true}
+        measureIndex={elementMeasureIndexRef.current}
+        drawConnector={false}
+        drawLeftLine={false}
         drawRightLine={true}
         overridenStavesYs={null}
-        onRender={onLastElementRenderRef}
+        onRender={onElementRenderRef}
       />
     );
-    elementsRef.current = [newElement];
-  }, [staffSystem, startMeasureIndex, onLastElementRenderRef]);
+    setElement(newElement);
+  };
 
-  return (
-    <div
-      ref={divRef}
-      className="flex flex-row flex-nowrap items-start justify-start gap-0"
-    >
-      {elementsRef.current}
-    </div>
+  const [element, setElement] = useState<JSX.Element>(
+    <StaffSystemElement
+      staffSystem={staffSystem}
+      measureIndex={startMeasureIndex}
+      drawConnector={true}
+      drawLeftLine={true}
+      drawRightLine={true}
+      overridenStavesYs={null}
+      onRender={onElementRenderRef}
+    />,
   );
-}
 
-function prepareLastElement(elements: JSX.Element[]) {
-  const lastElement = requireNotNull(
-    elements.at(-1),
-    "Expected last element to exist",
-  );
-  const newLastElement = cloneElement(lastElement, { onRender: null });
-  elements.pop();
-  elements.push(newLastElement);
+  return element;
 }
