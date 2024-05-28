@@ -13,22 +13,8 @@ import { requireNotNull } from "../util/require-not-null";
 
 export default function StaffSystemElement({
   staffSystem,
-  measureIndex,
-  drawConnector,
-  drawLeftLine,
-  drawRightLine,
-  overridenStavesYs,
-  onRender,
 }: {
   staffSystem: StaffSystem;
-  measureIndex: number;
-  drawConnector: boolean;
-  drawLeftLine: boolean;
-  drawRightLine: boolean;
-  overridenStavesYs: number[] | null;
-  onRender:
-    | ((width: number, height: number, stavesYs: number[]) => void)
-    | null;
 }) {
   const divRef = useRef<HTMLDivElement | null>(null);
   const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
@@ -96,6 +82,114 @@ export default function StaffSystemElement({
       "Expected divRef to be initialized",
     );
 
+    const svg = requireNotNull(div.children.item(0));
+    if (!(svg instanceof SVGElement)) {
+      throw new Error("Expected divRef to have svg child on first position");
+    }
+
+    const unsavedElements = Array.from(svg.children).filter(
+      (element) => !savedElementIdsRef.current.has(element.id),
+    );
+    for (const element of unsavedElements) {
+      svg.removeChild(element);
+    }
+    crtElementIdsRef.current.clear();
+  }, []);
+
+  const drawStaffSystemAtIndexRef = useCallback(
+    (
+      renderContext: RenderContext,
+      shiftX: number,
+      shiftY: number,
+      measureIndex: number,
+      drawConnector: boolean,
+      drawLeftLine: boolean,
+      drawRightLine: boolean,
+      overridenStavesYs: number[] | null,
+    ) => {
+      const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
+
+      let vexStaves = [];
+      let stavesXs = [];
+      let stavesYs = [];
+      // outer block used for limiting variables' scope
+      {
+        let y = 0;
+        for (const staff of staffSystem.staves) {
+          vexStaves.push(
+            renderStaffAtIndex(renderContext, staff, measureIndex, 0, 0),
+          );
+          const bounds = requireNotNull(getNewElementsBoundsRef(false));
+          stavesXs.push(-bounds.x);
+          stavesYs.push(y - bounds.y);
+          y += bounds.h + staffSystemMetadata.gap;
+        }
+      }
+
+      if (overridenStavesYs != null) {
+        stavesYs = overridenStavesYs.map((y) => y);
+      }
+
+      let topStave = requireNotNull(vexStaves.at(0));
+      let bottomStave = requireNotNull(vexStaves.at(-1));
+
+      if (drawConnector) {
+        removeUnsavedRef();
+        new StaveConnector(topStave, bottomStave)
+          .setContext(renderContext)
+          .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
+          .draw();
+        const connectorBounds = getNewElementsBoundsRef(false);
+        if (connectorBounds != null) {
+          stavesXs = stavesXs.map((x) => -Math.min(x, connectorBounds.x));
+        }
+      }
+
+      // begin rendering the real deal
+      removeUnsavedRef();
+      vexStaves = [];
+      for (const [index, staff] of staffSystem.staves.entries()) {
+        vexStaves.push(
+          renderStaffAtIndex(
+            renderContext,
+            staff,
+            measureIndex,
+            requireNotNull(stavesXs[index]) + shiftX,
+            requireNotNull(stavesYs[index]) + shiftY,
+          ),
+        );
+      }
+
+      topStave = requireNotNull(vexStaves.at(0));
+      bottomStave = requireNotNull(vexStaves.at(-1));
+
+      if (drawConnector) {
+        new StaveConnector(topStave, bottomStave)
+          .setContext(renderContext)
+          .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
+          .draw();
+      }
+      if (drawLeftLine) {
+        new StaveConnector(topStave, bottomStave)
+          .setContext(renderContext)
+          .setType("singleLeft")
+          .draw();
+      }
+      if (drawRightLine) {
+        new StaveConnector(topStave, bottomStave)
+          .setContext(renderContext)
+          .setType("singleRight")
+          .draw();
+      }
+      const totalBounds = getNewElementsBoundsRef(true);
+      const width = (totalBounds?.x ?? 0) + (totalBounds?.w ?? 0);
+      const height = (totalBounds?.y ?? 0) + (totalBounds?.h ?? 0);
+
+      return { width, height, stavesYs };
+    },
+    [staffSystem, getNewElementsBoundsRef, removeUnsavedRef],
+  );
+
   useEffect(() => {
     if (divRef.current == null) {
       return;
@@ -105,143 +199,22 @@ export default function StaffSystemElement({
       return;
     }
 
-    if (
-      staffSystem.staves.some(
-        (staff) => staff.measures.at(measureIndex) == null,
-      )
-    ) {
-      throw new Error(
-        `All staves must have a measure at index: ${measureIndex}`,
-      );
-    }
-
-    if (
-      overridenStavesYs != null &&
-      staffSystem.staves.length !== overridenStavesYs.length
-    ) {
-      throw new Error("stavesYs and staffSystem.staves have different lengths");
-    }
-
-    if (
-      overridenStavesYs?.some((y, index, stavesYs) => {
-        if (index > 0) {
-          return y < requireNotNull(stavesYs[index - 1]);
-        }
-        return false;
-      })
-    ) {
-      throw new Error("stavesYs must be sorted ascendingly");
-    }
-
-    const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
-
-    let renderContext = new SVGContext(divRef.current);
-    let vexStaves = [];
-    let stavesXs = [];
-    let stavesYs = [];
-    // outer block used for limiting variables' scope
-    {
-      let y = 0;
-      for (const staff of staffSystem.staves) {
-        vexStaves.push(
-          renderStaffAtIndex(renderContext, staff, measureIndex, 0, 0),
-        );
-        const bounds = requireNotNull(getNewElementsBounds());
-        stavesXs.push(-bounds.x);
-        stavesYs.push(y - bounds.y);
-        y += bounds.h + staffSystemMetadata.gap;
-        renderContext = clearAndNewContext(renderContext);
-      }
-    }
-
-    if (overridenStavesYs != null) {
-      stavesYs = [...overridenStavesYs];
-    }
-
-    let topStave = requireNotNull(vexStaves.at(0));
-    let bottomStave = requireNotNull(vexStaves.at(-1));
-
-    if (drawConnector) {
-      new StaveConnector(topStave, bottomStave)
-        .setContext(renderContext)
-        .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
-        .draw();
-      const connectorBounds = getNewElementsBounds();
-      if (connectorBounds != null) {
-        stavesXs = stavesXs.map((x) => -Math.min(x, connectorBounds.x));
-      }
-    }
-    if (drawLeftLine) {
-      new StaveConnector(topStave, bottomStave)
-        .setContext(renderContext)
-        .setType("singleLeft")
-        .draw();
-      const connectorBounds = getNewElementsBounds();
-      if (connectorBounds != null) {
-        stavesXs = stavesXs.map((x) => -Math.min(x, connectorBounds.x));
-      }
-    }
-
-    // begin rendering the real deal
-    renderContext = clearAndNewContext(renderContext);
-    vexStaves = [];
-    for (const [index, staff] of staffSystem.staves.entries()) {
-      vexStaves.push(
-        renderStaffAtIndex(
-          renderContext,
-          staff,
-          measureIndex,
-          requireNotNull(stavesXs[index]),
-          requireNotNull(stavesYs[index]),
-        ),
-      );
-    }
-
-    topStave = requireNotNull(vexStaves.at(0));
-    bottomStave = requireNotNull(vexStaves.at(-1));
-
-    if (drawConnector) {
-      new StaveConnector(topStave, bottomStave)
-        .setContext(renderContext)
-        .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
-        .draw();
-    }
-    if (drawLeftLine) {
-      new StaveConnector(topStave, bottomStave)
-        .setContext(renderContext)
-        .setType("singleLeft")
-        .draw();
-    }
-    if (drawRightLine) {
-      new StaveConnector(topStave, bottomStave)
-        .setContext(renderContext)
-        .setType("singleRight")
-        .draw();
-    }
-
-    const totalBounds = getNewElementsBounds();
-    const width = (totalBounds?.x ?? 0) + (totalBounds?.w ?? 0);
-    const height = (totalBounds?.y ?? 0) + (totalBounds?.h ?? 0);
-
-    renderContext.resize(width, height);
     const div = divRef.current;
+    const renderContext = new SVGContext(div);
+    const { width, height } = drawStaffSystemAtIndexRef(
+      renderContext,
+      100,
+      0,
+      0,
+      true,
+      true,
+      true,
+      null,
+    );
+    renderContext.resize(width, height);
     div.style.width = `${width}px`;
     div.style.height = `${height}px`;
-
-    if (onRender != null) {
-      onRender(width, height, stavesYs);
-    }
-  }, [
-    staffSystem,
-    measureIndex,
-    drawConnector,
-    drawLeftLine,
-    drawRightLine,
-    overridenStavesYs,
-    onRender,
-    getNewElementsBounds,
-    clearAndNewContext,
-  ]);
+  }, [staffSystem, drawStaffSystemAtIndexRef]);
 
   return <div className="bg-red-300" ref={divRef} />;
 }
