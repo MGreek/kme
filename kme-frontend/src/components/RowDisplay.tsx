@@ -15,8 +15,8 @@ export default function RowDisplay({
   startMeasureIndex: number;
   maxWidth: number;
   onStats:
-  | ((width: number, height: number, endMeasureIndex: number) => void)
-  | null;
+    | ((width: number, height: number, endMeasureIndex: number) => void)
+    | null;
 }) {
   const totalMeasureCountRef = useRef<number | null>(null);
   const elementMeasureIndexRef = useRef<number | null>(null);
