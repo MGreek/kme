@@ -32,8 +32,9 @@ export default function StaffSystemElement({
 }) {
   const divRef = useRef<HTMLDivElement | null>(null);
   const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
+  const savedElementIdsRef = useRef<Set<string>>(new Set<string>());
 
-  const collectNewElements = useCallback(() => {
+  const collectNewElementsRef = useCallback((save: boolean) => {
     const div = requireNotNull(
       divRef.current,
       "Expected divRef to be initialized",
@@ -45,49 +46,55 @@ export default function StaffSystemElement({
     }
 
     const newElements = Array.from(svg.children).filter(
-      (element) => !crtElementIdsRef.current.has(element.id),
+      (element) =>
+        !savedElementIdsRef.current.has(element.id) &&
+        !crtElementIdsRef.current.has(element.id),
     );
     for (const newElement of newElements) {
+      if (save) {
+        savedElementIdsRef.current.add(newElement.id);
+      }
       crtElementIdsRef.current.add(newElement.id);
     }
     return newElements;
   }, []);
 
-  const getNewElementsBounds = useCallback(() => {
+  const getNewElementsBoundsRef = useCallback(
+    (save: boolean) => {
+      const div = requireNotNull(
+        divRef.current,
+        "Expected divRef to be initialized",
+      );
+
+      const toBoudingBox = (rect: DOMRect) =>
+        new BoundingBox(rect.x, rect.y, rect.width, rect.height);
+
+      const divRect = toBoudingBox(div.getBoundingClientRect());
+
+      const normalize = (rect: DOMRect) => {
+        const bb = toBoudingBox(rect);
+        bb.x -= divRect.x;
+        bb.y -= divRect.y;
+        return bb;
+      };
+
+      const elements = collectNewElementsRef(save);
+      const boundingBox = elements
+        .map((element) => normalize(element.getBoundingClientRect()))
+        .reduce(
+          (prev: BoundingBox | null, crt) => prev?.mergeWith(crt) ?? crt,
+          null,
+        );
+      return boundingBox;
+    },
+    [collectNewElementsRef],
+  );
+
+  const removeUnsavedRef = useCallback(() => {
     const div = requireNotNull(
       divRef.current,
       "Expected divRef to be initialized",
     );
-
-    const toBoudingBox = (rect: DOMRect) =>
-      new BoundingBox(rect.x, rect.y, rect.width, rect.height);
-
-    const divRect = toBoudingBox(div.getBoundingClientRect());
-
-    const normalize = (rect: DOMRect) => {
-      const bb = toBoudingBox(rect);
-      bb.x -= divRect.x;
-      bb.y -= divRect.y;
-      return bb;
-    };
-
-    const elements = collectNewElements();
-    const boundingBox = elements
-      .map((element) => normalize(element.getBoundingClientRect()))
-      .reduce(
-        (prev: BoundingBox | null, crt) => prev?.mergeWith(crt) ?? crt,
-        null,
-      );
-    return boundingBox;
-  }, [collectNewElements]);
-
-  const clearAndNewContext = useCallback((renderContext: RenderContext) => {
-    renderContext.clear();
-    const div = requireNotNull(divRef.current);
-    div.innerHTML = "";
-    crtElementIdsRef.current.clear();
-    return new SVGContext(div);
-  }, []);
 
   useEffect(() => {
     if (divRef.current == null) {
