@@ -27,8 +27,8 @@ export default function StaffSystemElement({
   drawRightLine: boolean;
   overridenStavesYs: number[] | null;
   onRender:
-  | ((width: number, height: number, stavesYs: number[]) => void)
-  | null;
+    | ((width: number, height: number, stavesYs: number[]) => void)
+    | null;
 }) {
   const divRef = useRef<HTMLDivElement | null>(null);
   const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
