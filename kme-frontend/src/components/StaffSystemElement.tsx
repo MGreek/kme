@@ -320,107 +320,14 @@ export default function StaffSystemElement({
     removeUnsavedRef,
   ]);
 
-  const getRowKeyFromDescriptionRef = useCallback(
-    (rowDescription: RowDescription) => {
-      return JSON.stringify({
-        staffSystemId: staffSystem.staffSystemId.staffSystemId,
-        startMeasureIndex: rowDescription.startMeasureIndex,
-        endMeasureIndex: rowDescription.endMeasureIndex,
-      });
-    },
-    [staffSystem],
-  );
-
-  const renderRowFromDescriptionRef = useCallback(
-    (div: HTMLDivElement, rowDescription: RowDescription) => {
-      const renderContext = new SVGContext(div);
-      let crtWidth = 0;
-      let crtHeight = 0;
-      for (
-        let measureIndex = rowDescription.startMeasureIndex;
-        measureIndex <= rowDescription.endMeasureIndex;
-        measureIndex++
-      ) {
-        const first = measureIndex === rowDescription.startMeasureIndex;
-        const { width, height } = renderStaffSystemAtIndexRef(
-          div,
-          renderContext,
-          true,
-          crtWidth,
-          0,
-          measureIndex,
-          first,
-          first,
-          true,
-          rowDescription.stavesYs,
-        );
-        crtWidth += width;
-        crtHeight = Math.max(crtHeight, height);
-      }
-      renderContext.resize(crtWidth, crtHeight);
-      div.style.width = `${crtWidth}px`;
-      div.style.height = `${crtHeight}px`;
-    },
-    [renderStaffSystemAtIndexRef],
-  );
-
-  const getRowFromDescriptionRef = useCallback(
-    (rowDescription: RowDescription) => {
-      return (
-        <div
-          key={getRowKeyFromDescriptionRef(rowDescription)}
-          ref={(div: HTMLDivElement | null) => {
-            if (div == null) {
-              return;
-            }
-            renderRowFromDescriptionRef(div, rowDescription);
-          }}
-        />
-      );
-    },
-    [getRowKeyFromDescriptionRef, renderRowFromDescriptionRef],
-  );
-
-  const getPageKeyFromDescriptionRef = useCallback(
-    (pageDescription: PageDescription) => {
-      return JSON.stringify({
-        staffSystemId: staffSystem.staffSystemId.staffSystemId,
-        startMeasureIndex:
-          pageDescription.rowDescriptions.at(0)?.startMeasureIndex,
-        endMeasureIndex:
-          pageDescription.rowDescriptions.at(-1)?.endMeasureIndex,
-      });
-    },
-    [staffSystem],
-  );
-
-  const getPageElementFromDescription = useCallback(
-    (pageDescription: PageDescription) => {
-      return (
-        <div
-          key={getPageKeyFromDescriptionRef(pageDescription)}
-          style={{ width: RAW_PAGE_WIDTH, height: RAW_PAGE_HEIGHT }}
-          className="bg-white flex flex-col flex-nowrap gap-0"
-        >
-          {pageDescription.rowDescriptions.map((desc) =>
-            getRowFromDescriptionRef(desc),
-          )}
-        </div>
-      );
-    },
-    [getRowFromDescriptionRef, getPageKeyFromDescriptionRef],
-  );
-
   useEffect(() => {
     if (divRef.current == null) {
       return;
     }
 
     const pageDescriptions = getPageDescriptionsRef();
-    setPages(
-      pageDescriptions.map((desc) => getPageElementFromDescription(desc)),
-    );
-  }, [getPageDescriptionsRef, getPageElementFromDescription]);
+    console.log(pageDescriptions);
+  }, [getPageDescriptionsRef]);
 
   const [pages, setPages] = useState<JSX.Element[]>([]);
 
