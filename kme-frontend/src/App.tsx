@@ -19,7 +19,7 @@ export default function App() {
   }
   return (
     <div className="grid items-center p-4">
-      <StaffSystemElement staffSystem={dataReceived} />
+      <StaffSystemElement staffSystem={dataReceived} pageGap={20} />
     </div>
   );
 }
