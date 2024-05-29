@@ -19,7 +19,16 @@ export default function App() {
   }
   return (
     <div className="grid items-center p-4">
-      <StaffSystemElement staffSystem={dataReceived} pageGap={20} />
+      <StaffSystemElement
+        staffSystem={dataReceived}
+        pageGap={20}
+        pagePadding={{
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      />
     </div>
   );
 }
