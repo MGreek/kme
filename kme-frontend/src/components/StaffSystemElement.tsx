@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   BoundingBox,
-  type RenderContext,
+  RenderContext,
   SVGContext,
   StaveConnector,
 } from "vexflow";
 import type { StaffSystem } from "../model/staff-system";
 import { renderStaffAtIndex } from "../renderer/render-staff-system-at-index";
 import { parseStaffSystemMetadata } from "../util/metadata";
+import { getStaffSystemMeasureCount } from "../util/misc";
 import { connectorTypeToVex } from "../util/model-to-vexflow";
 import { requireNotNull } from "../util/require-not-null";
-import { getStaffSystemMeasureCount } from "../util/misc";
 
 const SCALE = 4;
 const RAW_PAGE_WIDTH = 210 * SCALE;
@@ -64,31 +64,38 @@ export default function StaffSystemElement({
   const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
   const savedElementIdsRef = useRef<Set<string>>(new Set<string>());
 
-  const collectNewElementsRef = useCallback(
-    (div: HTMLDivElement, save: boolean) => {
-      const svg = requireNotNull(div.children.item(0));
-      if (!(svg instanceof SVGElement)) {
-        throw new Error("Expected divRef to have svg child on first position");
-      }
+  const collectNewElementsRef = useCallback((save: boolean) => {
+    const div = requireNotNull(
+      divRef.current,
+      "Expected divRef to be initialized",
+    );
 
-      const newElements = Array.from(svg.children).filter(
-        (element) =>
-          !savedElementIdsRef.current.has(element.id) &&
-          !crtElementIdsRef.current.has(element.id),
-      );
-      for (const newElement of newElements) {
-        if (save) {
-          savedElementIdsRef.current.add(newElement.id);
-        }
-        crtElementIdsRef.current.add(newElement.id);
+    const svg = requireNotNull(div.children.item(0));
+    if (!(svg instanceof SVGElement)) {
+      throw new Error("Expected divRef to have svg child on first position");
+    }
+
+    const newElements = Array.from(svg.children).filter(
+      (element) =>
+        !savedElementIdsRef.current.has(element.id) &&
+        !crtElementIdsRef.current.has(element.id),
+    );
+    for (const newElement of newElements) {
+      if (save) {
+        savedElementIdsRef.current.add(newElement.id);
       }
-      return newElements;
-    },
-    [],
-  );
+      crtElementIdsRef.current.add(newElement.id);
+    }
+    return newElements;
+  }, []);
 
   const getNewElementsBoundsRef = useCallback(
-    (div: HTMLDivElement, save: boolean) => {
+    (save: boolean) => {
+      const div = requireNotNull(
+        divRef.current,
+        "Expected divRef to be initialized",
+      );
+
       const toBoudingBox = (rect: DOMRect) =>
         new BoundingBox(rect.x, rect.y, rect.width, rect.height);
 
@@ -101,7 +108,7 @@ export default function StaffSystemElement({
         return bb;
       };
 
-      const elements = collectNewElementsRef(div, save);
+      const elements = collectNewElementsRef(save);
       const boundingBox = elements
         .map((element) => normalize(element.getBoundingClientRect()))
         .reduce(
@@ -113,7 +120,12 @@ export default function StaffSystemElement({
     [collectNewElementsRef],
   );
 
-  const removeUnsavedRef = useCallback((div: HTMLDivElement) => {
+  const removeUnsavedRef = useCallback(() => {
+    const div = requireNotNull(
+      divRef.current,
+      "Expected divRef to be initialized",
+    );
+
     const svg = requireNotNull(div.children.item(0));
     if (!(svg instanceof SVGElement)) {
       throw new Error("Expected divRef to have svg child on first position");
@@ -130,7 +142,6 @@ export default function StaffSystemElement({
 
   const renderStaffSystemAtIndexRef = useCallback(
     (
-      div: HTMLDivElement,
       renderContext: RenderContext,
       save: boolean,
       shiftX: number,
@@ -142,7 +153,7 @@ export default function StaffSystemElement({
       overridenStavesYs: number[] | null,
     ) => {
       // this makes sure bounds are calculated correctly
-      removeUnsavedRef(div);
+      removeUnsavedRef();
 
       const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
 
@@ -156,7 +167,7 @@ export default function StaffSystemElement({
           vexStaves.push(
             renderStaffAtIndex(renderContext, staff, measureIndex, 0, 0),
           );
-          const bounds = requireNotNull(getNewElementsBoundsRef(div, false));
+          const bounds = requireNotNull(getNewElementsBoundsRef(false));
           stavesXs.push(-bounds.x);
           stavesYs.push(y - bounds.y);
           y += bounds.h + staffSystemMetadata.gap;
@@ -171,19 +182,19 @@ export default function StaffSystemElement({
       let bottomStave = requireNotNull(vexStaves.at(-1));
 
       if (drawConnector) {
-        removeUnsavedRef(div);
+        removeUnsavedRef();
         new StaveConnector(topStave, bottomStave)
           .setContext(renderContext)
           .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
           .draw();
-        const connectorBounds = getNewElementsBoundsRef(div, false);
+        const connectorBounds = getNewElementsBoundsRef(false);
         if (connectorBounds != null) {
           stavesXs = stavesXs.map((x) => -Math.min(x, connectorBounds.x));
         }
       }
 
       // begin rendering the real deal
-      removeUnsavedRef(div);
+      removeUnsavedRef();
       vexStaves = [];
       for (const [index, staff] of staffSystem.staves.entries()) {
         vexStaves.push(
@@ -218,7 +229,7 @@ export default function StaffSystemElement({
           .setType("singleRight")
           .draw();
       }
-      const totalBounds = getNewElementsBoundsRef(div, save);
+      const totalBounds = getNewElementsBoundsRef(save);
       const width = (totalBounds?.x ?? 0) + (totalBounds?.w ?? 0);
       const height = (totalBounds?.y ?? 0) + (totalBounds?.h ?? 0);
 
@@ -227,105 +238,104 @@ export default function StaffSystemElement({
     [staffSystem, getNewElementsBoundsRef, removeUnsavedRef],
   );
 
-  const getPageDescriptionsRef = useCallback(() => {
-    const div = requireNotNull(
-      divRef.current,
-      "Expected divRef to be initialized",
-    );
-    const renderContext = new SVGContext(div);
-
-    const totalMeasureCount = getStaffSystemMeasureCount(staffSystem);
-    if (totalMeasureCount === 0) {
-      return [];
-    }
-
-    const pageDescriptions: PageDescription[] = [];
-
-    let crtMeasureIndex = -1;
-    let crtWidth = 0;
-    let crtHeight = 0;
-    let crtStavesYs: number[] | null = null;
-    let crtStartMeasureIndex = 0;
-    let crtPageDescription: PageDescription = { rowDescriptions: [] };
-    while (true) {
-      const newMeasureIndex = crtMeasureIndex + 1;
-      const firstOnRow = newMeasureIndex === crtStartMeasureIndex;
-      const { width, height, stavesYs } = renderStaffSystemAtIndexRef(
-        div,
-        renderContext,
-        false,
-        0,
-        0,
-        newMeasureIndex,
-        firstOnRow,
-        firstOnRow,
-        true,
-        null,
-      );
-      const newWidth = crtWidth + width;
-      const newHeight = Math.max(crtHeight, height);
-      const newStavesYs = mergeStavesYsRef(crtStavesYs, stavesYs);
-
-      const widthExceeded = newWidth > getPageClientWidthRef();
-      const heightExceeded = newHeight > getPageClientHeightRef();
-
-      if (!firstOnRow && widthExceeded && !heightExceeded) {
-        crtPageDescription.rowDescriptions.push({
-          startMeasureIndex: crtStartMeasureIndex,
-          endMeasureIndex: crtMeasureIndex,
-          stavesYs: requireNotNull(crtStavesYs),
-        });
-        crtWidth = 0;
-        crtHeight = 0;
-        crtStavesYs = null;
-        crtStartMeasureIndex = newMeasureIndex;
-        continue;
+  const getPageDescriptionsRef = useCallback(
+    (renderContext: RenderContext) => {
+      const totalMeasureCount = getStaffSystemMeasureCount(staffSystem);
+      if (totalMeasureCount === 0) {
+        return [];
       }
 
-      const firstOnPage = crtPageDescription.rowDescriptions.length === 0;
+      const pageDescriptions: PageDescription[] = [];
 
-      if (!firstOnPage && heightExceeded) {
-        pageDescriptions.push(crtPageDescription);
-        crtPageDescription = { rowDescriptions: [] };
-        crtWidth = 0;
-        crtHeight = 0;
-        crtStavesYs = null;
-        crtStartMeasureIndex = newMeasureIndex;
-        continue;
+      let crtMeasureIndex = -1;
+      let crtWidth = 0;
+      let crtHeight = 0;
+      let crtStavesYs: number[] | null = null;
+      let crtStartMeasureIndex = 0;
+      let crtPageDescription: PageDescription = { rowDescriptions: [] };
+      while (true) {
+        const newMeasureIndex = crtMeasureIndex + 1;
+        const firstOnRow = newMeasureIndex === crtStartMeasureIndex;
+        const { width, height, stavesYs } = renderStaffSystemAtIndexRef(
+          renderContext,
+          false,
+          0,
+          0,
+          newMeasureIndex,
+          firstOnRow,
+          firstOnRow,
+          true,
+          null,
+        );
+        const newWidth = crtWidth + width;
+        const newHeight = Math.max(crtHeight, height);
+        const newStavesYs = mergeStavesYsRef(crtStavesYs, stavesYs);
+
+        const widthExceeded = newWidth > getPageClientWidthRef();
+        const heightExceeded = newHeight > getPageClientHeightRef();
+
+        if (!firstOnRow && widthExceeded && !heightExceeded) {
+          crtPageDescription.rowDescriptions.push({
+            startMeasureIndex: crtStartMeasureIndex,
+            endMeasureIndex: crtMeasureIndex,
+            stavesYs: requireNotNull(crtStavesYs),
+          });
+          crtWidth = 0;
+          crtHeight = 0;
+          crtStavesYs = null;
+          crtStartMeasureIndex = newMeasureIndex;
+          continue;
+        }
+
+        const firstOnPage = crtPageDescription.rowDescriptions.length === 0;
+
+        if (!firstOnPage && heightExceeded) {
+          pageDescriptions.push(crtPageDescription);
+          crtPageDescription = { rowDescriptions: [] };
+          crtWidth = 0;
+          crtHeight = 0;
+          crtStavesYs = null;
+          crtStartMeasureIndex = newMeasureIndex;
+          continue;
+        }
+
+        if (newMeasureIndex === totalMeasureCount - 1) {
+          crtPageDescription.rowDescriptions.push({
+            startMeasureIndex: crtStartMeasureIndex,
+            endMeasureIndex: newMeasureIndex,
+            stavesYs: newStavesYs,
+          });
+          pageDescriptions.push(crtPageDescription);
+          break;
+        }
+
+        crtMeasureIndex = newMeasureIndex;
+        crtWidth = newWidth;
+        crtHeight = newHeight;
+        crtStavesYs = newStavesYs;
       }
-
-      if (newMeasureIndex === totalMeasureCount - 1) {
-        crtPageDescription.rowDescriptions.push({
-          startMeasureIndex: crtStartMeasureIndex,
-          endMeasureIndex: newMeasureIndex,
-          stavesYs: newStavesYs,
-        });
-        pageDescriptions.push(crtPageDescription);
-        break;
-      }
-
-      crtMeasureIndex = newMeasureIndex;
-      crtWidth = newWidth;
-      crtHeight = newHeight;
-      crtStavesYs = newStavesYs;
-    }
-    removeUnsavedRef(div);
-    return pageDescriptions;
-  }, [
-    staffSystem,
-    renderStaffSystemAtIndexRef,
-    mergeStavesYsRef,
-    getPageClientWidthRef,
-    getPageClientHeightRef,
-    removeUnsavedRef,
-  ]);
+      removeUnsavedRef();
+      return pageDescriptions;
+    },
+    [
+      staffSystem,
+      renderStaffSystemAtIndexRef,
+      mergeStavesYsRef,
+      getPageClientWidthRef,
+      getPageClientHeightRef,
+      removeUnsavedRef,
+    ],
+  );
 
   useEffect(() => {
     if (divRef.current == null) {
       return;
     }
 
-    const pageDescriptions = getPageDescriptionsRef();
+    const div = divRef.current;
+    const renderContext = new SVGContext(div);
+
+    const pageDescriptions = getPageDescriptionsRef(renderContext);
     console.log(pageDescriptions);
   }, [getPageDescriptionsRef]);
 
