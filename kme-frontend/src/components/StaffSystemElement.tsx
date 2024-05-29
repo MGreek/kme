@@ -13,8 +13,9 @@ import { connectorTypeToVex } from "../util/model-to-vexflow";
 import { requireNotNull } from "../util/require-not-null";
 
 const SCALE = 4;
-const RAW_PAGE_WIDTH = 210 * SCALE;
-const RAW_PAGE_HEIGHT = 50 * SCALE;
+
+const RAW_PAGE_WIDTH_MM = 210;
+const RAW_PAGE_HEIGHT_MM = 297;
 
 interface RowDescription {
   startMeasureIndex: number;
@@ -29,17 +30,27 @@ interface PageDescription {
 export default function StaffSystemElement({
   staffSystem,
   pageGap,
+  pagePadding,
 }: {
   staffSystem: StaffSystem;
   pageGap: number;
+  pagePadding: { left: number; right: number; top: number; bottom: number };
 }) {
-  const getPageClientWidthRef = useCallback(() => {
-    return RAW_PAGE_WIDTH;
+  const getPageWidthRef = useCallback(() => {
+    return RAW_PAGE_WIDTH_MM * SCALE;
   }, []);
 
-  const getPageClientHeightRef = useCallback(() => {
-    return RAW_PAGE_HEIGHT;
+  const getPageHeightRef = useCallback(() => {
+    return RAW_PAGE_HEIGHT_MM * SCALE;
   }, []);
+
+  const getPageClientWidthRef = useCallback(() => {
+    return getPageWidthRef() - pagePadding.left - pagePadding.right;
+  }, [getPageWidthRef, pagePadding]);
+
+  const getPageClientHeightRef = useCallback(() => {
+    return getPageHeightRef() - pagePadding.top - pagePadding.bottom;
+  }, [getPageHeightRef, pagePadding]);
 
   const mergeStavesYsRef = useCallback(
     (firstStavesYs: number[] | null, secondStavesYs: number[]) => {
@@ -392,14 +403,14 @@ export default function StaffSystemElement({
       for (const rowDescription of pageDescription.rowDescriptions) {
         const { height } = renderRowFromDescriptionRef(
           renderContext,
-          shiftX,
-          crtShiftY,
+          shiftX + pagePadding.left,
+          crtShiftY + pagePadding.top,
           rowDescription,
         );
         crtShiftY += height;
       }
     },
-    [renderRowFromDescriptionRef],
+    [pagePadding, renderRowFromDescriptionRef],
   );
 
   const renderPagesFromDescrtiptionsRef = useCallback(
@@ -409,7 +420,12 @@ export default function StaffSystemElement({
         removeUnsavedRef();
         renderContext.save();
         renderContext.setFillStyle("white");
-        renderContext.fillRect(0, crtShiftY, RAW_PAGE_WIDTH, RAW_PAGE_HEIGHT);
+        renderContext.fillRect(
+          0,
+          crtShiftY,
+          getPageWidthRef(),
+          getPageHeightRef(),
+        );
         renderContext.restore();
         collectNewElementsRef(true);
 
@@ -420,20 +436,22 @@ export default function StaffSystemElement({
           pageDescription,
         );
 
-        crtShiftY += RAW_PAGE_HEIGHT;
+        crtShiftY += getPageHeightRef();
 
         if (index < pageDescriptions.length - 1) {
           crtShiftY += pageGap;
         }
       }
 
-      const width = RAW_PAGE_WIDTH;
+      const width = getPageWidthRef();
       const height = crtShiftY;
 
       return { width, height };
     },
     [
       pageGap,
+      getPageWidthRef,
+      getPageHeightRef,
       renderPageFromDescriptionRef,
       collectNewElementsRef,
       removeUnsavedRef,
@@ -446,7 +464,11 @@ export default function StaffSystemElement({
     }
 
     const div = divRef.current;
-    const renderContext = new SVGContext(div);
+    div.innerHTML = "";
+    crtElementIdsRef.current.clear();
+    savedElementIdsRef.current.clear();
+
+    const renderContext = new SVGContext(div).scale(1, 1);
 
     const pageDescriptions = getPageDescriptionsRef(renderContext);
     const { width, height } = renderPagesFromDescrtiptionsRef(
@@ -459,5 +481,5 @@ export default function StaffSystemElement({
     div.style.height = `${height}px`;
   }, [getPageDescriptionsRef, renderPagesFromDescrtiptionsRef]);
 
-  return <div className="bg-red-200" ref={divRef} />;
+  return <div ref={divRef} />;
 }
