@@ -329,11 +329,5 @@ export default function StaffSystemElement({
     console.log(pageDescriptions);
   }, [getPageDescriptionsRef]);
 
-  const [pages, setPages] = useState<JSX.Element[]>([]);
-
-  return (
-    <div className="flex flex-col gap-4" ref={divRef}>
-      {pages}
-    </div>
-  );
+  return <div ref={divRef} />;
 }
