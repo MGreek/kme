@@ -18,7 +18,7 @@ export default function App() {
     return <h1 className="bg-red-500 text-blue-400">Data not received yet</h1>;
   }
   return (
-    <div className="grid items-center p-4">
+    <div className="grid bg-red-300 place-content-center p-4">
       <StaffSystemElement
         staffSystem={dataReceived}
         pageGap={20}
