@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import {
   BoundingBox,
-  RenderContext,
+  type RenderContext,
   SVGContext,
   StaveConnector,
 } from "vexflow";
@@ -14,7 +14,7 @@ import { requireNotNull } from "../util/require-not-null";
 
 const SCALE = 4;
 const RAW_PAGE_WIDTH = 210 * SCALE;
-const RAW_PAGE_HEIGHT = 297 * SCALE;
+const RAW_PAGE_HEIGHT = 50 * SCALE;
 
 interface RowDescription {
   startMeasureIndex: number;
@@ -28,8 +28,10 @@ interface PageDescription {
 
 export default function StaffSystemElement({
   staffSystem,
+  pageGap,
 }: {
   staffSystem: StaffSystem;
+  pageGap: number;
 }) {
   const getPageClientWidthRef = useCallback(() => {
     return RAW_PAGE_WIDTH;
@@ -70,21 +72,22 @@ export default function StaffSystemElement({
       "Expected divRef to be initialized",
     );
 
-    const svg = requireNotNull(div.children.item(0));
+    const svg = div.firstChild;
     if (!(svg instanceof SVGElement)) {
       throw new Error("Expected divRef to have svg child on first position");
     }
 
     const newElements = Array.from(svg.children).filter(
       (element) =>
-        !savedElementIdsRef.current.has(element.id) &&
-        !crtElementIdsRef.current.has(element.id),
+        !savedElementIdsRef.current.has(element.outerHTML) &&
+        !crtElementIdsRef.current.has(element.outerHTML),
     );
+
     for (const newElement of newElements) {
       if (save) {
-        savedElementIdsRef.current.add(newElement.id);
+        savedElementIdsRef.current.add(newElement.outerHTML);
       }
-      crtElementIdsRef.current.add(newElement.id);
+      crtElementIdsRef.current.add(newElement.outerHTML);
     }
     return newElements;
   }, []);
@@ -126,13 +129,13 @@ export default function StaffSystemElement({
       "Expected divRef to be initialized",
     );
 
-    const svg = requireNotNull(div.children.item(0));
+    const svg = div.firstChild;
     if (!(svg instanceof SVGElement)) {
       throw new Error("Expected divRef to have svg child on first position");
     }
 
     const unsavedElements = Array.from(svg.children).filter(
-      (element) => !savedElementIdsRef.current.has(element.id),
+      (element) => !savedElementIdsRef.current.has(element.outerHTML),
     );
     for (const element of unsavedElements) {
       svg.removeChild(element);
@@ -182,7 +185,7 @@ export default function StaffSystemElement({
       let bottomStave = requireNotNull(vexStaves.at(-1));
 
       if (drawConnector) {
-        removeUnsavedRef();
+        collectNewElementsRef(false);
         new StaveConnector(topStave, bottomStave)
           .setContext(renderContext)
           .setType(connectorTypeToVex(staffSystemMetadata.connectorType))
@@ -229,13 +232,18 @@ export default function StaffSystemElement({
           .setType("singleRight")
           .draw();
       }
-      const totalBounds = getNewElementsBoundsRef(save);
-      const width = (totalBounds?.x ?? 0) + (totalBounds?.w ?? 0);
-      const height = (totalBounds?.y ?? 0) + (totalBounds?.h ?? 0);
+      const totalBounds = requireNotNull(getNewElementsBoundsRef(save));
+      const width = totalBounds.w - shiftX;
+      const height = totalBounds.h - shiftY;
 
       return { width, height, stavesYs };
     },
-    [staffSystem, getNewElementsBoundsRef, removeUnsavedRef],
+    [
+      staffSystem,
+      getNewElementsBoundsRef,
+      removeUnsavedRef,
+      collectNewElementsRef,
+    ],
   );
 
   const getPageDescriptionsRef = useCallback(
@@ -250,12 +258,15 @@ export default function StaffSystemElement({
       let crtMeasureIndex = -1;
       let crtWidth = 0;
       let crtHeight = 0;
+      let shiftY = 0;
       let crtStavesYs: number[] | null = null;
       let crtStartMeasureIndex = 0;
       let crtPageDescription: PageDescription = { rowDescriptions: [] };
       while (true) {
         const newMeasureIndex = crtMeasureIndex + 1;
         const firstOnRow = newMeasureIndex === crtStartMeasureIndex;
+        const firstOnPage = crtPageDescription.rowDescriptions.length === 0;
+
         const { width, height, stavesYs } = renderStaffSystemAtIndexRef(
           renderContext,
           false,
@@ -268,11 +279,12 @@ export default function StaffSystemElement({
           null,
         );
         const newWidth = crtWidth + width;
-        const newHeight = Math.max(crtHeight, height);
+        const newHeight =
+          (firstOnPage ? 0 : pageGap) + Math.max(crtHeight, height);
         const newStavesYs = mergeStavesYsRef(crtStavesYs, stavesYs);
 
         const widthExceeded = newWidth > getPageClientWidthRef();
-        const heightExceeded = newHeight > getPageClientHeightRef();
+        const heightExceeded = shiftY + newHeight > getPageClientHeightRef();
 
         if (!firstOnRow && widthExceeded && !heightExceeded) {
           crtPageDescription.rowDescriptions.push({
@@ -281,18 +293,25 @@ export default function StaffSystemElement({
             stavesYs: requireNotNull(crtStavesYs),
           });
           crtWidth = 0;
+          shiftY += crtHeight;
           crtHeight = 0;
           crtStavesYs = null;
           crtStartMeasureIndex = newMeasureIndex;
           continue;
         }
 
-        const firstOnPage = crtPageDescription.rowDescriptions.length === 0;
-
-        if (!firstOnPage && heightExceeded) {
+        if ((!firstOnPage || !firstOnRow) && heightExceeded) {
+          if (!firstOnRow) {
+            crtPageDescription.rowDescriptions.push({
+              startMeasureIndex: crtStartMeasureIndex,
+              endMeasureIndex: crtMeasureIndex,
+              stavesYs: requireNotNull(crtStavesYs),
+            });
+          }
           pageDescriptions.push(crtPageDescription);
           crtPageDescription = { rowDescriptions: [] };
           crtWidth = 0;
+          shiftY = 0;
           crtHeight = 0;
           crtStavesYs = null;
           crtStartMeasureIndex = newMeasureIndex;
@@ -319,10 +338,104 @@ export default function StaffSystemElement({
     },
     [
       staffSystem,
+      pageGap,
       renderStaffSystemAtIndexRef,
       mergeStavesYsRef,
       getPageClientWidthRef,
       getPageClientHeightRef,
+      removeUnsavedRef,
+    ],
+  );
+
+  const renderRowFromDescriptionRef = useCallback(
+    (
+      renderContext: RenderContext,
+      shiftX: number,
+      shiftY: number,
+      rowDescription: RowDescription,
+    ) => {
+      let crtWidth = shiftX;
+      let crtHeight = 0;
+      for (
+        let measureIndex = rowDescription.startMeasureIndex;
+        measureIndex <= rowDescription.endMeasureIndex;
+        measureIndex++
+      ) {
+        const first = measureIndex === rowDescription.startMeasureIndex;
+        const { width, height } = renderStaffSystemAtIndexRef(
+          renderContext,
+          true,
+          crtWidth,
+          shiftY,
+          measureIndex,
+          first,
+          first,
+          true,
+          rowDescription.stavesYs,
+        );
+        crtWidth += width;
+        crtHeight = Math.max(crtHeight, height);
+      }
+      return { width: crtWidth, height: crtHeight };
+    },
+    [renderStaffSystemAtIndexRef],
+  );
+
+  const renderPageFromDescriptionRef = useCallback(
+    (
+      renderContext: RenderContext,
+      shiftX: number,
+      shiftY: number,
+      pageDescription: PageDescription,
+    ) => {
+      let crtShiftY = shiftY;
+      for (const rowDescription of pageDescription.rowDescriptions) {
+        const { height } = renderRowFromDescriptionRef(
+          renderContext,
+          shiftX,
+          crtShiftY,
+          rowDescription,
+        );
+        crtShiftY += height;
+      }
+    },
+    [renderRowFromDescriptionRef],
+  );
+
+  const renderPagesFromDescrtiptionsRef = useCallback(
+    (renderContext: RenderContext, pageDescriptions: PageDescription[]) => {
+      let crtShiftY = 0;
+      for (const [index, pageDescription] of pageDescriptions.entries()) {
+        removeUnsavedRef();
+        renderContext.save();
+        renderContext.setFillStyle("white");
+        renderContext.fillRect(0, crtShiftY, RAW_PAGE_WIDTH, RAW_PAGE_HEIGHT);
+        renderContext.restore();
+        collectNewElementsRef(true);
+
+        renderPageFromDescriptionRef(
+          renderContext,
+          0,
+          crtShiftY,
+          pageDescription,
+        );
+
+        crtShiftY += RAW_PAGE_HEIGHT;
+
+        if (index < pageDescriptions.length - 1) {
+          crtShiftY += pageGap;
+        }
+      }
+
+      const width = RAW_PAGE_WIDTH;
+      const height = crtShiftY;
+
+      return { width, height };
+    },
+    [
+      pageGap,
+      renderPageFromDescriptionRef,
+      collectNewElementsRef,
       removeUnsavedRef,
     ],
   );
@@ -336,8 +449,15 @@ export default function StaffSystemElement({
     const renderContext = new SVGContext(div);
 
     const pageDescriptions = getPageDescriptionsRef(renderContext);
-    console.log(pageDescriptions);
-  }, [getPageDescriptionsRef]);
+    const { width, height } = renderPagesFromDescrtiptionsRef(
+      renderContext,
+      pageDescriptions,
+    );
 
-  return <div ref={divRef} />;
+    renderContext.resize(width, height);
+    div.style.width = `${width}px`;
+    div.style.height = `${height}px`;
+  }, [getPageDescriptionsRef, renderPagesFromDescrtiptionsRef]);
+
+  return <div className="bg-red-200" ref={divRef} />;
 }
