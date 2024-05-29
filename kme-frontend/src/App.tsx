@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import request from "./api/request";
-import SheetMusicDisplay from "./components/SheetMusicDisplay";
+import StaffSystemElement from "./components/StaffSystemElement";
 import type { StaffSystem } from "./model/staff-system";
 
 export default function App() {
@@ -17,5 +17,9 @@ export default function App() {
   if (dataReceived == null) {
     return <h1 className="bg-red-500 text-blue-400">Data not received yet</h1>;
   }
-  return <SheetMusicDisplay staffSystem={dataReceived} />;
+  return (
+    <div className="grid items-center p-4">
+      <StaffSystemElement staffSystem={dataReceived} />
+    </div>
+  );
 }
