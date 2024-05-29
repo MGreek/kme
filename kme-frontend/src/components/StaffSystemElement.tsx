@@ -154,6 +154,8 @@ export default function StaffSystemElement({
     crtElementIdsRef.current.clear();
   }, []);
 
+  // TODO: use metadata instead of `drawConnector`, `drawLeftLine`, `drawRightLine`;
+  // this also implies setting the metadata in the right places
   const renderStaffSystemAtIndexRef = useCallback(
     (
       renderContext: RenderContext,
