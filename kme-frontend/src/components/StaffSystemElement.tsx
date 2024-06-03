@@ -6,7 +6,7 @@ import {
   StaveConnector,
 } from "vexflow";
 import type { StaffSystem } from "../model/staff-system";
-import { renderStaffAtIndex } from "../renderer/render-staff-system-at-index";
+import { renderStaffAtIndex } from "../renderer/render";
 import { parseStaffSystemMetadata } from "../util/metadata";
 import { getStaffSystemMeasureCount } from "../util/misc";
 import { connectorTypeToVex } from "../util/model-to-vexflow";
