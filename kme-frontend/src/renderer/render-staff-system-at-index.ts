@@ -9,15 +9,6 @@ import {
 } from "../util/model-to-vexflow";
 import { requireNotNull } from "../util/require-not-null";
 
-export interface RenderOptions {
-  stavesYs: number[];
-  defaultStaveWidth: number;
-  clear: boolean;
-  drawConnector: boolean;
-  drawSingleLineLeft: boolean;
-  drawSingleLineRight: boolean;
-}
-
 export function renderStaffAtIndex(
   renderContext: RenderContext,
   staff: Staff,
