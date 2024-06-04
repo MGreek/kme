@@ -1,4 +1,6 @@
 import type { Measure } from "../model/measure";
+import type { Note } from "../model/note";
+import type { Rest } from "../model/rest";
 import type { Staff } from "../model/staff";
 import { ConnectorType, type StaffSystem } from "../model/staff-system";
 
@@ -9,7 +11,7 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   let object = null;
   try {
     object = JSON.parse(staffSystem.metadataJson);
-  } catch {}
+  } catch { }
 
   let connectorType = ConnectorType.None;
   if (
@@ -40,7 +42,7 @@ export function parseStaffMetadata(staff: Staff): {
   let object = null;
   try {
     object = JSON.parse(staff.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let width = 350;
   if (object != null && "width" in object && typeof object.width === "number") {
@@ -57,7 +59,7 @@ export function parseMeasureMetadata(measure: Measure): {
   let object = null;
   try {
     object = JSON.parse(measure.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let drawClef = false;
   if (
@@ -87,4 +89,40 @@ export function parseMeasureMetadata(measure: Measure): {
   }
 
   return { drawClef, drawKeySignature, drawTimeSignature };
+}
+
+export function parseNoteMetadata(note: Note): { highlight: boolean } {
+  let object = null;
+  try {
+    object = JSON.parse(note.metadataJson);
+  } catch (error) { }
+
+  let highlight = false;
+  if (
+    object != null &&
+    "highlight" in object &&
+    typeof object.highlight === "boolean"
+  ) {
+    highlight = object.highlight;
+  }
+
+  return { highlight };
+}
+
+export function parseRestMetadata(rest: Rest): { highlight: boolean } {
+  let object = null;
+  try {
+    object = JSON.parse(rest.metadataJson);
+  } catch (error) { }
+
+  let highlight = false;
+  if (
+    object != null &&
+    "highlight" in object &&
+    typeof object.highlight === "boolean"
+  ) {
+    highlight = object.highlight;
+  }
+
+  return { highlight };
 }

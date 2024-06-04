@@ -20,6 +20,7 @@ import { RestType } from "../model/rest";
 import { ConnectorType } from "../model/staff-system";
 import { StemType } from "../model/stem";
 import type { Voice } from "../model/voice";
+import { parseNoteMetadata, parseRestMetadata } from "./metadata";
 import { requireNotNull } from "./require-not-null";
 
 export function getDurationFromRestType(restType: RestType): string {
@@ -189,6 +190,7 @@ export function getVexStemmableNotesFromGrouping(
 ): { stemmableNotes: StemmableNote[]; modifiers: Modifier[] } {
   const stemmableNotes = [];
   const modifiers = [];
+  const highlightColor = ["blue", "green", "orange", "red"];
   for (const groupingEntry of grouping.groupingEntries) {
     if (groupingEntry.rest != null) {
       const rest = groupingEntry.rest;
@@ -197,6 +199,15 @@ export function getVexStemmableNotesFromGrouping(
         type: "r",
         duration: getDurationFromRestType(rest.restType),
       }).setContext(renderContext);
+      const voiceIndex =
+        rest.restId.groupingEntryId.groupingId.voiceId.voicesOrder;
+      const restMetadata = parseRestMetadata(rest);
+      if (restMetadata.highlight) {
+        staveNote.setStyle({
+          fillStyle:
+            highlightColor[Math.min(highlightColor.length - 1, voiceIndex)],
+        });
+      }
       stemmableNotes.push(staveNote);
     } else if (groupingEntry.chord != null) {
       const chord = groupingEntry.chord;
@@ -208,6 +219,17 @@ export function getVexStemmableNotesFromGrouping(
         auto_stem: true,
       }).setContext(renderContext);
       for (const [index, note] of chord.notes.entries()) {
+        const noteMetadata = parseNoteMetadata(note);
+
+        if (noteMetadata.highlight) {
+          const voiceIndex =
+            note.noteId.chordId.groupingEntryId.groupingId.voiceId.voicesOrder;
+          staveNote.setKeyStyle(index, {
+            fillStyle:
+              highlightColor[Math.min(highlightColor.length - 1, voiceIndex)],
+          });
+        }
+
         const accidental = getAccidentalNameFromAccidental(note.accidental);
         if (accidental !== "") {
           const vexAccidental = new VexAccidental(accidental)
