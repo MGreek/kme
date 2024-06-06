@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import request from "../api/request";
 import type { StaffSystem, StaffSystemId } from "../model/staff-system";
+import { Trie } from "../util/graph";
+import { requireNotNull } from "../util/require-not-null";
 import StaffSystemElement from "./StaffSystemElement";
 
 export default function Editor({
@@ -23,126 +25,278 @@ export default function Editor({
   const crtCommandRef = useRef<string>("");
   const [command, setCommand] = useState<string>("");
 
-  const normalHandleInput = useCallback((word: string) => {
-    if (word === "Escape") {
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
-    if (
-      crtCommandRef.current === "" &&
-      (word === "i" || word === "v" || word === ":")
-    ) {
-      switch (word) {
-        case "i":
-          crtMode.current = "insert";
-          break;
-        case "v":
-          crtMode.current = "visual";
-          break;
-        case ":":
-          crtMode.current = "command";
-          break;
+  const normalTrieRef = useRef<Trie<() => void> | null>(null);
+  const visualTrieRef = useRef<Trie<() => void> | null>(null);
+  const insertTrieRef = useRef<Trie<() => void> | null>(null);
+
+  const initNormalTrie = useCallback(() => {
+    const trie = new Trie<() => void>();
+    trie.addWord("jk", () => {
+      console.log("jk");
+    });
+
+    normalTrieRef.current = trie;
+  }, []);
+
+  const initVisualTrie = useCallback(() => {
+    const trie = new Trie<() => void>();
+    trie.addWord("jv", () => {
+      console.log("jv");
+    });
+
+    visualTrieRef.current = trie;
+  }, []);
+
+  const initInsertTrie = useCallback(() => {
+    const trie = new Trie<() => void>();
+    trie.addWord("ji", () => {
+      console.log("ji");
+    });
+
+    insertTrieRef.current = trie;
+  }, []);
+
+  const normalHandleInput = useCallback(
+    (word: string) => {
+      if (word === "Escape" || word === "Backspace") {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
       }
-      setMode(crtMode.current);
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
-    if (word === "Enter") {
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
+      if (
+        crtCommandRef.current === "" &&
+        (word === "i" || word === "v" || word === ":")
+      ) {
+        switch (word) {
+          case "i":
+            crtMode.current = "insert";
+            break;
+          case "v":
+            crtMode.current = "visual";
+            break;
+          case ":":
+            crtMode.current = "command";
+            break;
+        }
+        setMode(crtMode.current);
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+      if (word === "Enter") {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
 
-    crtCommandRef.current += word;
-    setCommand(crtCommandRef.current);
+      crtCommandRef.current += word;
+      setCommand(crtCommandRef.current);
+
+      if (normalTrieRef.current == null) {
+        initNormalTrie();
+      }
+
+      const trie = requireNotNull(
+        normalTrieRef.current,
+        "Expected normalTrieRef to be initialized",
+      );
+
+      const data = trie.getDataByWord(crtCommandRef.current);
+      if (data != null) {
+        data();
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      const isPrefix = trie.isPrefix(crtCommandRef.current);
+      if (!isPrefix) {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+    },
+    [initNormalTrie],
+  );
+
+  const visualHandleInput = useCallback(
+    (word: string) => {
+      if (word === "Escape") {
+        crtMode.current = "normal";
+        setMode(crtMode.current);
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+      if (word === "Backspace") {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+      if (word === "Enter") {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      crtCommandRef.current += word;
+      setCommand(crtCommandRef.current);
+
+      if (visualTrieRef.current == null) {
+        initVisualTrie();
+      }
+
+      const trie = requireNotNull(
+        visualTrieRef.current,
+        "Expected visualTrieRef to be initialized",
+      );
+
+      const data = trie.getDataByWord(crtCommandRef.current);
+      if (data != null) {
+        data();
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      const isPrefix = trie.isPrefix(crtCommandRef.current);
+      if (!isPrefix) {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+    },
+    [initVisualTrie],
+  );
+
+  const insertHandleInput = useCallback(
+    (word: string) => {
+      if (word === "Escape") {
+        crtMode.current = "normal";
+        setMode(crtMode.current);
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+      if (word === "Backspace") {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+      if (word === "Enter") {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      crtCommandRef.current += word;
+      setCommand(crtCommandRef.current);
+
+      if (insertTrieRef.current == null) {
+        initInsertTrie();
+      }
+
+      const trie = requireNotNull(
+        insertTrieRef.current,
+        "Expected insertTrieRef to be initialized",
+      );
+
+      const data = trie.getDataByWord(crtCommandRef.current);
+      if (data != null) {
+        data();
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      const isPrefix = trie.isPrefix(crtCommandRef.current);
+      if (!isPrefix) {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+    },
+    [initInsertTrie],
+  );
+
+  const onCommandEnter = useCallback((command: string) => {
+    console.log("COMMAND", command);
   }, []);
 
-  const visualHandleInput = useCallback((word: string) => {
-    if (word === "Escape") {
-      crtMode.current = "normal";
-      setMode(crtMode.current);
-      crtCommandRef.current = "";
+  const commandHandleInput = useCallback(
+    (word: string) => {
+      if (word === "Escape") {
+        crtMode.current = "normal";
+        setMode(crtMode.current);
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+      if (word === "Backspace") {
+        if (crtCommandRef.current.length > 0) {
+          crtCommandRef.current = crtCommandRef.current.slice(0, -1);
+          setCommand(crtCommandRef.current);
+        }
+        return;
+      }
+      if (word === "Enter") {
+        onCommandEnter(crtCommandRef.current);
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      crtCommandRef.current += word;
       setCommand(crtCommandRef.current);
-      return;
-    }
-    if (word === "Enter") {
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
+    },
+    [onCommandEnter],
+  );
 
-    crtCommandRef.current += word;
-    setCommand(crtCommandRef.current);
-  }, []);
+  const onKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (staffSystemElement == null) {
+        return;
+      }
 
-  const insertHandleInput = useCallback((word: string) => {
-    if (word === "Escape") {
-      crtMode.current = "normal";
-      setMode(crtMode.current);
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
-    if (word === "Enter") {
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
+      if (
+        event.key !== "Escape" &&
+        event.key !== "Enter" &&
+        event.key !== "Backspace" &&
+        event.key.length !== 1
+      ) {
+        return;
+      }
 
-    crtCommandRef.current += word;
-    setCommand(crtCommandRef.current);
-  }, []);
+      // prevent scrolling by space
+      if (event.key === " ") {
+        event.preventDefault();
+      }
 
-  const commandHandleInput = useCallback((word: string) => {
-    if (word === "Escape") {
-      crtMode.current = "normal";
-      setMode(crtMode.current);
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
-    if (word === "Enter") {
-      crtCommandRef.current = "";
-      setCommand(crtCommandRef.current);
-      return;
-    }
-
-    crtCommandRef.current += word;
-    setCommand(crtCommandRef.current);
-  }, []);
-
-  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (staffSystemElement == null) {
-      return;
-    }
-
-    if (
-      event.key !== "Escape" &&
-      event.key !== "Enter" &&
-      event.key.length !== 1
-    ) {
-      return;
-    }
-
-    switch (crtMode.current) {
-      case "normal":
-        normalHandleInput(event.key);
-        break;
-      case "visual":
-        visualHandleInput(event.key);
-        break;
-      case "insert":
-        insertHandleInput(event.key);
-        break;
-      case "command":
-        commandHandleInput(event.key);
-        break;
-      default:
-        throw new Error("Unknown mode");
-    }
-  };
+      switch (crtMode.current) {
+        case "normal":
+          normalHandleInput(event.key);
+          break;
+        case "visual":
+          visualHandleInput(event.key);
+          break;
+        case "insert":
+          insertHandleInput(event.key);
+          break;
+        case "command":
+          commandHandleInput(event.key);
+          break;
+        default:
+          throw new Error("Unknown mode");
+      }
+    },
+    [
+      staffSystemElement,
+      normalHandleInput,
+      visualHandleInput,
+      insertHandleInput,
+      commandHandleInput,
+    ],
+  );
 
   useEffect(() => {
     let url = "/api/staff-system/";
@@ -183,7 +337,9 @@ export default function Editor({
         {staffSystemElement}
       </div>
       <div className="bg-red-400 fixed bottom-4 left-10">{mode}</div>
-      <div className="bg-red-400 fixed bottom-4 right-10">{command}</div>
+      <div className="bg-red-400 fixed bottom-4 right-10 whitespace-pre">
+        {command}
+      </div>
     </div>
   );
 }
