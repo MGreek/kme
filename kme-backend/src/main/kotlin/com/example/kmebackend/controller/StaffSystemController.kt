@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
@@ -34,6 +35,19 @@ class StaffSystemController(
     @Autowired
     val staffSystemConverter: StaffSystemConverter,
 ) {
+    @RequestMapping("/{id}")
+    fun getStaffSystemById(@PathVariable("id") id: String): ResponseEntity<StaffSystemDTO> {
+        try {
+            val staffSystem = staffSystemService.findById(StaffSystemId(id));
+            if (staffSystem.isEmpty) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(staffSystemConverter.staffSystemToDto(staffSystem.orElseThrow()))
+        } catch (_: Exception) {
+            return ResponseEntity.internalServerError().build()
+        }
+    }
+
     @RequestMapping("/sample")
     fun getSampleStaffSystem(): ResponseEntity<StaffSystemDTO> {
         try {
