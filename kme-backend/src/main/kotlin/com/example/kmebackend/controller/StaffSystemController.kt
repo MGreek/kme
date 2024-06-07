@@ -36,11 +36,13 @@ class StaffSystemController(
     val staffSystemConverter: StaffSystemConverter,
 ) {
     @RequestMapping("/{id}")
-    fun getStaffSystemById(@PathVariable("id") id: String): ResponseEntity<StaffSystemDTO> {
+    fun getStaffSystemById(
+        @PathVariable("id") id: String,
+    ): ResponseEntity<StaffSystemDTO> {
         try {
-            val staffSystem = staffSystemService.findById(StaffSystemId(id));
+            val staffSystem = staffSystemService.findById(StaffSystemId(id))
             if (staffSystem.isEmpty) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.notFound().build()
             }
             return ResponseEntity.ok(staffSystemConverter.staffSystemToDto(staffSystem.orElseThrow()))
         } catch (_: Exception) {
