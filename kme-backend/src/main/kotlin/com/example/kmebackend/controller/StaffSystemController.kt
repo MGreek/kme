@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
@@ -45,6 +47,18 @@ class StaffSystemController(
                 return ResponseEntity.notFound().build()
             }
             return ResponseEntity.ok(staffSystemConverter.staffSystemToDto(staffSystem.orElseThrow()))
+        } catch (_: Exception) {
+            return ResponseEntity.internalServerError().build()
+        }
+    }
+
+    @PostMapping("/set")
+    fun setStaffSystemById(
+        @RequestBody staffSystemDTO: StaffSystemDTO,
+    ): ResponseEntity<StaffSystemDTO> {
+        try {
+            staffSystemService.saveDTO(staffSystemDTO)
+            return ResponseEntity.ok(staffSystemDTO)
         } catch (_: Exception) {
             return ResponseEntity.internalServerError().build()
         }
