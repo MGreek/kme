@@ -23,4 +23,8 @@ abstract class StaffSystemConverter {
         val staves = staffSystemRepository.getChildren(requireNotNull(staffSystem.staffSystemId))
         return staves.map { staffConverter.staffToDto(it) }
     }
+
+    fun dtoToStaffSystem(staffSystemDTO: StaffSystemDTO): StaffSystem {
+        return StaffSystem(staffSystemId = staffSystemDTO.staffSystemId, metadataJson = staffSystemDTO.metadataJson)
+    }
 }

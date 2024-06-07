@@ -6,6 +6,7 @@ import com.example.kmebackend.model.dto.ChordDTO
 import com.example.kmebackend.model.dto.NoteDTO
 import com.example.kmebackend.model.dto.StemDTO
 import com.example.kmebackend.repository.ChordRepository
+import com.example.kmebackend.repository.GroupingEntryRepository
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired
 abstract class ChordConverter {
     @Autowired
     private lateinit var chordRepository: ChordRepository
+
+    @Autowired
+    private lateinit var groupingEntryRepository: GroupingEntryRepository
 
     @Autowired
     private lateinit var stemConverter: StemConverter
@@ -32,5 +36,18 @@ abstract class ChordConverter {
     fun mapNoteDTOs(chord: Chord): List<NoteDTO> {
         val notes = chordRepository.getChildren(requireNotNull(chord.chordId))
         return notes.map { noteConverter.noteToDto(it) }
+    }
+
+    fun dtoToChord(chordDTO: ChordDTO): Chord {
+        val parentId = chordDTO.chordId.groupingEntryId
+        val parent = groupingEntryRepository.findById(parentId).orElse(null)
+
+        return Chord(
+            chordDTO.chordId,
+            parent,
+            stemConverter.dtoToStem(chordDTO.stemDTO),
+            chordDTO.dotCount,
+            chordDTO.metadataJson,
+        )
     }
 }
