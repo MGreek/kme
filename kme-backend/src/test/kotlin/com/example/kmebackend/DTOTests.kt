@@ -10,10 +10,12 @@ import com.example.kmebackend.service.StaffSystemService
 import com.example.kmebackend.service.converter.StaffSystemConverter
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
+import java.util.UUID
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -37,7 +39,18 @@ class DTOTests(
     }
 
     @Test
-    fun staffSystemConverterToDtoTest() {
+    fun dtoToStaffSystemTest() {
+        val id = StaffSystemId()
+        val metadataJson = UUID.randomUUID().toString()
+        val dto = StaffSystemDTO(id, metadataJson, emptyList())
+        val staffSystem = staffSystemConverter.dtoToStaffSystem(dto)
+        assertEquals(metadataJson, staffSystem.metadataJson)
+        assertNotNull(staffSystem.staffSystemId)
+        assertEquals(id.staffSystemId, requireNotNull(staffSystem.staffSystemId).staffSystemId)
+    }
+
+    @Test
+    fun staffSystemToDtoTest() {
         val staffSystem =
             staffSystemService.createStaffSystem(
                 StaffSystem(metadataJson = "Hello System"),
