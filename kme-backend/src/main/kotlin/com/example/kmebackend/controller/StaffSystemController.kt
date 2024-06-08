@@ -55,10 +55,10 @@ class StaffSystemController(
     @PostMapping("/set")
     fun setStaffSystemById(
         @RequestBody staffSystemDTO: StaffSystemDTO,
-    ): ResponseEntity<StaffSystemDTO> {
+    ): ResponseEntity<Void> {
         try {
             staffSystemService.saveDTO(staffSystemDTO)
-            return ResponseEntity.ok(staffSystemDTO)
+            return ResponseEntity.ok().build()
         } catch (_: Exception) {
             return ResponseEntity.internalServerError().build()
         }
