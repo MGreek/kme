@@ -86,7 +86,7 @@ export default function StaffSystemElement({
 
   return (
     <div
-      className="will-change-contents flex flex-col items-start justify-start"
+      className="will-change-contents flex flex-col items-start justify-start bg-white"
       style={{
         paddingLeft: pagePadding.left,
         paddingRight: pagePadding.right,
