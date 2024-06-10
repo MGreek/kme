@@ -3,7 +3,11 @@ import type { Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
 import { parseNoteMetadata, parseRestMetadata } from "./metadata";
-import { getGroupingEntries, getGroupingEntryById } from "./misc";
+import {
+  equalGroupingEntryIds,
+  getGroupingEntries,
+  getGroupingEntryById,
+} from "./misc";
 import { requireNotNull } from "./require-not-null";
 
 export class StaffSystemEditor {
@@ -74,21 +78,21 @@ export class StaffSystemEditor {
     } else {
       groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
     }
-    // const groupingEntries = getGroupingEntries(this.staffSystem);
+    const groupingEntries = getGroupingEntries(this.staffSystem);
     const nextGroupingEntryId = structuredClone(groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder += 1;
 
-    // if (
-    //   groupingEntries.some((ge) =>
-    //     deepEqual(ge.groupingEntryId, nextGroupingEntryId),
-    //   )
-    // ) {
-    const nextGroupingEntry = getGroupingEntryById(
-      this.staffSystem,
-      nextGroupingEntryId,
-    );
-    this.setCursorOnGroupingEntry(nextGroupingEntry);
-    // }
+    if (
+      groupingEntries.some((ge) =>
+        equalGroupingEntryIds(ge.groupingEntryId, nextGroupingEntryId),
+      )
+    ) {
+      const nextGroupingEntry = getGroupingEntryById(
+        this.staffSystem,
+        nextGroupingEntryId,
+      );
+      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    }
     this.setCursorHightlight(true);
   }
 }
