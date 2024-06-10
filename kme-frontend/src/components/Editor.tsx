@@ -42,10 +42,10 @@ export default function Editor({
     );
     const trie = new Trie<() => void>();
     trie.addWord("h", () => {
-      console.log("left");
+      staffSystemEditor.moveCursorLeft();
+      updateStaffSystemElement();
     });
     trie.addWord("l", () => {
-      console.log("right");
       staffSystemEditor.moveCursorRight();
       updateStaffSystemElement();
     });
