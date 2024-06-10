@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { onGetStaffSystemById } from "../api/request";
 import type { StaffSystem } from "../model/staff-system";
 import { Trie } from "../util/graph";
-import { getGroupingEntries, getNextGroupingEntryId } from "../util/misc";
 import { requireNotNull } from "../util/require-not-null";
 import { StaffSystemEditor } from "../util/staff-system-editor";
 import StaffSystemElement from "./StaffSystemElement";
@@ -16,8 +15,7 @@ export default function Editor({
 }) {
   const staffSystemEditorRef = useRef<StaffSystemEditor | null>(null);
 
-  const [staffSystemElement, setStaffSystemElement] =
-    useState<JSX.Element | null>(null);
+  const [staffSystem, setStaffSystem] = useState<StaffSystem | null>(null);
 
   const crtMode = useRef<"normal" | "visual" | "insert" | "command">("normal");
   const [mode, setMode] = useState<"normal" | "visual" | "insert" | "command">(
@@ -36,14 +34,8 @@ export default function Editor({
       staffSystemEditorRef.current,
       "Expected staffSystemEditorRef to be initialized",
     );
-    setStaffSystemElement(
-      <StaffSystemElement
-        staffSystem={staffSystemEditor.getStaffSystem()}
-        pageGap={pageGap}
-        pagePadding={pagePadding}
-      />,
-    );
-  }, [pageGap, pagePadding]);
+    setStaffSystem(staffSystemEditor.getStaffSystem());
+  }, []);
 
   const initNormalTrie = useCallback(() => {
     const staffSystemEditor = requireNotNull(
@@ -279,7 +271,7 @@ export default function Editor({
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (staffSystemElement == null) {
+      if (staffSystem == null) {
         return;
       }
 
@@ -315,7 +307,7 @@ export default function Editor({
       }
     },
     [
-      staffSystemElement,
+      staffSystem,
       normalHandleInput,
       visualHandleInput,
       insertHandleInput,
@@ -338,7 +330,7 @@ export default function Editor({
     });
   }, [updateStaffSystemElement]);
 
-  if (staffSystemElement == null) {
+  if (staffSystem == null) {
     return <div />;
   }
 
@@ -350,7 +342,11 @@ export default function Editor({
         tabIndex={0}
         onKeyDown={onKeyDown}
       >
-        {staffSystemElement}
+        <StaffSystemElement
+          staffSystem={staffSystem}
+          pageGap={pageGap}
+          pagePadding={pagePadding}
+        />
       </div>
       <div className="bg-red-400 fixed bottom-4 left-10">{mode}</div>
       <div className="bg-red-400 fixed bottom-4 right-10 whitespace-pre">
