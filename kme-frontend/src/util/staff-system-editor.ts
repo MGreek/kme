@@ -1,3 +1,4 @@
+import deepEqual from "deep-equal";
 import type { GroupingEntry } from "../model/grouping-entry";
 import type { Note } from "../model/note";
 import type { Rest } from "../model/rest";
@@ -45,7 +46,7 @@ export class StaffSystemEditor {
   constructor(staffSystem: StaffSystem) {
     this.staffSystem = structuredClone(staffSystem);
     for (const staff of this.staffSystem.staves) {
-      for (let index = 0; index < 10; index++) {
+      for (let index = 0; index < 100; index++) {
         staff.measures = [
           ...staff.measures,
           requireNotNull(staff.measures.at(-1)),
@@ -77,11 +78,15 @@ export class StaffSystemEditor {
     } else {
       groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
     }
-    const nextGroupingEntryId = getNextGroupingEntryId(
-      this.staffSystem,
-      groupingEntryId,
-    );
-    if (nextGroupingEntryId != null) {
+    const groupingEntries = getGroupingEntries(this.staffSystem);
+    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    nextGroupingEntryId.groupingEntriesOrder += 1;
+
+    if (
+      groupingEntries.some((ge) =>
+        deepEqual(ge.groupingEntryId, nextGroupingEntryId),
+      )
+    ) {
       const nextGroupingEntry = getGroupingEntryById(
         this.staffSystem,
         nextGroupingEntryId,
