@@ -1,11 +1,9 @@
-import {
+import type {
   Beam,
-  type Modifier,
-  type RenderContext,
-  StaveNote,
-  type StemmableNote,
-  Accidental as VexAccidental,
-  type StaveConnectorType as VexStaveConnectorType,
+  Factory,
+  Modifier,
+  StemmableNote,
+  StaveConnectorType as VexStaveConnectorType,
   Voice as VexVoice,
 } from "vexflow";
 import type { Grouping } from "../model/grouping";
@@ -15,13 +13,13 @@ import {
   type Measure,
   TimeSignature,
 } from "../model/measure";
-import { Accidental } from "../model/note";
 import { RestType } from "../model/rest";
 import { ConnectorType } from "../model/staff-system";
 import { StemType } from "../model/stem";
 import type { Voice } from "../model/voice";
 import { parseNoteMetadata, parseRestMetadata } from "./metadata";
 import { requireNotNull } from "./require-not-null";
+import { Accidental } from "../model/note";
 
 export function getDurationFromRestType(restType: RestType): string {
   switch (restType) {
@@ -184,7 +182,7 @@ export function getKeyFromPosition(position: number): string {
 }
 
 export function getVexStemmableNotesFromGrouping(
-  renderContext: RenderContext,
+  factory: Factory,
   grouping: Grouping,
   noteOffset: number,
 ): { stemmableNotes: StemmableNote[]; modifiers: Modifier[] } {
@@ -194,11 +192,11 @@ export function getVexStemmableNotesFromGrouping(
   for (const groupingEntry of grouping.groupingEntries) {
     if (groupingEntry.rest != null) {
       const rest = groupingEntry.rest;
-      const staveNote = new StaveNote({
+      const staveNote = factory.StaveNote({
         keys: [getKeyFromPosition(rest.position + noteOffset)],
         type: "r",
         duration: getDurationFromRestType(rest.restType),
-      }).setContext(renderContext);
+      });
       const voiceIndex =
         rest.restId.groupingEntryId.groupingId.voiceId.voicesOrder;
       const restMetadata = parseRestMetadata(rest);
@@ -211,13 +209,13 @@ export function getVexStemmableNotesFromGrouping(
       stemmableNotes.push(staveNote);
     } else if (groupingEntry.chord != null) {
       const chord = groupingEntry.chord;
-      const staveNote = new StaveNote({
+      const staveNote = factory.StaveNote({
         keys: chord.notes.map((note) =>
           getKeyFromPosition(note.noteId.position + noteOffset),
         ),
         duration: getDurationFromStemType(chord.stem.stemType),
         auto_stem: true,
-      }).setContext(renderContext);
+      });
       for (const [index, note] of chord.notes.entries()) {
         const noteMetadata = parseNoteMetadata(note);
 
@@ -232,8 +230,8 @@ export function getVexStemmableNotesFromGrouping(
 
         const accidental = getAccidentalNameFromAccidental(note.accidental);
         if (accidental !== "") {
-          const vexAccidental = new VexAccidental(accidental)
-            .setContext(renderContext)
+          const vexAccidental = factory
+            .Accidental({ type: accidental })
             .setNote(staveNote)
             .setIndex(index);
           modifiers.push(vexAccidental);
@@ -246,10 +244,7 @@ export function getVexStemmableNotesFromGrouping(
   return { stemmableNotes, modifiers };
 }
 
-function tryBeamNotes(
-  renderContext: RenderContext,
-  notes: StemmableNote[],
-): Beam[] {
+function tryBeamNotes(factory: Factory, notes: StemmableNote[]): Beam[] {
   const beamableDurations = ["8", "16", "32", "64"];
 
   const beams = [];
@@ -263,9 +258,10 @@ function tryBeamNotes(
       last = index;
     }
     if ((!isBeamable || index + 1 === notes.length) && last - first + 1 > 1) {
-      const beam = new Beam(notes.slice(first, last + 1), true).setContext(
-        renderContext,
-      );
+      const beam = factory.Beam({
+        notes: notes.slice(first, last + 1),
+        options: { autoStem: true },
+      });
       beams.push(beam);
       [first, last] = [-1, -1];
     }
@@ -289,7 +285,7 @@ export function connectorTypeToVex(
 }
 
 export function getStemmableNotesFromVoice(
-  renderContext: RenderContext,
+  factory: Factory,
   voice: Voice,
   noteOffset: number,
 ): {
@@ -302,18 +298,18 @@ export function getStemmableNotesFromVoice(
   const modifiers = [];
   for (const grouping of voice.groupings) {
     const { stemmableNotes: crtStemmableNotes, modifiers: crtModifiers } =
-      getVexStemmableNotesFromGrouping(renderContext, grouping, noteOffset);
+      getVexStemmableNotesFromGrouping(factory, grouping, noteOffset);
     stemmableNotes.push(...crtStemmableNotes);
     modifiers.push(...crtModifiers);
 
-    const crtBeams = tryBeamNotes(renderContext, crtStemmableNotes);
+    const crtBeams = tryBeamNotes(factory, crtStemmableNotes);
     beams.push(...crtBeams);
   }
   return { stemmableNotes, beams, modifiers };
 }
 
 export function getVexVoicesFromMeasure(
-  renderContext: RenderContext,
+  factory: Factory,
   measure: Measure,
 ): {
   vexVoices: VexVoice[];
@@ -331,13 +327,13 @@ export function getVexVoicesFromMeasure(
       beams: crtBeams,
       stemmableNotes: crtStemmableNotes,
       modifiers: crtModifiers,
-    } = getStemmableNotesFromVoice(renderContext, voice, noteOffset);
+    } = getStemmableNotesFromVoice(factory, voice, noteOffset);
 
     beams.push(...crtBeams);
     stemmableNotes.push(...crtStemmableNotes);
     modifiers.push(...crtModifiers);
 
-    const vexVoice = new VexVoice().setStrict(false).setContext(renderContext);
+    const vexVoice = factory.Voice().setStrict(false);
     vexVoice.addTickables(crtStemmableNotes);
     vexVoices.push(vexVoice);
   }
