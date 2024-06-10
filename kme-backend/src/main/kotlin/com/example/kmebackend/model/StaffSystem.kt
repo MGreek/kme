@@ -3,12 +3,6 @@ package com.example.kmebackend.model
 import jakarta.persistence.*
 import java.util.UUID
 
-enum class ConnectorType {
-    None,
-    Brace,
-    Bracket,
-}
-
 @Embeddable
 data class StaffSystemId(
     @Column(name = "staff_system_id")
