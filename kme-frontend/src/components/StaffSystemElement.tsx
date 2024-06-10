@@ -12,7 +12,7 @@ import { getStaffSystemMeasureCount } from "../util/misc";
 import { connectorTypeToVex } from "../util/model-to-vexflow";
 import { requireNotNull } from "../util/require-not-null";
 
-const SCALE = 4;
+const SCALE = 3.5;
 
 const RAW_PAGE_WIDTH_MM = 210;
 const RAW_PAGE_HEIGHT_MM = 297;
@@ -260,7 +260,7 @@ export default function StaffSystemElement({
   );
 
   const getPageDescriptionsRef = useCallback(
-    (renderContext: RenderContext) => {
+    (renderContext: RenderContext, count: number) => {
       const totalMeasureCount = getStaffSystemMeasureCount(staffSystem);
       if (totalMeasureCount === 0) {
         return [];
@@ -322,6 +322,9 @@ export default function StaffSystemElement({
             });
           }
           pageDescriptions.push(crtPageDescription);
+          if (pageDescriptions.length === count) {
+            break;
+          }
           crtPageDescription = { rowDescriptions: [] };
           crtWidth = 0;
           shiftY = 0;
@@ -401,6 +404,7 @@ export default function StaffSystemElement({
       shiftY: number,
       pageDescription: PageDescription,
     ) => {
+      const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
       let crtShiftY = shiftY;
       for (const rowDescription of pageDescription.rowDescriptions) {
         const { height } = renderRowFromDescriptionRef(
@@ -409,10 +413,10 @@ export default function StaffSystemElement({
           crtShiftY + pagePadding.top,
           rowDescription,
         );
-        crtShiftY += height + 20;
+        crtShiftY += height + staffSystemMetadata.gap;
       }
     },
-    [pagePadding, renderRowFromDescriptionRef],
+    [staffSystem, pagePadding, renderRowFromDescriptionRef],
   );
 
   const renderPagesFromDescrtiptionsRef = useCallback(
@@ -472,7 +476,7 @@ export default function StaffSystemElement({
 
     const renderContext = new SVGContext(div).scale(1, 1);
 
-    const pageDescriptions = getPageDescriptionsRef(renderContext);
+    const pageDescriptions = getPageDescriptionsRef(renderContext, 1);
     const { width, height } = renderPagesFromDescrtiptionsRef(
       renderContext,
       pageDescriptions,
@@ -483,5 +487,5 @@ export default function StaffSystemElement({
     div.style.height = `${height}px`;
   }, [getPageDescriptionsRef, renderPagesFromDescrtiptionsRef]);
 
-  return <div ref={divRef} />;
+  return <div className="will-change-contents" ref={divRef} />;
 }
