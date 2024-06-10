@@ -15,7 +15,7 @@ export default function Editor({
 
   const [staffSystem, setStaffSystem] = useState<StaffSystem | null>(null);
 
-  const crtMode = useRef<"normal" | "visual" | "insert" | "command">("normal");
+  const crtModeRef = useRef<"normal" | "visual" | "insert" | "command">("normal");
   const [mode, setMode] = useState<"normal" | "visual" | "insert" | "command">(
     "normal",
   );
@@ -88,16 +88,16 @@ export default function Editor({
       ) {
         switch (word) {
           case "i":
-            crtMode.current = "insert";
+            crtModeRef.current = "insert";
             break;
           case "v":
-            crtMode.current = "visual";
+            crtModeRef.current = "visual";
             break;
           case ":":
-            crtMode.current = "command";
+            crtModeRef.current = "command";
             break;
         }
-        setMode(crtMode.current);
+        setMode(crtModeRef.current);
         crtCommandRef.current = "";
         setCommand(crtCommandRef.current);
         return;
@@ -141,8 +141,8 @@ export default function Editor({
   const visualHandleInput = useCallback(
     (word: string) => {
       if (word === "Escape") {
-        crtMode.current = "normal";
-        setMode(crtMode.current);
+        crtModeRef.current = "normal";
+        setMode(crtModeRef.current);
         crtCommandRef.current = "";
         setCommand(crtCommandRef.current);
         return;
@@ -191,8 +191,8 @@ export default function Editor({
   const insertHandleInput = useCallback(
     (word: string) => {
       if (word === "Escape") {
-        crtMode.current = "normal";
-        setMode(crtMode.current);
+        crtModeRef.current = "normal";
+        setMode(crtModeRef.current);
         crtCommandRef.current = "";
         setCommand(crtCommandRef.current);
         return;
@@ -241,8 +241,8 @@ export default function Editor({
   const commandHandleInput = useCallback(
     (word: string) => {
       if (word === "Escape") {
-        crtMode.current = "normal";
-        setMode(crtMode.current);
+        crtModeRef.current = "normal";
+        setMode(crtModeRef.current);
         crtCommandRef.current = "";
         setCommand(crtCommandRef.current);
         return;
@@ -256,8 +256,8 @@ export default function Editor({
       }
       if (word === "Enter") {
         onCommandEnter(crtCommandRef.current);
-        crtMode.current = "normal";
-        setMode(crtMode.current);
+        crtModeRef.current = "normal";
+        setMode(crtModeRef.current);
         crtCommandRef.current = "";
         setCommand(crtCommandRef.current);
         return;
@@ -289,7 +289,7 @@ export default function Editor({
         event.preventDefault();
       }
 
-      switch (crtMode.current) {
+      switch (crtModeRef.current) {
         case "normal":
           normalHandleInput(event.key);
           break;
@@ -316,8 +316,8 @@ export default function Editor({
   );
 
   useEffect(() => {
-    crtMode.current = "normal";
-    setMode(crtMode.current);
+    crtModeRef.current = "normal";
+    setMode(crtModeRef.current);
     crtCommandRef.current = "";
     setCommand(crtCommandRef.current);
 
