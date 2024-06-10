@@ -44,7 +44,7 @@ export function parseStaffMetadata(staff: Staff): {
     object = JSON.parse(staff.metadataJson);
   } catch (error) { }
 
-  let width = 350;
+  let width = 300;
   if (object != null && "width" in object && typeof object.width === "number") {
     width = object.width;
   }
