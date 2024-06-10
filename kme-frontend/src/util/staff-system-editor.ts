@@ -70,6 +70,32 @@ export class StaffSystemEditor {
     this.setCursorHightlight(true);
   }
 
+  public moveCursorLeft() {
+    this.setCursorHightlight(false);
+    let groupingEntryId = null;
+    if ("restId" in this.cursor) {
+      groupingEntryId = this.cursor.restId.groupingEntryId;
+    } else {
+      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
+    }
+    const groupingEntries = getGroupingEntries(this.staffSystem);
+    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    nextGroupingEntryId.groupingEntriesOrder -= 1;
+
+    if (
+      groupingEntries.some((ge) =>
+        equalGroupingEntryIds(ge.groupingEntryId, nextGroupingEntryId),
+      )
+    ) {
+      const nextGroupingEntry = getGroupingEntryById(
+        this.staffSystem,
+        nextGroupingEntryId,
+      );
+      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    }
+    this.setCursorHightlight(true);
+  }
+
   public moveCursorRight() {
     this.setCursorHightlight(false);
     let groupingEntryId = null;
