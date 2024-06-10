@@ -335,7 +335,7 @@ export default function Editor({
   return (
     <div>
       <div
-        className="grid bg-gray-400 place-content-center p-4"
+        className="grid place-content-center outline-none p-4"
         // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard events are needed
         tabIndex={0}
         onKeyDown={onKeyDown}
