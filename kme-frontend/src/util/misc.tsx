@@ -98,6 +98,26 @@ export function getNextGroupingEntryId(
   return null;
 }
 
+export function equalGroupingEntryIds(
+  firstId: GroupingEntryId,
+  secondId: GroupingEntryId,
+): boolean {
+  // PERF: don't use deepCopy because it's too slow!!!
+  return (
+    firstId.groupingId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
+      secondId.groupingId.voiceId.measureId.staffId.staffSystemId
+        .staffSystemId &&
+    firstId.groupingId.voiceId.measureId.staffId.stavesOrder ===
+      secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
+    firstId.groupingId.voiceId.measureId.measuresOrder ===
+      secondId.groupingId.voiceId.measureId.measuresOrder &&
+    firstId.groupingId.voiceId.voicesOrder ===
+      secondId.groupingId.voiceId.voicesOrder &&
+    firstId.groupingId.groupingsOrder === secondId.groupingId.groupingsOrder &&
+    firstId.groupingEntriesOrder === secondId.groupingEntriesOrder
+  );
+}
+
 export function getGroupingEntryById(
   staffSystem: StaffSystem,
   groupingEntryId: GroupingEntryId,
@@ -105,7 +125,9 @@ export function getGroupingEntryById(
   const groupingEntries = getGroupingEntries(staffSystem);
   return requireNotNull(
     groupingEntries
-      .filter((ge) => deepEqual(ge.groupingEntryId, groupingEntryId))
+      .filter((ge) =>
+        equalGroupingEntryIds(ge.groupingEntryId, groupingEntryId),
+      )
       .at(0),
     "groupingEntryId is invalid",
   );

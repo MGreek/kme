@@ -30,7 +30,9 @@ export default function Row({
   stopMeasureIndex: number;
   totalWidth: number;
 }) {
+  const prevJsonRef = useRef<string | null>(null);
   const divRef = useRef<HTMLDivElement | null>(null);
+  const factoryRef = useRef<Factory | null>(null);
   const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
   const savedElementIdsRef = useRef<Set<string>>(new Set<string>());
 
@@ -186,6 +188,29 @@ export default function Row({
     if (divRef.current == null) {
       return;
     }
+    if (factoryRef.current == null) {
+      factoryRef.current = new Factory({
+        renderer: {
+          elementId: divRef.current.id,
+          width: 0,
+          height: 0,
+        },
+      });
+    }
+
+    const crtJson = getJson(
+      totalWidth,
+      startMeasureIndex,
+      stopMeasureIndex,
+      staffSystem,
+    );
+
+    if (prevJsonRef.current == null) {
+      prevJsonRef.current = crtJson;
+    } else if (prevJsonRef.current === crtJson) {
+      return;
+    }
+
     const measureCount = getStaffSystemMeasureCount(staffSystem);
     if (
       !(startMeasureIndex <= stopMeasureIndex) &&
@@ -194,24 +219,21 @@ export default function Row({
       return;
     }
 
-    const factory = new Factory({
-      renderer: {
-        elementId: divRef.current.id,
-        width: 0,
-        height: 0,
-      },
-    });
+    const factory = factoryRef.current;
     let system = factory.System({
       width: totalWidth,
       noPadding: true,
     });
+
     let bounds = draw(factory, system, false);
     system = factory.System({
       width: totalWidth,
       noPadding: true,
+      // HACK: magic number 10 seems to work lmao
       x: 10 - bounds.x,
       y: 10 - bounds.y,
     });
+
     bounds = draw(factory, system, true);
     const width = bounds.x + bounds.w;
     const height = bounds.y + bounds.h;
@@ -221,7 +243,22 @@ export default function Row({
     factory.getContext().resize(width, height);
   }, [staffSystem, startMeasureIndex, stopMeasureIndex, totalWidth, draw]);
 
-  return (
-    <div className="bg-red-400 relative top-10" id={uuidv4()} ref={divRef} />
-  );
+  return <div id={uuidv4()} ref={divRef} />;
+}
+
+export function getJson(
+  totalWidth: number,
+  startMeasureIndex: number,
+  stopMeasureIndex: number,
+  staffSystem: StaffSystem,
+) {
+  return JSON.stringify({
+    totalWidth,
+    startMeasureIndex,
+    stopMeasureIndex,
+    staffSystemMetadata: parseStaffSystemMetadata(staffSystem),
+    measures: staffSystem.staves
+      .flatMap((staff) => staff.measures)
+      .slice(startMeasureIndex, stopMeasureIndex),
+  });
 }

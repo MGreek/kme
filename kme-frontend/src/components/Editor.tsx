@@ -7,10 +7,8 @@ import { StaffSystemEditor } from "../util/staff-system-editor";
 import StaffSystemElement from "./StaffSystemElement";
 
 export default function Editor({
-  pageGap,
   pagePadding,
 }: {
-  pageGap: number;
   pagePadding: { left: number; right: number; top: number; bottom: number };
 }) {
   const staffSystemEditorRef = useRef<StaffSystemEditor | null>(null);
@@ -344,7 +342,7 @@ export default function Editor({
       >
         <StaffSystemElement
           staffSystem={staffSystem}
-          pageGap={pageGap}
+          rowCount={10}
           pagePadding={pagePadding}
         />
       </div>

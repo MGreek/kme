@@ -1,14 +1,9 @@
-import deepEqual from "deep-equal";
 import type { GroupingEntry } from "../model/grouping-entry";
 import type { Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
 import { parseNoteMetadata, parseRestMetadata } from "./metadata";
-import {
-  getGroupingEntries,
-  getGroupingEntryById,
-  getNextGroupingEntryId,
-} from "./misc";
+import { getGroupingEntries, getGroupingEntryById } from "./misc";
 import { requireNotNull } from "./require-not-null";
 
 export class StaffSystemEditor {
@@ -45,14 +40,15 @@ export class StaffSystemEditor {
 
   constructor(staffSystem: StaffSystem) {
     this.staffSystem = structuredClone(staffSystem);
-    for (const staff of this.staffSystem.staves) {
-      for (let index = 0; index < 100; index++) {
-        staff.measures = [
-          ...staff.measures,
-          requireNotNull(staff.measures.at(-1)),
-        ];
-      }
-    }
+    // NOTE: this was used to test performance
+    // for (const staff of this.staffSystem.staves) {
+    //   for (let index = 0; index < 1000; index++) {
+    //     staff.measures = [
+    //       ...staff.measures,
+    //       requireNotNull(staff.measures.at(-1)),
+    //     ];
+    //   }
+    // }
     const groupingEntries = getGroupingEntries(this.staffSystem);
     if (groupingEntries.length === 0) {
       throw new Error("staffSystem must not be empty");
@@ -78,21 +74,21 @@ export class StaffSystemEditor {
     } else {
       groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
     }
-    const groupingEntries = getGroupingEntries(this.staffSystem);
+    // const groupingEntries = getGroupingEntries(this.staffSystem);
     const nextGroupingEntryId = structuredClone(groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder += 1;
 
-    if (
-      groupingEntries.some((ge) =>
-        deepEqual(ge.groupingEntryId, nextGroupingEntryId),
-      )
-    ) {
-      const nextGroupingEntry = getGroupingEntryById(
-        this.staffSystem,
-        nextGroupingEntryId,
-      );
-      this.setCursorOnGroupingEntry(nextGroupingEntry);
-    }
+    // if (
+    //   groupingEntries.some((ge) =>
+    //     deepEqual(ge.groupingEntryId, nextGroupingEntryId),
+    //   )
+    // ) {
+    const nextGroupingEntry = getGroupingEntryById(
+      this.staffSystem,
+      nextGroupingEntryId,
+    );
+    this.setCursorOnGroupingEntry(nextGroupingEntry);
+    // }
     this.setCursorHightlight(true);
   }
 }
