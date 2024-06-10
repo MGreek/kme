@@ -409,7 +409,7 @@ export default function StaffSystemElement({
           crtShiftY + pagePadding.top,
           rowDescription,
         );
-        crtShiftY += height;
+        crtShiftY += height + 20;
       }
     },
     [pagePadding, renderRowFromDescriptionRef],

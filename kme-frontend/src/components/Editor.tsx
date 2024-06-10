@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import request from "../api/request";
-import type { StaffSystem, StaffSystemId } from "../model/staff-system";
+import { onGetStaffSystemById } from "../api/request";
+import type { StaffSystem } from "../model/staff-system";
 import { Trie } from "../util/graph";
+import { getGroupingEntries, getNextGroupingEntryId } from "../util/misc";
 import { requireNotNull } from "../util/require-not-null";
+import { StaffSystemEditor } from "../util/staff-system-editor";
 import StaffSystemElement from "./StaffSystemElement";
 
 export default function Editor({
-  staffSystemId,
   pageGap,
   pagePadding,
 }: {
-  staffSystemId: StaffSystemId | null;
   pageGap: number;
   pagePadding: { left: number; right: number; top: number; bottom: number };
 }) {
+  const staffSystemEditorRef = useRef<StaffSystemEditor | null>(null);
+
   const [staffSystemElement, setStaffSystemElement] =
     useState<JSX.Element | null>(null);
 
@@ -29,14 +31,37 @@ export default function Editor({
   const visualTrieRef = useRef<Trie<() => void> | null>(null);
   const insertTrieRef = useRef<Trie<() => void> | null>(null);
 
+  const updateStaffSystemElement = useCallback(() => {
+    const staffSystemEditor = requireNotNull(
+      staffSystemEditorRef.current,
+      "Expected staffSystemEditorRef to be initialized",
+    );
+    setStaffSystemElement(
+      <StaffSystemElement
+        staffSystem={staffSystemEditor.getStaffSystem()}
+        pageGap={pageGap}
+        pagePadding={pagePadding}
+      />,
+    );
+  }, [pageGap, pagePadding]);
+
   const initNormalTrie = useCallback(() => {
+    const staffSystemEditor = requireNotNull(
+      staffSystemEditorRef.current,
+      "Expected staffSystemEditorRef to be initialized",
+    );
     const trie = new Trie<() => void>();
-    trie.addWord("jk", () => {
-      console.log("jk");
+    trie.addWord("h", () => {
+      console.log("left");
+    });
+    trie.addWord("l", () => {
+      console.log("right");
+      staffSystemEditor.moveCursorRight();
+      updateStaffSystemElement();
     });
 
     normalTrieRef.current = trie;
-  }, []);
+  }, [updateStaffSystemElement]);
 
   const initVisualTrie = useCallback(() => {
     const trie = new Trie<() => void>();
@@ -54,6 +79,10 @@ export default function Editor({
     });
 
     insertTrieRef.current = trie;
+  }, []);
+
+  const onCommandEnter = useCallback((command: string) => {
+    console.log("COMMAND", command);
   }, []);
 
   const normalHandleInput = useCallback(
@@ -219,10 +248,6 @@ export default function Editor({
     [initInsertTrie],
   );
 
-  const onCommandEnter = useCallback((command: string) => {
-    console.log("COMMAND", command);
-  }, []);
-
   const commandHandleInput = useCallback(
     (word: string) => {
       if (word === "Escape") {
@@ -299,28 +324,19 @@ export default function Editor({
   );
 
   useEffect(() => {
-    let url = "/api/staff-system/";
-    if (staffSystemId == null) {
-      url += "sample";
-    } else {
-      url += staffSystemId.staffSystemId;
-    }
-
     crtMode.current = "normal";
     setMode(crtMode.current);
     crtCommandRef.current = "";
     setCommand(crtCommandRef.current);
 
-    request<StaffSystem>("GET", url, {}).then((response) => {
-      setStaffSystemElement(
-        <StaffSystemElement
-          staffSystem={response.data}
-          pageGap={pageGap}
-          pagePadding={pagePadding}
-        />,
-      );
+    onGetStaffSystemById(null, (staffSystem: StaffSystem | null) => {
+      if (staffSystem == null) {
+        return;
+      }
+      staffSystemEditorRef.current = new StaffSystemEditor(staffSystem);
+      updateStaffSystemElement();
     });
-  }, [staffSystemId, pageGap, pagePadding]);
+  }, [updateStaffSystemElement]);
 
   if (staffSystemElement == null) {
     return <div />;
