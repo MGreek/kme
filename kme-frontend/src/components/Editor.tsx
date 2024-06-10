@@ -256,6 +256,8 @@ export default function Editor({
       }
       if (word === "Enter") {
         onCommandEnter(crtCommandRef.current);
+        crtMode.current = "normal";
+        setMode(crtMode.current);
         crtCommandRef.current = "";
         setCommand(crtCommandRef.current);
         return;
