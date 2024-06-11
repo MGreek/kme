@@ -15,7 +15,9 @@ export default function Editor({
 
   const [staffSystem, setStaffSystem] = useState<StaffSystem | null>(null);
 
-  const crtModeRef = useRef<"normal" | "visual" | "insert" | "command">("normal");
+  const crtModeRef = useRef<"normal" | "visual" | "insert" | "command">(
+    "normal",
+  );
   const [mode, setMode] = useState<"normal" | "visual" | "insert" | "command">(
     "normal",
   );
