@@ -18,6 +18,7 @@ import {
   getVexVoicesFromMeasure,
 } from "../util/model-to-vexflow";
 import { parseStaffSystemMetadata } from "../util/metadata";
+import { Staff } from "../model/staff";
 
 export default function Row({
   staffSystem,
@@ -256,8 +257,13 @@ export function getJson(
     startMeasureIndex,
     stopMeasureIndex,
     staffSystemMetadata: parseStaffSystemMetadata(staffSystem),
-    measures: staffSystem.staves
-      .flatMap((staff) => staff.measures)
-      .slice(startMeasureIndex, stopMeasureIndex + 1),
+    staves: staffSystem.staves.map((staff) => {
+      const newStaff: Staff = {
+        staffId: staff.staffId,
+        metadataJson: staff.metadataJson,
+        measures: staff.measures.slice(startMeasureIndex, stopMeasureIndex + 1),
+      };
+      return newStaff;
+    }),
   });
 }
