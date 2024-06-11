@@ -67,6 +67,10 @@ export default function Editor({
       staffSystemEditor.decreaseCursorStaff();
       updateStaffSystemElement();
     });
+    trie.addWord("md", () => {
+      staffSystemEditor.removeMeasures();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);
