@@ -102,7 +102,8 @@ export class StaffSystemEditor {
         nextMeasure.voices
           .at(groupingEntryId.groupingId.voiceId.voicesOrder)
           ?.groupings.at(-1)
-          ?.groupingEntries.at(-1),
+          ?.groupingEntries.at(-1) ??
+        nextMeasure.voices.at(0)?.groupings.at(-1)?.groupingEntries.at(-1),
         "Found an empty measure",
       );
       this.setCursorOnGroupingEntry(lastEntry);
@@ -145,7 +146,8 @@ export class StaffSystemEditor {
         nextMeasure.voices
           .at(groupingEntryId.groupingId.voiceId.voicesOrder)
           ?.groupings.at(0)
-          ?.groupingEntries.at(0),
+          ?.groupingEntries.at(0) ??
+        nextMeasure.voices.at(0)?.groupings.at(0)?.groupingEntries.at(0),
         "Found an empty measure",
       );
       this.setCursorOnGroupingEntry(firstEntry);
