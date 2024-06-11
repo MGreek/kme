@@ -1,4 +1,3 @@
-import deepEqual from "deep-equal";
 import type { GroupingEntry, GroupingEntryId } from "../model/grouping-entry";
 import type { Measure, MeasureId } from "../model/measure";
 import type { StaffSystem } from "../model/staff-system";
@@ -26,6 +25,29 @@ export function getMeasures(staffSystem: StaffSystem): Measure[] {
   return measures;
 }
 
+export function equalMeasureIds(
+  firstId: MeasureId,
+  secondId: MeasureId,
+): boolean {
+  return (
+    firstId.staffId.staffSystemId.staffSystemId ===
+    secondId.staffId.staffSystemId.staffSystemId &&
+    firstId.staffId.stavesOrder === secondId.staffId.stavesOrder &&
+    firstId.measuresOrder === secondId.measuresOrder
+  );
+}
+
+export function getMeasureById(
+  staffSystem: StaffSystem,
+  measureId: MeasureId,
+): Measure | null {
+  const measures = getMeasures(staffSystem);
+  return (
+    measures.filter((m) => equalMeasureIds(m.measureId, measureId)).at(0) ??
+    null
+  );
+}
+
 export function getGroupingEntries(staffSystem: StaffSystem): GroupingEntry[] {
   const groupingEntries = staffSystem.staves
     .flatMap((staff) => staff.measures)
@@ -35,69 +57,6 @@ export function getGroupingEntries(staffSystem: StaffSystem): GroupingEntry[] {
   return groupingEntries;
 }
 
-export function getNextMeasureId(
-  staffSystem: StaffSystem,
-  measureId: MeasureId,
-): MeasureId | null {
-  const findMeasureId = (id: MeasureId) => {
-    return measures.some((ge) => deepEqual(ge.measureId, id));
-  };
-
-  const measures = getMeasures(staffSystem);
-
-  if (!findMeasureId(measureId)) {
-    throw new Error("measureId is invalid");
-  }
-
-  const newId: MeasureId = {
-    staffId: measureId.staffId,
-    measuresOrder: measureId.measuresOrder + 1,
-  };
-
-  if (!findMeasureId(newId)) {
-    return null;
-  }
-
-  return newId;
-}
-
-export function getNextGroupingEntryId(
-  staffSystem: StaffSystem,
-  groupingEntryId: GroupingEntryId,
-): GroupingEntryId | null {
-  const findGroupingEntryId = (id: GroupingEntryId) => {
-    return groupingEntries.some((ge) => deepEqual(ge.groupingEntryId, id));
-  };
-
-  const groupingEntries = getGroupingEntries(staffSystem);
-
-  if (!findGroupingEntryId(groupingEntryId)) {
-    throw new Error("groupingEntryId is invalid");
-  }
-
-  const newId1: GroupingEntryId = {
-    groupingId: groupingEntryId.groupingId,
-    groupingEntriesOrder: groupingEntryId.groupingEntriesOrder + 1,
-  };
-  if (findGroupingEntryId(newId1)) {
-    return newId1;
-  }
-  const nextMeasureId = getNextMeasureId(
-    staffSystem,
-    groupingEntryId.groupingId.voiceId.measureId,
-  );
-  if (nextMeasureId == null) {
-    return null;
-  }
-  const newId2 = structuredClone(newId1);
-  newId2.groupingId.voiceId.measureId = nextMeasureId;
-  if (findGroupingEntryId(newId2)) {
-    return newId2;
-  }
-
-  return null;
-}
-
 export function equalGroupingEntryIds(
   firstId: GroupingEntryId,
   secondId: GroupingEntryId,
@@ -105,14 +64,14 @@ export function equalGroupingEntryIds(
   // PERF: don't use deepCopy because it's too slow!!!
   return (
     firstId.groupingId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
-      secondId.groupingId.voiceId.measureId.staffId.staffSystemId
-        .staffSystemId &&
+    secondId.groupingId.voiceId.measureId.staffId.staffSystemId
+      .staffSystemId &&
     firstId.groupingId.voiceId.measureId.staffId.stavesOrder ===
-      secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
+    secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
     firstId.groupingId.voiceId.measureId.measuresOrder ===
-      secondId.groupingId.voiceId.measureId.measuresOrder &&
+    secondId.groupingId.voiceId.measureId.measuresOrder &&
     firstId.groupingId.voiceId.voicesOrder ===
-      secondId.groupingId.voiceId.voicesOrder &&
+    secondId.groupingId.voiceId.voicesOrder &&
     firstId.groupingId.groupingsOrder === secondId.groupingId.groupingsOrder &&
     firstId.groupingEntriesOrder === secondId.groupingEntriesOrder
   );
@@ -121,15 +80,14 @@ export function equalGroupingEntryIds(
 export function getGroupingEntryById(
   staffSystem: StaffSystem,
   groupingEntryId: GroupingEntryId,
-): GroupingEntry {
+): GroupingEntry | null {
   const groupingEntries = getGroupingEntries(staffSystem);
-  return requireNotNull(
+  return (
     groupingEntries
       .filter((ge) =>
         equalGroupingEntryIds(ge.groupingEntryId, groupingEntryId),
       )
-      .at(0),
-    "groupingEntryId is invalid",
+      .at(0) ?? null
   );
 }
 
@@ -138,7 +96,10 @@ export function setRestHighlight(
   staffSystem: StaffSystem,
   groupingEntryId: GroupingEntryId,
 ) {
-  const groupingEntry = getGroupingEntryById(staffSystem, groupingEntryId);
+  const groupingEntry = requireNotNull(
+    getGroupingEntryById(staffSystem, groupingEntryId),
+    "groupingEntryId invalid",
+  );
   if (groupingEntry.rest == null) {
     throw new Error("groupingEntry doesn't contain a rest");
   }

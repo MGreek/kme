@@ -4,9 +4,9 @@ import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
 import { parseNoteMetadata, parseRestMetadata } from "./metadata";
 import {
-  equalGroupingEntryIds,
   getGroupingEntries,
   getGroupingEntryById,
+  getMeasureById,
 } from "./misc";
 import { requireNotNull } from "./require-not-null";
 
@@ -46,7 +46,7 @@ export class StaffSystemEditor {
     this.staffSystem = structuredClone(staffSystem);
     // NOTE: this was used to test performance
     // for (const staff of this.staffSystem.staves) {
-    //   for (let index = 0; index < 1000; index++) {
+    //   for (let index = 0; index < 100; index++) {
     //     staff.measures = [
     //       ...staff.measures,
     //       requireNotNull(staff.measures.at(-1)),
@@ -78,21 +78,38 @@ export class StaffSystemEditor {
     } else {
       groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
     }
-    const groupingEntries = getGroupingEntries(this.staffSystem);
     const nextGroupingEntryId = structuredClone(groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder -= 1;
 
-    if (
-      groupingEntries.some((ge) =>
-        equalGroupingEntryIds(ge.groupingEntryId, nextGroupingEntryId),
-      )
-    ) {
-      const nextGroupingEntry = getGroupingEntryById(
-        this.staffSystem,
-        nextGroupingEntryId,
-      );
+    const nextGroupingEntry = getGroupingEntryById(
+      this.staffSystem,
+      nextGroupingEntryId,
+    );
+
+    if (nextGroupingEntry != null) {
       this.setCursorOnGroupingEntry(nextGroupingEntry);
+      this.setCursorHightlight(true);
+      return;
     }
+
+    const measureId = groupingEntryId.groupingId.voiceId.measureId;
+    const nextMeasureId = structuredClone(measureId);
+    nextMeasureId.measuresOrder -= 1;
+
+    const nextMeasure = getMeasureById(this.staffSystem, nextMeasureId);
+    if (nextMeasure != null) {
+      const lastEntry = requireNotNull(
+        nextMeasure.voices
+          .at(groupingEntryId.groupingId.voiceId.voicesOrder)
+          ?.groupings.at(-1)
+          ?.groupingEntries.at(-1),
+        "Found an empty measure",
+      );
+      this.setCursorOnGroupingEntry(lastEntry);
+      this.setCursorHightlight(true);
+      return;
+    }
+
     this.setCursorHightlight(true);
   }
 
@@ -104,21 +121,38 @@ export class StaffSystemEditor {
     } else {
       groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
     }
-    const groupingEntries = getGroupingEntries(this.staffSystem);
     const nextGroupingEntryId = structuredClone(groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder += 1;
 
-    if (
-      groupingEntries.some((ge) =>
-        equalGroupingEntryIds(ge.groupingEntryId, nextGroupingEntryId),
-      )
-    ) {
-      const nextGroupingEntry = getGroupingEntryById(
-        this.staffSystem,
-        nextGroupingEntryId,
-      );
+    const nextGroupingEntry = getGroupingEntryById(
+      this.staffSystem,
+      nextGroupingEntryId,
+    );
+
+    if (nextGroupingEntry != null) {
       this.setCursorOnGroupingEntry(nextGroupingEntry);
+      this.setCursorHightlight(true);
+      return;
     }
+
+    const measureId = groupingEntryId.groupingId.voiceId.measureId;
+    const nextMeasureId = structuredClone(measureId);
+    nextMeasureId.measuresOrder += 1;
+
+    const nextMeasure = getMeasureById(this.staffSystem, nextMeasureId);
+    if (nextMeasure != null) {
+      const firstEntry = requireNotNull(
+        nextMeasure.voices
+          .at(groupingEntryId.groupingId.voiceId.voicesOrder)
+          ?.groupings.at(0)
+          ?.groupingEntries.at(0),
+        "Found an empty measure",
+      );
+      this.setCursorOnGroupingEntry(firstEntry);
+      this.setCursorHightlight(true);
+      return;
+    }
+
     this.setCursorHightlight(true);
   }
 }
