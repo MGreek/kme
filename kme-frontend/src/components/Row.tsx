@@ -258,6 +258,6 @@ export function getJson(
     staffSystemMetadata: parseStaffSystemMetadata(staffSystem),
     measures: staffSystem.staves
       .flatMap((staff) => staff.measures)
-      .slice(startMeasureIndex, stopMeasureIndex),
+      .slice(startMeasureIndex, stopMeasureIndex + 1),
   });
 }
