@@ -362,7 +362,6 @@ export default function Editor({
       >
         <StaffSystemElement
           staffSystem={staffSystem}
-          rowCount={10}
           pagePadding={pagePadding}
         />
       </div>

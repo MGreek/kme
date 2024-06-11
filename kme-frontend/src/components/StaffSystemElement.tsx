@@ -11,11 +11,9 @@ const RAW_PAGE_HEIGHT_MM = 297;
 
 export default function StaffSystemElement({
   staffSystem,
-  rowCount,
   pagePadding,
 }: {
   staffSystem: StaffSystem;
-  rowCount: number;
   pagePadding: { left: number; right: number; top: number; bottom: number };
 }) {
   const getPageWidthRef = useCallback(() => {
@@ -44,21 +42,6 @@ export default function StaffSystemElement({
     }
 
     const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
-    if (staffSystemMetadata.rowLengths == null) {
-      const baseLength = 3;
-      staffSystemMetadata.rowLengths = [];
-      for (
-        let index = 0;
-        index < measureCount &&
-        staffSystemMetadata.rowLengths.length < rowCount;
-        index += baseLength
-      ) {
-        staffSystemMetadata.rowLengths.push(
-          Math.min(baseLength, measureCount - index),
-        );
-      }
-      staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
-    }
     const newRows = [];
     let crtIndex = 0;
     for (const length of staffSystemMetadata.rowLengths) {
@@ -82,7 +65,7 @@ export default function StaffSystemElement({
       crtIndex += length;
     }
     setRows(newRows);
-  }, [staffSystem, rowCount, getPageClientWidthRef]);
+  }, [staffSystem, getPageClientWidthRef]);
 
   return (
     <div
