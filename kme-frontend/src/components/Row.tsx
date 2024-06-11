@@ -7,8 +7,9 @@ import {
   type System,
   type Voice as VexVoice,
 } from "vexflow";
-import { requireNotNull } from "../util/require-not-null";
+import type { Staff } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
+import { parseStaffSystemMetadata } from "../util/metadata";
 import { getStaffSystemMeasureCount } from "../util/misc";
 import {
   connectorTypeToVex,
@@ -17,8 +18,7 @@ import {
   getTimeSignatureStringFromTimeSignature,
   getVexVoicesFromMeasure,
 } from "../util/model-to-vexflow";
-import { parseStaffSystemMetadata } from "../util/metadata";
-import { Staff } from "../model/staff";
+import { requireNotNull } from "../util/require-not-null";
 
 export default function Row({
   staffSystem,
