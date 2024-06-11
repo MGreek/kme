@@ -3,16 +3,17 @@ import type { Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { Staff } from "../model/staff";
 import { ConnectorType, type StaffSystem } from "../model/staff-system";
+import { getStaffSystemMeasureCount } from "./misc";
 
 export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   connectorType: ConnectorType;
   gap: number;
-  rowLengths: number[] | null;
+  rowLengths: number[];
 } {
   let object = null;
   try {
     object = JSON.parse(staffSystem.metadataJson);
-  } catch {}
+  } catch { }
 
   let connectorType = ConnectorType.None;
   if (
@@ -41,6 +42,13 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
     typeof Array.isArray(rowLengths)
   ) {
     rowLengths = object.rowLengths;
+  } else {
+    const baseLength = 3;
+    rowLengths = [];
+    const measureCount = getStaffSystemMeasureCount(staffSystem);
+    for (let index = 0; index < measureCount; index += baseLength) {
+      rowLengths.push(Math.min(baseLength, measureCount - index));
+    }
   }
 
   return { connectorType, gap, rowLengths };
@@ -52,7 +60,7 @@ export function parseStaffMetadata(staff: Staff): {
   let object = null;
   try {
     object = JSON.parse(staff.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let width = 300;
   if (object != null && "width" in object && typeof object.width === "number") {
@@ -69,7 +77,7 @@ export function parseMeasureMetadata(measure: Measure): {
   let object = null;
   try {
     object = JSON.parse(measure.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let drawClef = false;
   if (
@@ -105,7 +113,7 @@ export function parseNoteMetadata(note: Note): { highlight: boolean } {
   let object = null;
   try {
     object = JSON.parse(note.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let highlight = false;
   if (
@@ -123,7 +131,7 @@ export function parseRestMetadata(rest: Rest): { highlight: boolean } {
   let object = null;
   try {
     object = JSON.parse(rest.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let highlight = false;
   if (
