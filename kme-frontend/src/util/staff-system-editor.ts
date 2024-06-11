@@ -2,11 +2,21 @@ import type { GroupingEntry } from "../model/grouping-entry";
 import type { Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
-import { parseNoteMetadata, parseRestMetadata } from "./metadata";
 import {
+  parseNoteMetadata,
+  parseRestMetadata,
+  parseStaffMetadata,
+  parseStaffSystemMetadata,
+} from "./metadata";
+import {
+  getCursorFromGroupingEntry,
+  getCursorMeasure,
   getGroupingEntries,
   getGroupingEntryById,
   getMeasureById,
+  getNextCursor,
+  getPreviousCursor,
+  syncIds,
 } from "./misc";
 import { requireNotNull } from "./require-not-null";
 
@@ -257,6 +267,55 @@ export class StaffSystemEditor {
       return;
     }
 
+    this.setCursorHightlight(true);
+  }
+
+  public removeMeasures() {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    const nextMeasureId = structuredClone(measure.measureId);
+    nextMeasureId.measuresOrder += 1;
+    const nextMeasure = getMeasureById(this.staffSystem, nextMeasureId);
+
+    const prevMeasureId = structuredClone(measure.measureId);
+    prevMeasureId.measuresOrder -= 1;
+    const prevMeasure = getMeasureById(this.staffSystem, prevMeasureId);
+
+    if (nextMeasure != null) {
+      this.setCursorHightlight(false);
+      this.cursor = getCursorFromGroupingEntry(
+        requireNotNull(
+          nextMeasure.voices.at(0)?.groupings.at(0)?.groupingEntries.at(0),
+        ),
+      );
+    } else if (prevMeasure != null) {
+      this.setCursorHightlight(false);
+      this.cursor = getCursorFromGroupingEntry(
+        requireNotNull(
+          prevMeasure.voices.at(0)?.groupings.at(-1)?.groupingEntries.at(-1),
+        ),
+      );
+    } else {
+      return;
+    }
+
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    let crtIndex = 0;
+    for (const [index, length] of staffSystemMetadata.rowLengths?.entries() ??
+      [].entries()) {
+      if (crtIndex >= measure.measureId.measuresOrder) {
+        if (staffSystemMetadata.rowLengths != null) {
+          staffSystemMetadata.rowLengths[index] -= 1;
+          this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+        }
+        break;
+      }
+      crtIndex += length;
+    }
+
+    for (const staff of this.staffSystem.staves) {
+      staff.measures.splice(measure.measureId.measuresOrder, 1);
+    }
+    syncIds(this.staffSystem);
     this.setCursorHightlight(true);
   }
 }
