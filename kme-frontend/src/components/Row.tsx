@@ -199,7 +199,7 @@ export default function Row({
       });
     }
 
-    const crtJson = getJson(
+    const crtJson = getRowJson(
       totalWidth,
       startMeasureIndex,
       stopMeasureIndex,
@@ -246,7 +246,7 @@ export default function Row({
   return <div id={uuidv4()} ref={divRef} />;
 }
 
-export function getJson(
+export function getRowJson(
   totalWidth: number,
   startMeasureIndex: number,
   stopMeasureIndex: number,

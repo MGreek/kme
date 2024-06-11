@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { StaffSystem } from "../model/staff-system";
 import { parseStaffSystemMetadata } from "../util/metadata";
-import Row, { getJson } from "./Row";
+import Row, { getRowJson } from "./Row";
 import { getStaffSystemMeasureCount } from "../util/misc";
 
 const SCALE = 4;
@@ -67,7 +67,7 @@ export default function StaffSystemElement({
       const stopMeasureIndex = crtIndex + length - 1;
       newRows.push(
         <Row
-          key={getJson(
+          key={getRowJson(
             totalWidth,
             startMeasureIndex,
             stopMeasureIndex,
