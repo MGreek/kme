@@ -305,6 +305,9 @@ export class StaffSystemEditor {
       if (crtIndex >= measure.measureId.measuresOrder) {
         if (staffSystemMetadata.rowLengths != null) {
           staffSystemMetadata.rowLengths[index] -= 1;
+          if (staffSystemMetadata.rowLengths[index] === 0) {
+            staffSystemMetadata.rowLengths.splice(index, 1);
+          }
           this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
         }
         break;
