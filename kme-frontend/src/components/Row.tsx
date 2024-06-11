@@ -205,11 +205,10 @@ export default function Row({
       staffSystem,
     );
 
-    if (prevJsonRef.current == null) {
-      prevJsonRef.current = crtJson;
-    } else if (prevJsonRef.current === crtJson) {
+    if (prevJsonRef.current === crtJson) {
       return;
     }
+    prevJsonRef.current = crtJson;
 
     const measureCount = getStaffSystemMeasureCount(staffSystem);
     if (
