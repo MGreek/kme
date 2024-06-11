@@ -70,6 +70,108 @@ export class StaffSystemEditor {
     this.setCursorHightlight(true);
   }
 
+  public increaseCursorStaff() {
+    this.setCursorHightlight(false);
+    let groupingEntryId = null;
+    if ("restId" in this.cursor) {
+      groupingEntryId = this.cursor.restId.groupingEntryId;
+    } else {
+      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
+    }
+    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    nextGroupingEntryId.groupingEntriesOrder = 0;
+    nextGroupingEntryId.groupingId.groupingsOrder = 0;
+    nextGroupingEntryId.groupingId.voiceId.voicesOrder = 0;
+    nextGroupingEntryId.groupingId.voiceId.measureId.staffId.stavesOrder += 1;
+
+    const nextGroupingEntry = getGroupingEntryById(
+      this.staffSystem,
+      nextGroupingEntryId,
+    );
+
+    if (nextGroupingEntry != null) {
+      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    }
+
+    this.setCursorHightlight(true);
+  }
+
+  public decreaseCursorStaff() {
+    this.setCursorHightlight(false);
+    let groupingEntryId = null;
+    if ("restId" in this.cursor) {
+      groupingEntryId = this.cursor.restId.groupingEntryId;
+    } else {
+      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
+    }
+    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    nextGroupingEntryId.groupingEntriesOrder = 0;
+    nextGroupingEntryId.groupingId.groupingsOrder = 0;
+    nextGroupingEntryId.groupingId.voiceId.voicesOrder = 0;
+    nextGroupingEntryId.groupingId.voiceId.measureId.staffId.stavesOrder -= 1;
+
+    const nextGroupingEntry = getGroupingEntryById(
+      this.staffSystem,
+      nextGroupingEntryId,
+    );
+
+    if (nextGroupingEntry != null) {
+      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    }
+
+    this.setCursorHightlight(true);
+  }
+
+  public increaseCursorVoice() {
+    this.setCursorHightlight(false);
+    let groupingEntryId = null;
+    if ("restId" in this.cursor) {
+      groupingEntryId = this.cursor.restId.groupingEntryId;
+    } else {
+      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
+    }
+    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    nextGroupingEntryId.groupingEntriesOrder = 0;
+    nextGroupingEntryId.groupingId.groupingsOrder = 0;
+    nextGroupingEntryId.groupingId.voiceId.voicesOrder += 1;
+
+    const nextGroupingEntry = getGroupingEntryById(
+      this.staffSystem,
+      nextGroupingEntryId,
+    );
+
+    if (nextGroupingEntry != null) {
+      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    }
+
+    this.setCursorHightlight(true);
+  }
+
+  public decreaseCursorVoice() {
+    this.setCursorHightlight(false);
+    let groupingEntryId = null;
+    if ("restId" in this.cursor) {
+      groupingEntryId = this.cursor.restId.groupingEntryId;
+    } else {
+      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
+    }
+    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    nextGroupingEntryId.groupingEntriesOrder = 0;
+    nextGroupingEntryId.groupingId.groupingsOrder = 0;
+    nextGroupingEntryId.groupingId.voiceId.voicesOrder -= 1;
+
+    const nextGroupingEntry = getGroupingEntryById(
+      this.staffSystem,
+      nextGroupingEntryId,
+    );
+
+    if (nextGroupingEntry != null) {
+      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    }
+
+    this.setCursorHightlight(true);
+  }
+
   public moveCursorLeft() {
     this.setCursorHightlight(false);
     let groupingEntryId = null;
