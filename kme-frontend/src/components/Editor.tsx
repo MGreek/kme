@@ -51,6 +51,22 @@ export default function Editor({
       staffSystemEditor.moveCursorRight();
       updateStaffSystemElement();
     });
+    trie.addWord("j", () => {
+      staffSystemEditor.increaseCursorVoice();
+      updateStaffSystemElement();
+    });
+    trie.addWord("k", () => {
+      staffSystemEditor.decreaseCursorVoice();
+      updateStaffSystemElement();
+    });
+    trie.addWord("gj", () => {
+      staffSystemEditor.increaseCursorStaff();
+      updateStaffSystemElement();
+    });
+    trie.addWord("gk", () => {
+      staffSystemEditor.decreaseCursorStaff();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);
