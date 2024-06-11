@@ -256,6 +256,7 @@ export function getRowJson(
     totalWidth,
     startMeasureIndex,
     stopMeasureIndex,
+    staffSystemId: staffSystem.staffSystemId,
     staffSystemMetadata: parseStaffSystemMetadata(staffSystem),
     staves: staffSystem.staves.map((staff) => {
       const newStaff: Staff = {
