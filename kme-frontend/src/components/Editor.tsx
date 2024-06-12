@@ -79,6 +79,38 @@ export default function Editor({
       staffSystemEditor.swapMeasureLeft();
       updateStaffSystemElement();
     });
+    trie.addWord("na", () => {
+      staffSystemEditor.moveCursorPosition(-4);
+      updateStaffSystemElement();
+    });
+    trie.addWord("ns", () => {
+      staffSystemEditor.moveCursorPosition(-3);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nd", () => {
+      staffSystemEditor.moveCursorPosition(-2);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nf", () => {
+      staffSystemEditor.moveCursorPosition(-1);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nj", () => {
+      staffSystemEditor.moveCursorPosition(1);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nk", () => {
+      staffSystemEditor.moveCursorPosition(2);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nl", () => {
+      staffSystemEditor.moveCursorPosition(3);
+      updateStaffSystemElement();
+    });
+    trie.addWord("n;", () => {
+      staffSystemEditor.moveCursorPosition(4);
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);
