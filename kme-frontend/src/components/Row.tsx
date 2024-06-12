@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
   BarlineType,
@@ -32,133 +32,51 @@ export default function Row({
   totalWidth: number;
 }) {
   const prevJsonRef = useRef<string | null>(null);
-  const divRef = useRef<HTMLDivElement | null>(null);
-  const factoryRef = useRef<Factory | null>(null);
-  const crtElementIdsRef = useRef<Set<string>>(new Set<string>());
-  const savedElementIdsRef = useRef<Set<string>>(new Set<string>());
 
-  const collectNewElementsRef = useCallback((save: boolean) => {
-    const div = requireNotNull(
-      divRef.current,
-      "Expected divRef to be initialized",
-    );
-
-    const svg = div.firstChild;
-    if (!(svg instanceof SVGElement)) {
-      throw new Error("Expected divRef to have svg child on first position");
-    }
-
-    const newElements = Array.from(svg.children).filter(
-      (element) =>
-        !savedElementIdsRef.current.has(element.outerHTML) &&
-        !crtElementIdsRef.current.has(element.outerHTML),
-    );
-
-    for (const newElement of newElements) {
-      if (save) {
-        savedElementIdsRef.current.add(newElement.outerHTML);
+  const addStaff = useCallback(
+    (factory: Factory, system: System, staff: Staff) => {
+      const staffVexVoices: VexVoice[] = [];
+      for (let index = startMeasureIndex; index <= stopMeasureIndex; index++) {
+        const measure = requireNotNull(staff.measures.at(index));
+        while (staffVexVoices.length < measure.voices.length) {
+          staffVexVoices.push(factory.Voice().setStrict(false));
+        }
       }
-      crtElementIdsRef.current.add(newElement.outerHTML);
-    }
-    return newElements;
-  }, []);
-
-  const getNewElementsBoundsRef = useCallback(
-    (save: boolean) => {
-      const div = requireNotNull(
-        divRef.current,
-        "Expected divRef to be initialized",
-      );
-
-      const toBoudingBox = (rect: DOMRect) =>
-        new BoundingBox(rect.x, rect.y, rect.width, rect.height);
-
-      const divRect = toBoudingBox(div.getBoundingClientRect());
-
-      const normalize = (rect: DOMRect) => {
-        const bb = toBoudingBox(rect);
-        bb.x -= divRect.x;
-        bb.y -= divRect.y;
-        return bb;
-      };
-
-      const elements = collectNewElementsRef(save);
-      const boundingBox = elements
-        .map((element) => normalize(element.getBoundingClientRect()))
-        .reduce(
-          (prev: BoundingBox | null, crt) => prev?.mergeWith(crt) ?? crt,
-          null,
-        );
-      return boundingBox;
-    },
-    [collectNewElementsRef],
-  );
-
-  const removeUnsavedRef = useCallback(() => {
-    const div = requireNotNull(
-      divRef.current,
-      "Expected divRef to be initialized",
-    );
-
-    const svg = div.firstChild;
-    if (!(svg instanceof SVGElement)) {
-      throw new Error("Expected divRef to have svg child on first position");
-    }
-
-    const unsavedElements = Array.from(svg.children).filter(
-      (element) => !savedElementIdsRef.current.has(element.outerHTML),
-    );
-    for (const element of unsavedElements) {
-      svg.removeChild(element);
-    }
-    crtElementIdsRef.current.clear();
-  }, []);
-
-  const draw = useCallback(
-    (factory: Factory, system: System, save: boolean) => {
-      for (const staff of staffSystem.staves) {
-        let staffVexVoices: VexVoice[] | null = null;
-        for (
-          let index = startMeasureIndex;
-          index <= stopMeasureIndex;
-          index++
-        ) {
-          const measure = requireNotNull(staff.measures.at(index));
-          const { vexVoices } = getVexVoicesFromMeasure(factory, measure);
-          if (index < stopMeasureIndex) {
-            for (const vexVoice of vexVoices) {
-              vexVoice.addTickable(
-                factory.BarNote({ type: BarlineType.SINGLE }),
-              );
-            }
-          }
-          if (staffVexVoices == null) {
-            staffVexVoices = vexVoices;
-          } else {
-            for (const [index, vexVoice] of vexVoices.entries()) {
-              if (index === staffVexVoices.length) {
-                staffVexVoices.push(vexVoice);
-              } else {
-                staffVexVoices.at(index)?.addTickables(vexVoice.getTickables());
-              }
-            }
+      for (let index = startMeasureIndex; index <= stopMeasureIndex; index++) {
+        const measure = requireNotNull(staff.measures.at(index));
+        const { vexVoices } = getVexVoicesFromMeasure(factory, measure);
+        if (index < stopMeasureIndex) {
+          for (const vexVoice of vexVoices) {
+            vexVoice.addTickable(factory.BarNote({ type: BarlineType.SINGLE }));
           }
         }
-        const firstMeasure = requireNotNull(
-          staff.measures.at(startMeasureIndex),
-        );
-        const clef = getClefNameFromClef(requireNotNull(firstMeasure.clef));
-        const timesig = getTimeSignatureStringFromTimeSignature(
-          requireNotNull(firstMeasure.timeSignature),
-        );
-        const keysig = getKeySignatureNameFromKeySignature(
-          firstMeasure.keySignature,
-        );
-        system
-          .addStave({ voices: requireNotNull(staffVexVoices) })
-          .addClef(clef)
-          .addTimeSignature(timesig)
-          .addKeySignature(keysig);
+        for (const [index, vexVoice] of vexVoices.entries()) {
+          const staffVexVoice = requireNotNull(staffVexVoices.at(index));
+          staffVexVoice.addTickables(vexVoice.getTickables());
+        }
+        equalizeVoices(factory, staffVexVoices);
+      }
+      const firstMeasure = requireNotNull(staff.measures.at(startMeasureIndex));
+      const clef = getClefNameFromClef(requireNotNull(firstMeasure.clef));
+      const timesig = getTimeSignatureStringFromTimeSignature(
+        requireNotNull(firstMeasure.timeSignature),
+      );
+      const keysig = getKeySignatureNameFromKeySignature(
+        firstMeasure.keySignature,
+      );
+      system
+        .addStave({ voices: staffVexVoices })
+        .addClef(clef)
+        .addTimeSignature(timesig)
+        .addKeySignature(keysig);
+    },
+    [stopMeasureIndex, startMeasureIndex],
+  );
+
+  const draw = useCallback(
+    (factory: Factory, system: System) => {
+      for (const staff of staffSystem.staves) {
+        addStaff(factory, system, staff);
       }
 
       const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
@@ -170,33 +88,21 @@ export default function Row({
       system.addConnector("singleRight");
 
       factory.draw();
-      const bounds = requireNotNull(getNewElementsBoundsRef(save));
-      if (!save) {
-        removeUnsavedRef();
-      }
-      return bounds;
     },
-    [
-      staffSystem,
-      startMeasureIndex,
-      stopMeasureIndex,
-      getNewElementsBoundsRef,
-      removeUnsavedRef,
-    ],
+    [staffSystem, addStaff],
   );
 
-  useEffect(() => {
-    if (divRef.current == null) {
+  const onDiv = (div: HTMLDivElement | null) => {
+    if (div == null) {
       return;
     }
-    if (factoryRef.current == null) {
-      factoryRef.current = new Factory({
-        renderer: {
-          elementId: divRef.current.id,
-          width: 0,
-          height: 0,
-        },
-      });
+
+    const measureCount = getStaffSystemMeasureCount(staffSystem);
+    if (
+      !(startMeasureIndex <= stopMeasureIndex) &&
+      stopMeasureIndex < measureCount
+    ) {
+      return;
     }
 
     const crtJson = getRowJson(
@@ -211,21 +117,16 @@ export default function Row({
     }
     prevJsonRef.current = crtJson;
 
-    const measureCount = getStaffSystemMeasureCount(staffSystem);
-    if (
-      !(startMeasureIndex <= stopMeasureIndex) &&
-      stopMeasureIndex < measureCount
-    ) {
-      return;
-    }
-
-    const factory = factoryRef.current;
+    const factory = new Factory({
+      renderer: { elementId: div.id, width: 0, height: 0 },
+    });
     let system = factory.System({
       width: totalWidth,
       noPadding: true,
     });
 
-    let bounds = draw(factory, system, false);
+    draw(factory, system);
+    let bounds = requireNotNull(getElementsBounds(div));
     system = factory.System({
       width: totalWidth,
       noPadding: true,
@@ -234,16 +135,87 @@ export default function Row({
       y: 10 - bounds.y,
     });
 
-    bounds = draw(factory, system, true);
+    removeElements(div);
+    draw(factory, system);
+    bounds = requireNotNull(getElementsBounds(div));
     const width = bounds.x + bounds.w;
     const height = bounds.y + bounds.h;
 
-    divRef.current.style.width = `${width}px`;
-    divRef.current.style.height = `${height}px`;
+    div.style.width = `${width}px`;
+    div.style.height = `${height}px`;
     factory.getContext().resize(width, height);
-  }, [staffSystem, startMeasureIndex, stopMeasureIndex, totalWidth, draw]);
+  };
 
-  return <div id={uuidv4()} ref={divRef} />;
+  return <div id={uuidv4()} ref={onDiv} />;
+}
+
+function equalizeVoices(factory: Factory, voices: VexVoice[]) {
+  if (voices.length < 2) {
+    return;
+  }
+  const getVoiceIntrinsicTicks = (voice: VexVoice): number => {
+    return voice
+      .getTickables()
+      .map((tickable) => tickable.getIntrinsicTicks())
+      .reduce((prev, crt) => prev + crt, 0);
+  };
+  const maxTicks = voices
+    .map((voice) => getVoiceIntrinsicTicks(voice))
+    .reduce((prev, crt) => Math.max(prev, crt));
+  for (const voice of voices) {
+    const crtTicks = getVoiceIntrinsicTicks(voice);
+    const fillerTicks = maxTicks - crtTicks;
+    if (fillerTicks === 0) {
+      continue;
+    }
+    const ghostNote = factory.GhostNote({ keys: ["c/4"], duration: "w" });
+    ghostNote.setIntrinsicTicks(fillerTicks);
+    ghostNote.setIgnoreTicks(false);
+    voice.addTickable(ghostNote);
+  }
+}
+
+function getElementsBounds(div: HTMLDivElement) {
+  const toBoudingBox = (rect: DOMRect) =>
+    new BoundingBox(rect.x, rect.y, rect.width, rect.height);
+
+  const divRect = toBoudingBox(div.getBoundingClientRect());
+
+  const normalize = (rect: DOMRect) => {
+    const bb = toBoudingBox(rect);
+    bb.x -= divRect.x;
+    bb.y -= divRect.y;
+    return bb;
+  };
+
+  const elements = collectElements(div);
+  const boundingBox = elements
+    .map((element) => normalize(element.getBoundingClientRect()))
+    .reduce(
+      (prev: BoundingBox | null, crt) => prev?.mergeWith(crt) ?? crt,
+      null,
+    );
+  return boundingBox;
+}
+
+function collectElements(div: HTMLDivElement) {
+  const svg = div.firstChild;
+  if (!(svg instanceof SVGElement)) {
+    throw new Error("Expected divRef to have svg child on first position");
+  }
+
+  return Array.from(svg.children);
+}
+
+function removeElements(div: HTMLDivElement) {
+  const svg = div.firstChild;
+  if (!(svg instanceof SVGElement)) {
+    throw new Error("Expected divRef to have svg child on first position");
+  }
+
+  while (svg.firstChild) {
+    svg.removeChild(svg.firstChild);
+  }
 }
 
 export function getRowJson(
