@@ -212,7 +212,7 @@ export class StaffSystemEditor {
     let crtIndex = 0;
     for (const [index, length] of staffSystemMetadata.rowLengths?.entries() ??
       [].entries()) {
-      if (crtIndex >= measure.measureId.measuresOrder) {
+      if (crtIndex + length - 1 >= measure.measureId.measuresOrder) {
         if (staffSystemMetadata.rowLengths != null) {
           staffSystemMetadata.rowLengths[index] -= 1;
           if (staffSystemMetadata.rowLengths[index] === 0) {
@@ -224,7 +224,6 @@ export class StaffSystemEditor {
       }
       crtIndex += length;
     }
-
     for (const staff of this.staffSystem.staves) {
       staff.measures.splice(measure.measureId.measuresOrder, 1);
     }
