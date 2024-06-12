@@ -231,4 +231,60 @@ export class StaffSystemEditor {
     syncIds(this.staffSystem);
     this.setCursorHightlight(true);
   }
+
+  public swapMeasureLeft() {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    const prevMeasureId = structuredClone(measure.measureId);
+    prevMeasureId.measuresOrder -= 1;
+    const prevMeasure = getMeasureById(this.staffSystem, prevMeasureId);
+    if (prevMeasure == null) {
+      return;
+    }
+    this.setCursorHightlight(false);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const oldVoiceIndex =
+      groupingEntry.groupingEntryId.groupingId.voiceId.voicesOrder;
+    const oldGroupingIndex =
+      groupingEntry.groupingEntryId.groupingId.groupingsOrder;
+    const oldGroupingEntryIndex =
+      groupingEntry.groupingEntryId.groupingEntriesOrder;
+    [measure.voices, prevMeasure.voices] = [prevMeasure.voices, measure.voices];
+    syncIds(this.staffSystem);
+    const prevGroupingEntry = requireNotNull(
+      prevMeasure.voices
+        .at(oldVoiceIndex)
+        ?.groupings.at(oldGroupingIndex)
+        ?.groupingEntries.at(oldGroupingEntryIndex),
+    );
+    this.setCursorOnGroupingEntry(prevGroupingEntry);
+    this.setCursorHightlight(true);
+  }
+
+  public swapMeasureRight() {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    const nextMeasureId = structuredClone(measure.measureId);
+    nextMeasureId.measuresOrder += 1;
+    const nextMeasure = getMeasureById(this.staffSystem, nextMeasureId);
+    if (nextMeasure == null) {
+      return;
+    }
+    this.setCursorHightlight(false);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const oldVoiceIndex =
+      groupingEntry.groupingEntryId.groupingId.voiceId.voicesOrder;
+    const oldGroupingIndex =
+      groupingEntry.groupingEntryId.groupingId.groupingsOrder;
+    const oldGroupingEntryIndex =
+      groupingEntry.groupingEntryId.groupingEntriesOrder;
+    [measure.voices, nextMeasure.voices] = [nextMeasure.voices, measure.voices];
+    syncIds(this.staffSystem);
+    const nextGroupingEntry = requireNotNull(
+      nextMeasure.voices
+        .at(oldVoiceIndex)
+        ?.groupings.at(oldGroupingIndex)
+        ?.groupingEntries.at(oldGroupingEntryIndex),
+    );
+    this.setCursorOnGroupingEntry(nextGroupingEntry);
+    this.setCursorHightlight(true);
+  }
 }
