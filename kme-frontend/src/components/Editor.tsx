@@ -71,6 +71,14 @@ export default function Editor({
       staffSystemEditor.removeMeasures();
       updateStaffSystemElement();
     });
+    trie.addWord("ml", () => {
+      staffSystemEditor.swapMeasureRight();
+      updateStaffSystemElement();
+    });
+    trie.addWord("mh", () => {
+      staffSystemEditor.swapMeasureLeft();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);
