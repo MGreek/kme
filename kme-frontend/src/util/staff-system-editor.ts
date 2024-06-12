@@ -5,11 +5,11 @@ import type { StaffSystem } from "../model/staff-system";
 import {
   parseNoteMetadata,
   parseRestMetadata,
-  parseStaffMetadata,
   parseStaffSystemMetadata,
 } from "./metadata";
 import {
   getCursorFromGroupingEntry,
+  getCursorGroupingEntry,
   getCursorMeasure,
   getGroupingEntries,
   getGroupingEntryById,
@@ -82,13 +82,8 @@ export class StaffSystemEditor {
 
   public increaseCursorStaff() {
     this.setCursorHightlight(false);
-    let groupingEntryId = null;
-    if ("restId" in this.cursor) {
-      groupingEntryId = this.cursor.restId.groupingEntryId;
-    } else {
-      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
-    }
-    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder = 0;
     nextGroupingEntryId.groupingId.groupingsOrder = 0;
     nextGroupingEntryId.groupingId.voiceId.voicesOrder = 0;
@@ -108,13 +103,8 @@ export class StaffSystemEditor {
 
   public decreaseCursorStaff() {
     this.setCursorHightlight(false);
-    let groupingEntryId = null;
-    if ("restId" in this.cursor) {
-      groupingEntryId = this.cursor.restId.groupingEntryId;
-    } else {
-      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
-    }
-    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder = 0;
     nextGroupingEntryId.groupingId.groupingsOrder = 0;
     nextGroupingEntryId.groupingId.voiceId.voicesOrder = 0;
@@ -134,13 +124,8 @@ export class StaffSystemEditor {
 
   public increaseCursorVoice() {
     this.setCursorHightlight(false);
-    let groupingEntryId = null;
-    if ("restId" in this.cursor) {
-      groupingEntryId = this.cursor.restId.groupingEntryId;
-    } else {
-      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
-    }
-    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder = 0;
     nextGroupingEntryId.groupingId.groupingsOrder = 0;
     nextGroupingEntryId.groupingId.voiceId.voicesOrder += 1;
@@ -159,13 +144,8 @@ export class StaffSystemEditor {
 
   public decreaseCursorVoice() {
     this.setCursorHightlight(false);
-    let groupingEntryId = null;
-    if ("restId" in this.cursor) {
-      groupingEntryId = this.cursor.restId.groupingEntryId;
-    } else {
-      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
-    }
-    const nextGroupingEntryId = structuredClone(groupingEntryId);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
     nextGroupingEntryId.groupingEntriesOrder = 0;
     nextGroupingEntryId.groupingId.groupingsOrder = 0;
     nextGroupingEntryId.groupingId.voiceId.voicesOrder -= 1;
@@ -183,91 +163,21 @@ export class StaffSystemEditor {
   }
 
   public moveCursorLeft() {
-    this.setCursorHightlight(false);
-    let groupingEntryId = null;
-    if ("restId" in this.cursor) {
-      groupingEntryId = this.cursor.restId.groupingEntryId;
-    } else {
-      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
-    }
-    const nextGroupingEntryId = structuredClone(groupingEntryId);
-    nextGroupingEntryId.groupingEntriesOrder -= 1;
-
-    const nextGroupingEntry = getGroupingEntryById(
-      this.staffSystem,
-      nextGroupingEntryId,
-    );
-
-    if (nextGroupingEntry != null) {
-      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    const prevCursor = getPreviousCursor(this.staffSystem, this.cursor);
+    if (prevCursor != null) {
+      this.setCursorHightlight(false);
+      this.cursor = prevCursor;
       this.setCursorHightlight(true);
-      return;
     }
-
-    const measureId = groupingEntryId.groupingId.voiceId.measureId;
-    const nextMeasureId = structuredClone(measureId);
-    nextMeasureId.measuresOrder -= 1;
-
-    const nextMeasure = getMeasureById(this.staffSystem, nextMeasureId);
-    if (nextMeasure != null) {
-      const lastEntry = requireNotNull(
-        nextMeasure.voices
-          .at(groupingEntryId.groupingId.voiceId.voicesOrder)
-          ?.groupings.at(-1)
-          ?.groupingEntries.at(-1) ??
-        nextMeasure.voices.at(0)?.groupings.at(-1)?.groupingEntries.at(-1),
-        "Found an empty measure",
-      );
-      this.setCursorOnGroupingEntry(lastEntry);
-      this.setCursorHightlight(true);
-      return;
-    }
-
-    this.setCursorHightlight(true);
   }
 
   public moveCursorRight() {
-    this.setCursorHightlight(false);
-    let groupingEntryId = null;
-    if ("restId" in this.cursor) {
-      groupingEntryId = this.cursor.restId.groupingEntryId;
-    } else {
-      groupingEntryId = this.cursor.noteId.chordId.groupingEntryId;
-    }
-    const nextGroupingEntryId = structuredClone(groupingEntryId);
-    nextGroupingEntryId.groupingEntriesOrder += 1;
-
-    const nextGroupingEntry = getGroupingEntryById(
-      this.staffSystem,
-      nextGroupingEntryId,
-    );
-
-    if (nextGroupingEntry != null) {
-      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    const nextCursor = getNextCursor(this.staffSystem, this.cursor);
+    if (nextCursor != null) {
+      this.setCursorHightlight(false);
+      this.cursor = nextCursor;
       this.setCursorHightlight(true);
-      return;
     }
-
-    const measureId = groupingEntryId.groupingId.voiceId.measureId;
-    const nextMeasureId = structuredClone(measureId);
-    nextMeasureId.measuresOrder += 1;
-
-    const nextMeasure = getMeasureById(this.staffSystem, nextMeasureId);
-    if (nextMeasure != null) {
-      const firstEntry = requireNotNull(
-        nextMeasure.voices
-          .at(groupingEntryId.groupingId.voiceId.voicesOrder)
-          ?.groupings.at(0)
-          ?.groupingEntries.at(0) ??
-        nextMeasure.voices.at(0)?.groupings.at(0)?.groupingEntries.at(0),
-        "Found an empty measure",
-      );
-      this.setCursorOnGroupingEntry(firstEntry);
-      this.setCursorHightlight(true);
-      return;
-    }
-
-    this.setCursorHightlight(true);
   }
 
   public removeMeasures() {
