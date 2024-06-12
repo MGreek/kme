@@ -8,6 +8,7 @@ import {
   parseStaffSystemMetadata,
 } from "./metadata";
 import {
+  getChordById,
   getCursorFromGroupingEntry,
   getCursorGroupingEntry,
   getCursorMeasure,
@@ -285,5 +286,23 @@ export class StaffSystemEditor {
     );
     this.setCursorOnGroupingEntry(nextGroupingEntry);
     this.setCursorHightlight(true);
+  }
+
+  public moveCursorPosition(delta: number) {
+    if ("restId" in this.cursor) {
+      this.cursor.position += delta;
+    } else {
+      const cursorPosition = this.cursor.noteId.position;
+      const prevPosition = cursorPosition + delta;
+      const cursorChord = requireNotNull(
+        getChordById(this.staffSystem, this.cursor.noteId.chordId),
+      );
+      if (
+        cursorChord.notes.some((note) => note.noteId.position === prevPosition)
+      ) {
+        return;
+      }
+      this.cursor.noteId.position = prevPosition;
+    }
   }
 }
