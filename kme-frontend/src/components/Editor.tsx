@@ -111,6 +111,12 @@ export default function Editor({
       staffSystemEditor.moveCursorPosition(4);
       updateStaffSystemElement();
     });
+    trie.addWord("rn", () => {
+      staffSystemEditor.insertRow(
+        staffSystemEditor.getStaffSystemMeasureCount(),
+      );
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);
