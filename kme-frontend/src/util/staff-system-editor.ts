@@ -17,6 +17,8 @@ import {
   getMeasureById,
   getNextCursor,
   getPreviousCursor,
+  getStaffSystemMeasureCount,
+  insertEmptyMeasure,
   syncIds,
 } from "./misc";
 import { requireNotNull } from "./require-not-null";
@@ -79,6 +81,10 @@ export class StaffSystemEditor {
       this.cursor = requireNotNull(chord.notes.at(0), "found an empty Chord");
     }
     this.setCursorHightlight(true);
+  }
+
+  public getStaffSystemMeasureCount(): number {
+    return getStaffSystemMeasureCount(this.staffSystem);
   }
 
   public increaseCursorStaff() {
@@ -304,5 +310,9 @@ export class StaffSystemEditor {
       }
       this.cursor.noteId.position = prevPosition;
     }
+  }
+
+  public insertRow(measureIndex: number) {
+    insertEmptyMeasure(this.staffSystem, measureIndex);
   }
 }
