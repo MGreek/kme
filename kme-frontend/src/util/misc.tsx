@@ -1,12 +1,121 @@
 import type { Chord, ChordId } from "../model/chord";
 import type { Grouping, GroupingId } from "../model/grouping";
 import type { GroupingEntry, GroupingEntryId } from "../model/grouping-entry";
-import type { Measure, MeasureId } from "../model/measure";
+import {
+  TimeSignature,
+  KeySignature,
+  type Measure,
+  Clef,
+} from "../model/measure";
 import type { Note } from "../model/note";
-import type { Rest } from "../model/rest";
+import { RestType, type Rest } from "../model/rest";
+import type { StaffId } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
-import { parseRestMetadata } from "./metadata";
+import type { Voice, VoiceId } from "../model/voice";
+import { parseRestMetadata, parseStaffSystemMetadata } from "./metadata";
 import { requireNotNull } from "./require-not-null";
+
+// NOTE: `syncIds` after this since the id will be a placeholder
+function getWholeNoteRestInGrouping(
+  groupingId: GroupingId,
+  position: number,
+): Grouping {
+  const groupingEntryId = { groupingId, groupingEntriesOrder: 0 };
+  const newGrouping: Grouping = {
+    groupingId,
+    metadataJson: "",
+    groupingEntries: [
+      {
+        groupingEntryId,
+        chord: null,
+        rest: {
+          restId: { groupingEntryId },
+          restType: RestType.Whole,
+          position,
+          metadataJson: "",
+        },
+      },
+    ],
+  };
+  return newGrouping;
+}
+
+// NOTE: `syncIds` after this since the id will be a placeholder
+function getWholeNoteRestInVoice(
+  voiceId: VoiceId,
+  restPosition: number,
+): Voice {
+  const newVoice: Voice = {
+    voiceId,
+    metadataJson: "",
+    groupings: [
+      getWholeNoteRestInGrouping({ voiceId, groupingsOrder: 0 }, restPosition),
+    ],
+  };
+  return newVoice;
+}
+
+// NOTE: `syncIds` after this since the id will be a placeholder
+function getWholeRestMeasure(
+  template: Measure | null,
+  staffId: StaffId,
+): Measure {
+  const measureId = {
+    staffId,
+    measuresOrder: 0,
+  };
+  const clef = template?.clef ?? Clef.Treble;
+  let restPosition = null;
+  switch (clef) {
+    case Clef.Treble:
+      restPosition = 8;
+      break;
+    case Clef.Alto:
+    case Clef.Bass:
+      restPosition = -6;
+      break;
+    default:
+      throw new Error("Unknown clef");
+  }
+  const newMeasure: Measure = {
+    measureId,
+    metadataJson: "",
+    keySignature: template?.keySignature ?? KeySignature.None,
+    timeSignature: template?.timeSignature ?? TimeSignature.FourFour,
+    clef,
+    voices: [
+      getWholeNoteRestInVoice(
+        {
+          measureId,
+          voicesOrder: 0,
+        },
+        restPosition,
+      ),
+    ],
+  };
+  return newMeasure;
+}
+
+export function insertEmptyMeasure(staffSystem: StaffSystem, index: number) {
+  // NOTE: fetch metadata before doing operations because they might
+  // affect for example rowLengths or other fields in metadata
+  const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
+  for (const staff of staffSystem.staves) {
+    const previousMeasure = staff.measures.at(index - 1);
+    const nextMeasure = staff.measures.at(index + 1);
+    staff.measures.splice(
+      index,
+      0,
+      getWholeRestMeasure(
+        previousMeasure ?? nextMeasure ?? null,
+        staff.staffId,
+      ),
+    );
+  }
+  staffSystemMetadata.rowLengths.push(1);
+  staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+  syncIds(staffSystem);
+}
 
 export function getStaffSystemMeasureCount(staffSystem: StaffSystem) {
   if (staffSystem.staves.length === 0) {
