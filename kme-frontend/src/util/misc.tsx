@@ -112,6 +112,8 @@ export function insertEmptyMeasure(staffSystem: StaffSystem, index: number) {
       ),
     );
   }
+  // FIX: the lenght of the row where the measure was inserted should be updated
+  // a new row must not be always created like this `push` does.
   staffSystemMetadata.rowLengths.push(1);
   staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
   syncIds(staffSystem);
