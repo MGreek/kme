@@ -42,11 +42,28 @@ export default function Row({
           staffVexVoices.push(factory.Voice().setStrict(false));
         }
       }
+      const getMeasuresAtIndex = (index: number) => {
+        return {
+          prevMeasure: staff.measures.at(index - 1) ?? null,
+          measure: requireNotNull(staff.measures.at(index)),
+          nextMeasure: staff.measures.at(index + 1) ?? null,
+        };
+      };
       for (let index = startMeasureIndex; index <= stopMeasureIndex; index++) {
-        const measure = requireNotNull(staff.measures.at(index));
+        const { prevMeasure, measure, nextMeasure } = getMeasuresAtIndex(index);
         const { vexVoices } = getVexVoicesFromMeasure(factory, measure);
         if (index < stopMeasureIndex) {
+          // TODO: don't just add a barline but also a clef/keysig/timesig if they are different
           for (const vexVoice of vexVoices) {
+            if (nextMeasure != null) {
+              if (measure.clef !== nextMeasure.clef) {
+                vexVoice.addTickable(
+                  factory.ClefNote({
+                    type: getClefNameFromClef(nextMeasure.clef),
+                  }),
+                );
+              }
+            }
             vexVoice.addTickable(factory.BarNote({ type: BarlineType.SINGLE }));
           }
         }
