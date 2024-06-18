@@ -320,7 +320,7 @@ export function equalMeasureIds(
 ): boolean {
   return (
     firstId.staffId.staffSystemId.staffSystemId ===
-      secondId.staffId.staffSystemId.staffSystemId &&
+    secondId.staffId.staffSystemId.staffSystemId &&
     firstId.staffId.stavesOrder === secondId.staffId.stavesOrder &&
     firstId.measuresOrder === secondId.measuresOrder
   );
@@ -387,14 +387,14 @@ export function equalGroupingEntryIds(
   // PERF: don't use deepCopy because it's too slow!!!
   return (
     firstId.groupingId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
-      secondId.groupingId.voiceId.measureId.staffId.staffSystemId
-        .staffSystemId &&
+    secondId.groupingId.voiceId.measureId.staffId.staffSystemId
+      .staffSystemId &&
     firstId.groupingId.voiceId.measureId.staffId.stavesOrder ===
-      secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
+    secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
     firstId.groupingId.voiceId.measureId.measuresOrder ===
-      secondId.groupingId.voiceId.measureId.measuresOrder &&
+    secondId.groupingId.voiceId.measureId.measuresOrder &&
     firstId.groupingId.voiceId.voicesOrder ===
-      secondId.groupingId.voiceId.voicesOrder &&
+    secondId.groupingId.voiceId.voicesOrder &&
     firstId.groupingId.groupingsOrder === secondId.groupingId.groupingsOrder &&
     firstId.groupingEntriesOrder === secondId.groupingEntriesOrder
   );
@@ -406,11 +406,11 @@ export function equalGroupingIds(
 ): boolean {
   return (
     firstId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
-      secondId.voiceId.measureId.staffId.staffSystemId.staffSystemId &&
+    secondId.voiceId.measureId.staffId.staffSystemId.staffSystemId &&
     firstId.voiceId.measureId.staffId.stavesOrder ===
-      secondId.voiceId.measureId.staffId.stavesOrder &&
+    secondId.voiceId.measureId.staffId.stavesOrder &&
     firstId.voiceId.measureId.measuresOrder ===
-      secondId.voiceId.measureId.measuresOrder &&
+    secondId.voiceId.measureId.measuresOrder &&
     firstId.voiceId.voicesOrder === secondId.voiceId.voicesOrder &&
     firstId.groupingsOrder === secondId.groupingsOrder
   );
