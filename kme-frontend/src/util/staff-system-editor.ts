@@ -217,8 +217,7 @@ export class StaffSystemEditor {
 
     const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
     let crtIndex = 0;
-    for (const [index, length] of staffSystemMetadata.rowLengths?.entries() ??
-      [].entries()) {
+    for (const [index, length] of staffSystemMetadata.rowLengths.entries()) {
       if (crtIndex + length - 1 >= measure.measureId.measuresOrder) {
         if (staffSystemMetadata.rowLengths != null) {
           staffSystemMetadata.rowLengths[index] -= 1;
