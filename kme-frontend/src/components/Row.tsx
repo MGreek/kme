@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import {
   BarlineType,
   BoundingBox,
+  ClefNote,
   Factory,
   type System,
   type Voice as VexVoice,
@@ -33,68 +34,135 @@ export default function Row({
 }) {
   const prevJsonRef = useRef<string | null>(null);
 
-  const addStaff = useCallback(
-    (factory: Factory, system: System, staff: Staff) => {
-      const staffVexVoices: VexVoice[] = [];
-      for (let index = startMeasureIndex; index <= stopMeasureIndex; index++) {
-        const measure = requireNotNull(staff.measures.at(index));
-        while (staffVexVoices.length < measure.voices.length) {
-          staffVexVoices.push(factory.Voice().setStrict(false));
+  const addStaves = useCallback(
+    (factory: Factory, system: System) => {
+      const stavesVoices: VexVoice[][] = [];
+      for (const staff of staffSystem.staves) {
+        stavesVoices.push([]);
+        const staffVoices = requireNotNull(stavesVoices.at(-1));
+        for (
+          let index = startMeasureIndex;
+          index <= stopMeasureIndex;
+          index++
+        ) {
+          const measure = requireNotNull(staff.measures.at(index));
+          while (staffVoices.length < measure.voices.length) {
+            staffVoices.push(factory.Voice().setStrict(false));
+          }
         }
       }
-      const getMeasuresAtIndex = (index: number) => {
-        return {
-          prevMeasure: staff.measures.at(index - 1) ?? null,
-          measure: requireNotNull(staff.measures.at(index)),
-          nextMeasure: staff.measures.at(index + 1) ?? null,
-        };
-      };
-      for (let index = startMeasureIndex; index <= stopMeasureIndex; index++) {
-        const { prevMeasure, measure, nextMeasure } = getMeasuresAtIndex(index);
-        const { vexVoices } = getVexVoicesFromMeasure(factory, measure);
-        if (index < stopMeasureIndex) {
-          // TODO: don't just add a barline but also a clef/keysig/timesig if they are different
-          for (const vexVoice of vexVoices) {
-            if (nextMeasure != null) {
-              if (measure.clef !== nextMeasure.clef) {
-                vexVoice.addTickable(
-                  factory.ClefNote({
-                    type: getClefNameFromClef(nextMeasure.clef),
+
+      for (
+        let measureIndex = startMeasureIndex;
+        measureIndex <= stopMeasureIndex;
+        measureIndex++
+      ) {
+        for (const [index, staff] of staffSystem.staves.entries()) {
+          const measure = requireNotNull(staff.measures.at(measureIndex));
+          const { vexVoices: measureVoices } = getVexVoicesFromMeasure(
+            factory,
+            measure,
+          );
+          const staffVoices = requireNotNull(stavesVoices.at(index));
+
+          const prevMeasure =
+            startMeasureIndex !== measureIndex
+              ? staff.measures.at(measureIndex - 1)
+              : null;
+          for (const staffVoice of staffVoices) {
+            if (prevMeasure != null) {
+              if (prevMeasure.keySignature !== measure.keySignature) {
+                // TODO: fork vexflow to add extra clef feature for KeySignature and KeySigNote
+                staffVoice.addTickable(
+                  factory.KeySigNote({
+                    key: getKeySignatureNameFromKeySignature(
+                      measure.keySignature,
+                    ),
+                    cancelKey: getKeySignatureNameFromKeySignature(
+                      prevMeasure.keySignature,
+                    ),
+                  }),
+                );
+              }
+              if (prevMeasure.timeSignature !== measure.timeSignature) {
+                staffVoice.addTickable(
+                  factory.TimeSigNote({
+                    time: getTimeSignatureStringFromTimeSignature(
+                      measure.timeSignature,
+                    ),
                   }),
                 );
               }
             }
-            vexVoice.addTickable(factory.BarNote({ type: BarlineType.SINGLE }));
+          }
+          equalizeVoices(factory, staffVoices);
+
+          for (const [index, measureVoice] of measureVoices.entries()) {
+            const staffVoice = requireNotNull(staffVoices.at(index));
+            staffVoice.addTickables(measureVoice.getTickables());
+          }
+          equalizeVoices(factory, staffVoices);
+
+          const nextMeasure = staff.measures.at(measureIndex + 1);
+          for (const staffVoice of staffVoices) {
+            if (nextMeasure != null && measure.clef !== nextMeasure.clef) {
+              staffVoice.addTickable(
+                factory.ClefNote({
+                  type: getClefNameFromClef(nextMeasure.clef),
+                  options: { size: "small" },
+                }),
+              );
+            }
           }
         }
-        for (const [index, vexVoice] of vexVoices.entries()) {
-          const staffVexVoice = requireNotNull(staffVexVoices.at(index));
-          staffVexVoice.addTickables(vexVoice.getTickables());
+        equalizeVoices(factory, stavesVoices.flat());
+        for (const staffVoice of stavesVoices.flat()) {
+          if (measureIndex < stopMeasureIndex) {
+            staffVoice.addTickable(
+              factory.BarNote({ type: BarlineType.SINGLE }),
+            );
+          }
         }
-        equalizeVoices(factory, staffVexVoices);
       }
-      const firstMeasure = requireNotNull(staff.measures.at(startMeasureIndex));
-      const clef = getClefNameFromClef(requireNotNull(firstMeasure.clef));
-      const timesig = getTimeSignatureStringFromTimeSignature(
-        requireNotNull(firstMeasure.timeSignature),
-      );
-      const keysig = getKeySignatureNameFromKeySignature(
-        firstMeasure.keySignature,
-      );
-      system
-        .addStave({ voices: staffVexVoices })
-        .addClef(clef)
-        .addTimeSignature(timesig)
-        .addKeySignature(keysig);
+
+      for (const [index, staff] of staffSystem.staves.entries()) {
+        const staffVoices = requireNotNull(stavesVoices.at(index));
+        const stave = system.addStave({ voices: staffVoices });
+        const prevMeasure =
+          startMeasureIndex > 0
+            ? staff.measures.at(startMeasureIndex - 1)
+            : null;
+        const measure = requireNotNull(staff.measures.at(startMeasureIndex));
+        stave.addClef(getClefNameFromClef(measure.clef));
+        if (prevMeasure == null) {
+          stave.addKeySignature(
+            getKeySignatureNameFromKeySignature(measure.keySignature),
+          );
+          stave.addTimeSignature(
+            getTimeSignatureStringFromTimeSignature(measure.timeSignature),
+          );
+          continue;
+        }
+        if (measure.keySignature !== prevMeasure.keySignature) {
+          // TODO: fork vexflow to add extra clef feature for KeySignature and KeySigNote
+          stave.addKeySignature(
+            getKeySignatureNameFromKeySignature(measure.keySignature),
+            getKeySignatureNameFromKeySignature(prevMeasure.keySignature),
+          );
+        }
+        if (measure.timeSignature !== prevMeasure.timeSignature) {
+          stave.addTimeSignature(
+            getTimeSignatureStringFromTimeSignature(measure.timeSignature),
+          );
+        }
+      }
     },
-    [stopMeasureIndex, startMeasureIndex],
+    [staffSystem, stopMeasureIndex, startMeasureIndex],
   );
 
   const draw = useCallback(
     (factory: Factory, system: System) => {
-      for (const staff of staffSystem.staves) {
-        addStaff(factory, system, staff);
-      }
+      addStaves(factory, system);
 
       const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
 
@@ -106,7 +174,7 @@ export default function Row({
 
       factory.draw();
     },
-    [staffSystem, addStaff],
+    [staffSystem, addStaves],
   );
 
   const onDiv = (div: HTMLDivElement | null) => {
