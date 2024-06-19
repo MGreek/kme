@@ -137,6 +137,38 @@ export function getStaffSystemMeasureCount(staffSystem: StaffSystem) {
   return measureCount;
 }
 
+export function pruneStaffSystem(staffSystem: StaffSystem) {
+  const measures = staffSystem.staves.flatMap((staff) => staff.measures);
+  const voices = measures.flatMap((measure) => measure.voices);
+  const groupings = voices.flatMap((voice) => voice.groupings);
+  for (const grouping of groupings) {
+    grouping.groupingEntries = grouping.groupingEntries.filter(
+      (groupingEntry) =>
+        groupingEntry.rest != null ||
+        (groupingEntry.chord != null && groupingEntry.chord.notes.length > 0),
+    );
+  }
+  for (const voice of voices) {
+    voice.groupings = voice.groupings.filter(
+      (grouping) => grouping.groupingEntries.length > 0,
+    );
+  }
+  for (const measure of measures) {
+    measure.voices = measure.voices.filter(
+      (voice) => voice.groupings.length > 0,
+    );
+  }
+  for (const staff of staffSystem.staves) {
+    staff.measures = staff.measures.filter(
+      (measure) => measure.voices.length > 0,
+    );
+  }
+  staffSystem.staves = staffSystem.staves.filter(
+    (staff) => staff.measures.length > 0,
+  );
+  syncIds(staffSystem);
+}
+
 export function syncIds(staffSystem: StaffSystem) {
   for (const [index, staff] of staffSystem.staves.entries()) {
     staff.staffId.staffSystemId = staffSystem.staffSystemId;
