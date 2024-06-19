@@ -5,6 +5,7 @@ import { Trie } from "../util/graph";
 import { requireNotNull } from "../util/require-not-null";
 import { StaffSystemEditor } from "../util/staff-system-editor";
 import StaffSystemElement from "./StaffSystemElement";
+import { StemType } from "../model/stem";
 
 export default function Editor({
   pagePadding,
@@ -119,6 +120,34 @@ export default function Editor({
     });
     trie.addWord("nt", () => {
       staffSystemEditor.toggleType();
+      updateStaffSystemElement();
+    });
+    trie.addWord("n1", () => {
+      staffSystemEditor.setDuration(StemType.Whole);
+      updateStaffSystemElement();
+    });
+    trie.addWord("n2", () => {
+      staffSystemEditor.setDuration(StemType.Half);
+      updateStaffSystemElement();
+    });
+    trie.addWord("n3", () => {
+      staffSystemEditor.setDuration(StemType.Quarter);
+      updateStaffSystemElement();
+    });
+    trie.addWord("n4", () => {
+      staffSystemEditor.setDuration(StemType.Eight);
+      updateStaffSystemElement();
+    });
+    trie.addWord("n5", () => {
+      staffSystemEditor.setDuration(StemType.Sixteenth);
+      updateStaffSystemElement();
+    });
+    trie.addWord("n6", () => {
+      staffSystemEditor.setDuration(StemType.Thirtysecond);
+      updateStaffSystemElement();
+    });
+    trie.addWord("n7", () => {
+      staffSystemEditor.setDuration(StemType.Sixtyfourth);
       updateStaffSystemElement();
     });
 
