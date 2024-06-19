@@ -998,11 +998,6 @@
   dependencies:
     axios "*"
 
-"@types/deep-equal@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@types/deep-equal/-/deep-equal-1.0.4.tgz#c0a854be62d6b9fae665137a6639aab53389a147"
-  integrity sha512-tqdiS4otQP4KmY0PR3u6KbZ5EWvhNdUoS/jc93UuK23C220lOZ/9TvjfxdPcKvqwwDVtmtSCrnr0p/2dirAxkA==
-
 "@types/node@^20.12.2":
   version "20.12.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.12.2.tgz#9facdd11102f38b21b4ebedd9d7999663343d72e"
@@ -2825,10 +2820,10 @@ uuid@^9.0.1:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
   integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
-vexflow@^4.2.3:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/vexflow/-/vexflow-4.2.3.tgz#2db536297fc97fd1f502cdc042ccc6caefd9bc11"
-  integrity sha512-YiwYhZYuXPKqPfvvIC0QRYS3xnInDjeAxJeAZsQ+njTEE3q10sZMfo7RRGXj40rg7n74AFWdTiN3FymW8qE1Jw==
+vexflow-kme@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/vexflow-kme/-/vexflow-kme-0.0.2.tgz#f5b2f486ec814ad3d7242c969f837c0397a5629b"
+  integrity sha512-W3fi4gxqI8ZvMciNA1YnLorp+kbN9WhPZGgkO+WnSMTrs+io2Y+FL97XvrZNS6OsgTbinv9tawPy368YLoLlog==
 
 vm-browserify@^1.1.2:
   version "1.1.2"

@@ -5,7 +5,7 @@ import type {
   StemmableNote,
   StaveConnectorType as VexStaveConnectorType,
   Voice as VexVoice,
-} from "vexflow";
+} from "vexflow-kme";
 import type { Grouping } from "../model/grouping";
 import {
   Clef,

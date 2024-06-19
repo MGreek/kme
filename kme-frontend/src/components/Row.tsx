@@ -3,11 +3,10 @@ import { v4 as uuidv4 } from "uuid";
 import {
   BarlineType,
   BoundingBox,
-  ClefNote,
   Factory,
   type System,
   type Voice as VexVoice,
-} from "vexflow";
+} from "vexflow-kme";
 import type { Staff } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
 import { parseStaffSystemMetadata } from "../util/metadata";

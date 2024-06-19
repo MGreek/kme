@@ -27,7 +27,6 @@
   "devDependencies": {
     "@biomejs/biome": "1.6.4",
     "@types/axios": "^0.14.0",
-    "@types/deep-equal": "^1.0.4",
     "@types/node": "^20.12.2",
     "@types/react": "^18.2.73",
     "@types/react-dom": "^18.2.23",
@@ -53,6 +52,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "uuid": "^9.0.1",
-    "vexflow": "^4.2.3"
+    "vexflow-kme": "^0.0.2"
   }
 }
