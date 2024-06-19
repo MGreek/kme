@@ -71,7 +71,6 @@ export default function Row({
           for (const staffVoice of staffVoices) {
             if (prevMeasure != null) {
               if (prevMeasure.keySignature !== measure.keySignature) {
-                // TODO: fork vexflow to add extra clef feature for KeySignature and KeySigNote
                 staffVoice.addTickable(
                   factory.KeySigNote({
                     key: getKeySignatureNameFromKeySignature(
@@ -80,6 +79,7 @@ export default function Row({
                     cancelKey: getKeySignatureNameFromKeySignature(
                       prevMeasure.keySignature,
                     ),
+                    overrideClef: getClefNameFromClef(measure.clef),
                   }),
                 );
               }
@@ -143,7 +143,6 @@ export default function Row({
           continue;
         }
         if (measure.keySignature !== prevMeasure.keySignature) {
-          // TODO: fork vexflow to add extra clef feature for KeySignature and KeySigNote
           stave.addKeySignature(
             getKeySignatureNameFromKeySignature(measure.keySignature),
             getKeySignatureNameFromKeySignature(prevMeasure.keySignature),
