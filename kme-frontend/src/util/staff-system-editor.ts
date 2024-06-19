@@ -1,5 +1,5 @@
 import type { GroupingEntry } from "../model/grouping-entry";
-import type { Note } from "../model/note";
+import { Accidental, type Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
 import {
@@ -19,6 +19,8 @@ import {
   getPreviousCursor,
   getStaffSystemMeasureCount,
   insertEmptyMeasure,
+  restTypeToStemType,
+  stemTypeToRestType,
   syncIds,
 } from "./misc";
 import { requireNotNull } from "./require-not-null";
@@ -299,5 +301,46 @@ export class StaffSystemEditor {
 
   public insertRow(measureIndex: number) {
     insertEmptyMeasure(this.staffSystem, measureIndex);
+  }
+
+  public toggleType() {
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    if ("restId" in this.cursor) {
+      groupingEntry.chord = {
+        chordId: { groupingEntryId: groupingEntry.groupingEntryId },
+        stem: {
+          stemType: restTypeToStemType(this.cursor.restType),
+          metadataJson: "",
+        },
+        dotCount: 0,
+        metadataJson: "",
+        notes: [
+          {
+            noteId: {
+              chordId: { groupingEntryId: groupingEntry.groupingEntryId },
+              position: this.cursor.position,
+            },
+            accidental: Accidental.None,
+            metadataJson: "",
+          },
+        ],
+      };
+      groupingEntry.rest = null;
+      this.cursor = requireNotNull(groupingEntry.chord.notes.at(0));
+      this.setCursorHightlight(true);
+    } else {
+      const chord = requireNotNull(
+        getChordById(this.staffSystem, this.cursor.noteId.chordId),
+      );
+      groupingEntry.rest = {
+        restId: { groupingEntryId: groupingEntry.groupingEntryId },
+        restType: stemTypeToRestType(chord.stem.stemType),
+        position: this.cursor.noteId.position,
+        metadataJson: "",
+      };
+      groupingEntry.chord = null;
+      this.cursor = groupingEntry.rest;
+      this.setCursorHightlight(true);
+    }
   }
 }
