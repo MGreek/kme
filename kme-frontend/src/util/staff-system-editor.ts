@@ -2,7 +2,7 @@ import type { GroupingEntry } from "../model/grouping-entry";
 import { Accidental, type Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
-import { StemType } from "../model/stem";
+import type { StemType } from "../model/stem";
 import {
   parseNoteMetadata,
   parseRestMetadata,
@@ -377,8 +377,31 @@ export class StaffSystemEditor {
         groupingEntry.groupingEntryId.groupingId,
       ),
     );
+    // no measures left and right; no entries left and right in this voice
     if (!this.moveCursorLeft() && !this.moveCursorRight()) {
-      throw new Error("Cursor should be able to move somewhere.");
+      // find the voice to the left; if nothing is found then search to the right
+      const voiceIndex =
+        groupingEntry.groupingEntryId.groupingId.voiceId.voicesOrder;
+      const nextVoiceIndex =
+        (voiceIndex - 1 + measure.voices.length) % measure.voices.length;
+      if (nextVoiceIndex === voiceIndex) {
+        throw new Error("Cursor should be able to move somewhere.");
+      }
+      // find the first `GroupingEntry` in the newly found voice
+      // set the cursor to this `GroupingEntry`
+      const nextGroupingEntry = requireNotNull(
+        measure.voices
+          .at(nextVoiceIndex)
+          ?.groupings.at(0)
+          ?.groupingEntries.at(0),
+      );
+      this.cursor =
+        nextGroupingEntry.rest ??
+        requireNotNull(
+          nextGroupingEntry.chord?.notes.at(0),
+          "Found empty grouping entry or chord",
+        );
+      this.setCursorHightlight(true);
     }
     grouping.groupingEntries.splice(
       groupingEntry.groupingEntryId.groupingEntriesOrder,
