@@ -1,10 +1,11 @@
-import type {
-  Beam,
-  Factory,
-  Modifier,
-  StemmableNote,
-  StaveConnectorType as VexStaveConnectorType,
-  Voice as VexVoice,
+import {
+  type Beam,
+  type Factory,
+  type Modifier,
+  ModifierPosition,
+  type StemmableNote,
+  type StaveConnectorType as VexStaveConnectorType,
+  type Voice as VexVoice,
 } from "vexflow-kme";
 import type { Grouping } from "../model/grouping";
 import {
@@ -13,13 +14,13 @@ import {
   type Measure,
   TimeSignature,
 } from "../model/measure";
+import { Accidental } from "../model/note";
 import { RestType } from "../model/rest";
 import { ConnectorType } from "../model/staff-system";
 import { StemType } from "../model/stem";
 import type { Voice } from "../model/voice";
 import { parseNoteMetadata, parseRestMetadata } from "./metadata";
 import { requireNotNull } from "./require-not-null";
-import { Accidental } from "../model/note";
 
 export function getDurationFromRestType(restType: RestType): string {
   switch (restType) {
@@ -227,7 +228,6 @@ export function getVexStemmableNotesFromGrouping(
               highlightColor[Math.min(highlightColor.length - 1, voiceIndex)],
           });
         }
-
         const accidental = getAccidentalNameFromAccidental(note.accidental);
         if (accidental !== "") {
           const vexAccidental = factory
