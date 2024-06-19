@@ -68,7 +68,7 @@ export default function Editor({
       staffSystemEditor.decreaseCursorStaff();
       updateStaffSystemElement();
     });
-    trie.addWord("md", () => {
+    trie.addWord("mx", () => {
       staffSystemEditor.removeMeasures();
       updateStaffSystemElement();
     });
@@ -118,7 +118,7 @@ export default function Editor({
       );
       updateStaffSystemElement();
     });
-    trie.addWord("nt", () => {
+    trie.addWord("nc", () => {
       staffSystemEditor.toggleType();
       updateStaffSystemElement();
     });
