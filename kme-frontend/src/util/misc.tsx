@@ -2,13 +2,14 @@ import type { Chord, ChordId } from "../model/chord";
 import type { Grouping, GroupingId } from "../model/grouping";
 import type { GroupingEntry, GroupingEntryId } from "../model/grouping-entry";
 import {
-  TimeSignature,
+  Clef,
   KeySignature,
   type Measure,
-  Clef,
+  type MeasureId,
+  TimeSignature,
 } from "../model/measure";
 import type { Note } from "../model/note";
-import { RestType, type Rest } from "../model/rest";
+import { type Rest, RestType } from "../model/rest";
 import type { StaffId } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
 import type { Voice, VoiceId } from "../model/voice";
@@ -322,7 +323,7 @@ export function equalMeasureIds(
 ): boolean {
   return (
     firstId.staffId.staffSystemId.staffSystemId ===
-    secondId.staffId.staffSystemId.staffSystemId &&
+      secondId.staffId.staffSystemId.staffSystemId &&
     firstId.staffId.stavesOrder === secondId.staffId.stavesOrder &&
     firstId.measuresOrder === secondId.measuresOrder
   );
@@ -389,14 +390,14 @@ export function equalGroupingEntryIds(
   // PERF: don't use deepCopy because it's too slow!!!
   return (
     firstId.groupingId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
-    secondId.groupingId.voiceId.measureId.staffId.staffSystemId
-      .staffSystemId &&
+      secondId.groupingId.voiceId.measureId.staffId.staffSystemId
+        .staffSystemId &&
     firstId.groupingId.voiceId.measureId.staffId.stavesOrder ===
-    secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
+      secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
     firstId.groupingId.voiceId.measureId.measuresOrder ===
-    secondId.groupingId.voiceId.measureId.measuresOrder &&
+      secondId.groupingId.voiceId.measureId.measuresOrder &&
     firstId.groupingId.voiceId.voicesOrder ===
-    secondId.groupingId.voiceId.voicesOrder &&
+      secondId.groupingId.voiceId.voicesOrder &&
     firstId.groupingId.groupingsOrder === secondId.groupingId.groupingsOrder &&
     firstId.groupingEntriesOrder === secondId.groupingEntriesOrder
   );
@@ -408,11 +409,11 @@ export function equalGroupingIds(
 ): boolean {
   return (
     firstId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
-    secondId.voiceId.measureId.staffId.staffSystemId.staffSystemId &&
+      secondId.voiceId.measureId.staffId.staffSystemId.staffSystemId &&
     firstId.voiceId.measureId.staffId.stavesOrder ===
-    secondId.voiceId.measureId.staffId.stavesOrder &&
+      secondId.voiceId.measureId.staffId.stavesOrder &&
     firstId.voiceId.measureId.measuresOrder ===
-    secondId.voiceId.measureId.measuresOrder &&
+      secondId.voiceId.measureId.measuresOrder &&
     firstId.voiceId.voicesOrder === secondId.voiceId.voicesOrder &&
     firstId.groupingsOrder === secondId.groupingsOrder
   );

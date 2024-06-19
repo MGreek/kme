@@ -252,9 +252,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[prevMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -273,9 +273,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[nextMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
