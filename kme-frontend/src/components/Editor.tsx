@@ -154,6 +154,14 @@ export default function Editor({
       staffSystemEditor.deleteNote();
       updateStaffSystemElement();
     });
+    trie.addWord("nb", () => {
+      staffSystemEditor.insertNoteBottom();
+      updateStaffSystemElement();
+    });
+    trie.addWord("nt", () => {
+      staffSystemEditor.insertNoteTop();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);

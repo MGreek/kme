@@ -409,4 +409,46 @@ export class StaffSystemEditor {
     );
     pruneStaffSystem(this.staffSystem);
   }
+
+  static readonly MAX_CHORD_NOTES = 10;
+
+  public insertNoteBottom() {
+    if ("restId" in this.cursor) {
+      return;
+    }
+
+    const chord = requireNotNull(
+      getChordById(this.staffSystem, this.cursor.noteId.chordId),
+    );
+    const bottomPosition = chord.notes
+      .map((note) => note.noteId.position)
+      .reduce((prev, crt) => Math.min(prev, crt));
+    if (chord.notes.length < StaffSystemEditor.MAX_CHORD_NOTES) {
+      chord.notes.push({
+        noteId: { chordId: chord.chordId, position: bottomPosition - 1 },
+        accidental: Accidental.None,
+        metadataJson: "",
+      });
+    }
+  }
+
+  public insertNoteTop() {
+    if ("restId" in this.cursor) {
+      return;
+    }
+
+    const chord = requireNotNull(
+      getChordById(this.staffSystem, this.cursor.noteId.chordId),
+    );
+    const topPosition = chord.notes
+      .map((note) => note.noteId.position)
+      .reduce((prev, crt) => Math.max(prev, crt));
+    if (chord.notes.length < StaffSystemEditor.MAX_CHORD_NOTES) {
+      chord.notes.push({
+        noteId: { chordId: chord.chordId, position: topPosition + 1 },
+        accidental: Accidental.None,
+        metadataJson: "",
+      });
+    }
+  }
 }
