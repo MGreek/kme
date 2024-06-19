@@ -12,6 +12,7 @@ import type { Note } from "../model/note";
 import { type Rest, RestType } from "../model/rest";
 import type { StaffId } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
+import { StemType } from "../model/stem";
 import type { Voice, VoiceId } from "../model/voice";
 import { parseRestMetadata, parseStaffSystemMetadata } from "./metadata";
 import { requireNotNull } from "./require-not-null";
@@ -459,4 +460,46 @@ export function setRestHighlight(
   const restMetadata = parseRestMetadata(groupingEntry.rest);
   restMetadata.highlight = highlight;
   groupingEntry.rest.metadataJson = JSON.stringify(restMetadata);
+}
+
+export function restTypeToStemType(restType: RestType): StemType {
+  switch (restType) {
+    case RestType.Whole:
+      return StemType.Whole;
+    case RestType.Half:
+      return StemType.Half;
+    case RestType.Quarter:
+      return StemType.Quarter;
+    case RestType.Eight:
+      return StemType.Eight;
+    case RestType.Sixteenth:
+      return StemType.Sixteenth;
+    case RestType.Thirtysecond:
+      return StemType.Thirtysecond;
+    case RestType.Sixtyfourth:
+      return StemType.Sixtyfourth;
+    default:
+      throw new Error("Unknown rest type");
+  }
+}
+
+export function stemTypeToRestType(stemType: StemType): RestType {
+  switch (stemType) {
+    case StemType.Whole:
+      return RestType.Whole;
+    case StemType.Half:
+      return RestType.Half;
+    case StemType.Quarter:
+      return RestType.Quarter;
+    case StemType.Eight:
+      return RestType.Eight;
+    case StemType.Sixteenth:
+      return RestType.Sixteenth;
+    case StemType.Thirtysecond:
+      return RestType.Thirtysecond;
+    case StemType.Sixtyfourth:
+      return RestType.Sixtyfourth;
+    default:
+      throw new Error("Unknown stem type");
+  }
 }
