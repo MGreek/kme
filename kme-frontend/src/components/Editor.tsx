@@ -117,6 +117,10 @@ export default function Editor({
       );
       updateStaffSystemElement();
     });
+    trie.addWord("nt", () => {
+      staffSystemEditor.toggleType();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);
