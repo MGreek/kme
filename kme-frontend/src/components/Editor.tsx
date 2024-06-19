@@ -150,6 +150,10 @@ export default function Editor({
       staffSystemEditor.setDuration(StemType.Sixtyfourth);
       updateStaffSystemElement();
     });
+    trie.addWord("nx", () => {
+      staffSystemEditor.deleteNote();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);

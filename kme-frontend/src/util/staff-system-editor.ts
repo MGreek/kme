@@ -13,6 +13,7 @@ import {
   getCursorFromGroupingEntry,
   getCursorGroupingEntry,
   getCursorMeasure,
+  getGroupingById,
   getGroupingEntries,
   getGroupingEntryById,
   getMeasureById,
@@ -20,6 +21,7 @@ import {
   getPreviousCursor,
   getStaffSystemMeasureCount,
   insertEmptyMeasure,
+  pruneStaffSystem,
   restTypeToStemType,
   stemTypeToRestType,
   syncIds,
@@ -172,22 +174,26 @@ export class StaffSystemEditor {
     this.setCursorHightlight(true);
   }
 
-  public moveCursorLeft() {
+  public moveCursorLeft(): boolean {
     const prevCursor = getPreviousCursor(this.staffSystem, this.cursor);
     if (prevCursor != null) {
       this.setCursorHightlight(false);
       this.cursor = prevCursor;
       this.setCursorHightlight(true);
+      return true;
     }
+    return false;
   }
 
-  public moveCursorRight() {
+  public moveCursorRight(): boolean {
     const nextCursor = getNextCursor(this.staffSystem, this.cursor);
     if (nextCursor != null) {
       this.setCursorHightlight(false);
       this.cursor = nextCursor;
       this.setCursorHightlight(true);
+      return true;
     }
+    return false;
   }
 
   public removeMeasures() {
@@ -354,5 +360,30 @@ export class StaffSystemEditor {
       );
       chord.stem.stemType = stemType;
     }
+  }
+
+  public deleteNote() {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    const groupingEntries = measure.voices
+      .flatMap((measure) => measure.groupings)
+      .flatMap((grouping) => grouping.groupingEntries);
+    if (groupingEntries.length <= 1) {
+      return;
+    }
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const grouping = requireNotNull(
+      getGroupingById(
+        this.staffSystem,
+        groupingEntry.groupingEntryId.groupingId,
+      ),
+    );
+    if (!this.moveCursorLeft() && !this.moveCursorRight()) {
+      throw new Error("Cursor should be able to move somewhere.");
+    }
+    grouping.groupingEntries.splice(
+      groupingEntry.groupingEntryId.groupingEntriesOrder,
+      1,
+    );
+    pruneStaffSystem(this.staffSystem);
   }
 }
