@@ -2,6 +2,7 @@ import type { GroupingEntry } from "../model/grouping-entry";
 import { Accidental, type Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
+import { StemType } from "../model/stem";
 import {
   parseNoteMetadata,
   parseRestMetadata,
@@ -254,9 +255,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[prevMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -275,9 +276,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[nextMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -341,6 +342,17 @@ export class StaffSystemEditor {
       groupingEntry.chord = null;
       this.cursor = groupingEntry.rest;
       this.setCursorHightlight(true);
+    }
+  }
+
+  public setDuration(stemType: StemType) {
+    if ("restId" in this.cursor) {
+      this.cursor.restType = stemTypeToRestType(stemType);
+    } else {
+      const chord = requireNotNull(
+        getChordById(this.staffSystem, this.cursor.noteId.chordId),
+      );
+      chord.stem.stemType = stemType;
     }
   }
 }
