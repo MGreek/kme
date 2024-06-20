@@ -280,6 +280,19 @@ export function getCursorGroupingEntry(
   return requireNotNull(getGroupingEntryById(staffSystem, groupingEntryId));
 }
 
+export function getCursorGrouping(
+  staffSystem: StaffSystem,
+  cursor: Rest | Note,
+) {
+  let groupingId = null;
+  if ("restId" in cursor) {
+    groupingId = cursor.restId.groupingEntryId.groupingId;
+  } else {
+    groupingId = cursor.noteId.chordId.groupingEntryId.groupingId;
+  }
+  return requireNotNull(getGroupingById(staffSystem, groupingId));
+}
+
 export function getCursorMeasure(
   staffSystem: StaffSystem,
   cursor: Rest | Note,
