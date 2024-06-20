@@ -9,6 +9,7 @@ import {
   parseStaffSystemMetadata,
 } from "./metadata";
 import {
+  appendVoice,
   getChordById,
   getCursorFromGroupingEntry,
   getCursorGroupingEntry,
@@ -449,6 +450,15 @@ export class StaffSystemEditor {
         accidental: Accidental.None,
         metadataJson: "",
       });
+    }
+  }
+
+  static readonly MAX_VOICES = 4;
+
+  public appendVoice() {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    if (measure.voices.length < StaffSystemEditor.MAX_VOICES) {
+      appendVoice(measure);
     }
   }
 }

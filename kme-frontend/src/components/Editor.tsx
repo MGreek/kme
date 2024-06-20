@@ -162,6 +162,10 @@ export default function Editor({
       staffSystemEditor.insertNoteTop();
       updateStaffSystemElement();
     });
+    trie.addWord("nv", () => {
+      staffSystemEditor.appendVoice();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);

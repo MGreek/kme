@@ -121,6 +121,54 @@ export function insertEmptyMeasure(staffSystem: StaffSystem, index: number) {
   syncIds(staffSystem);
 }
 
+export function appendVoice(measure: Measure) {
+  let restPosition = null;
+  switch (measure.clef) {
+    case Clef.Treble:
+      restPosition = 8;
+      break;
+    case Clef.Alto:
+    case Clef.Bass:
+      restPosition = -6;
+      break;
+    default:
+      throw new Error("Unknown clef");
+  }
+  const rest: Rest = {
+    restId: {
+      groupingEntryId: {
+        groupingId: {
+          voiceId: {
+            measureId: measure.measureId,
+            voicesOrder: measure.voices.length,
+          },
+          groupingsOrder: 0,
+        },
+        groupingEntriesOrder: 0,
+      },
+    },
+    restType: RestType.Whole,
+    position: restPosition,
+    metadataJson: "",
+  };
+  const groupingEntry: GroupingEntry = {
+    groupingEntryId: rest.restId.groupingEntryId,
+    chord: null,
+    rest,
+  };
+  const grouping: Grouping = {
+    groupingId: groupingEntry.groupingEntryId.groupingId,
+    metadataJson: "",
+    groupingEntries: [groupingEntry],
+  };
+  const voice: Voice = {
+    voiceId: grouping.groupingId.voiceId,
+    metadataJson: "",
+    groupings: [grouping],
+  };
+  measure.voices.push(voice);
+}
+
 export function getStaffSystemMeasureCount(staffSystem: StaffSystem) {
   if (staffSystem.staves.length === 0) {
     return 0;
