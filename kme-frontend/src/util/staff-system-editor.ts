@@ -370,7 +370,7 @@ export class StaffSystemEditor {
     }
   }
 
-  public insertRow(measureIndex: number) {
+  public insertMeasure(measureIndex: number) {
     insertEmptyMeasure(this.staffSystem, measureIndex);
   }
 

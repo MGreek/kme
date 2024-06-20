@@ -114,8 +114,8 @@ export default function Editor({
       staffSystemEditor.moveCursorPosition(4);
       updateStaffSystemElement();
     });
-    trie.addWord("rn", () => {
-      staffSystemEditor.insertRow(
+    trie.addWord("ma", () => {
+      staffSystemEditor.insertMeasure(
         staffSystemEditor.getStaffSystemMeasureCount(),
       );
       updateStaffSystemElement();
