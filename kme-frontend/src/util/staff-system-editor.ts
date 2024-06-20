@@ -22,6 +22,7 @@ import {
   getGroupingEntryById,
   getMeasureById,
   getNextCursor,
+  getNoteById,
   getPreviousCursor,
   getStaffSystemMeasureCount,
   insertEmptyMeasure,
@@ -162,6 +163,38 @@ export class StaffSystemEditor {
       this.setCursorOnGroupingEntry(nextGroupingEntry);
     }
 
+    this.setCursorHightlight(true);
+  }
+
+  public increaseCursorNote() {
+    if ("restId" in this.cursor) {
+      return;
+    }
+    const nextNote = getNoteById(this.staffSystem, {
+      chordId: this.cursor.noteId.chordId,
+      position: this.cursor.noteId.position + 1,
+    });
+    if (nextNote == null) {
+      return;
+    }
+    this.setCursorHightlight(false);
+    this.cursor = nextNote;
+    this.setCursorHightlight(true);
+  }
+
+  public decreaseCursorNote() {
+    if ("restId" in this.cursor) {
+      return;
+    }
+    const prevNote = getNoteById(this.staffSystem, {
+      chordId: this.cursor.noteId.chordId,
+      position: this.cursor.noteId.position - 1,
+    });
+    if (prevNote == null) {
+      return;
+    }
+    this.setCursorHightlight(false);
+    this.cursor = prevNote;
     this.setCursorHightlight(true);
   }
 
@@ -567,5 +600,12 @@ export class StaffSystemEditor {
     voice.groupings.splice(firstHalf.groupingId.groupingsOrder, 2, whole);
     syncIds(this.staffSystem);
     this.setCursorHightlight(true);
+  }
+
+  public setAccidental(accidental: Accidental) {
+    if ("restId" in this.cursor) {
+      return;
+    }
+    this.cursor.accidental = accidental;
   }
 }

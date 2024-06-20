@@ -7,6 +7,7 @@ import { StaffSystemEditor } from "../util/staff-system-editor";
 import StaffSystemElement from "./StaffSystemElement";
 import { StemType } from "../model/stem";
 import { Clef, KeySignature, TimeSignature } from "../model/measure";
+import { Accidental } from "../model/note";
 
 export default function Editor({
   pagePadding,
@@ -165,6 +166,38 @@ export default function Editor({
     });
     trie.addWord("nv", () => {
       staffSystemEditor.appendVoice();
+      updateStaffSystemElement();
+    });
+    trie.addWord("nqdf", () => {
+      staffSystemEditor.setAccidental(Accidental.DoubleFlat);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nqf", () => {
+      staffSystemEditor.setAccidental(Accidental.Flat);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nqx", () => {
+      staffSystemEditor.setAccidental(Accidental.None);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nqn", () => {
+      staffSystemEditor.setAccidental(Accidental.Natural);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nqs", () => {
+      staffSystemEditor.setAccidental(Accidental.Sharp);
+      updateStaffSystemElement();
+    });
+    trie.addWord("nqds", () => {
+      staffSystemEditor.setAccidental(Accidental.DoubleSharp);
+      updateStaffSystemElement();
+    });
+    trie.addWord("ck", () => {
+      staffSystemEditor.increaseCursorNote();
+      updateStaffSystemElement();
+    });
+    trie.addWord("cj", () => {
+      staffSystemEditor.decreaseCursorNote();
       updateStaffSystemElement();
     });
     trie.addWord("mcb", () => {
