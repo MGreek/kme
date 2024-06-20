@@ -1,4 +1,5 @@
 import type { GroupingEntry } from "../model/grouping-entry";
+import type { Clef, KeySignature, TimeSignature } from "../model/measure";
 import { Accidental, type Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { StaffSystem } from "../model/staff-system";
@@ -460,5 +461,20 @@ export class StaffSystemEditor {
     if (measure.voices.length < StaffSystemEditor.MAX_VOICES) {
       appendVoice(measure);
     }
+  }
+
+  public setClef(clef: Clef) {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    measure.clef = clef;
+  }
+
+  public setKeySignature(keySignature: KeySignature) {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    measure.keySignature = keySignature;
+  }
+
+  public setTimeSignature(timeSignature: TimeSignature) {
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    measure.timeSignature = timeSignature;
   }
 }

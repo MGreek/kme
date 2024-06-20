@@ -6,6 +6,7 @@ import { requireNotNull } from "../util/require-not-null";
 import { StaffSystemEditor } from "../util/staff-system-editor";
 import StaffSystemElement from "./StaffSystemElement";
 import { StemType } from "../model/stem";
+import { Clef, KeySignature, TimeSignature } from "../model/measure";
 
 export default function Editor({
   pagePadding,
@@ -164,6 +165,64 @@ export default function Editor({
     });
     trie.addWord("nv", () => {
       staffSystemEditor.appendVoice();
+      updateStaffSystemElement();
+    });
+    trie.addWord("mcb", () => {
+      staffSystemEditor.setClef(Clef.Bass);
+      updateStaffSystemElement();
+    });
+    trie.addWord("mca", () => {
+      staffSystemEditor.setClef(Clef.Alto);
+      updateStaffSystemElement();
+    });
+    trie.addWord("mct", () => {
+      staffSystemEditor.setClef(Clef.Treble);
+      updateStaffSystemElement();
+    });
+    trie.addWord("mkn", () => {
+      staffSystemEditor.setKeySignature(KeySignature.None);
+      updateStaffSystemElement();
+    });
+    const sharps = [
+      KeySignature.Sharp1,
+      KeySignature.Sharp2,
+      KeySignature.Sharp3,
+      KeySignature.Sharp4,
+      KeySignature.Sharp5,
+      KeySignature.Sharp6,
+      KeySignature.Sharp7,
+    ];
+    const flats = [
+      KeySignature.Flat1,
+      KeySignature.Flat2,
+      KeySignature.Flat3,
+      KeySignature.Flat4,
+      KeySignature.Flat5,
+      KeySignature.Flat6,
+      KeySignature.Flat7,
+    ];
+    for (let index = 0; index < sharps.length; index++) {
+      const sharp = requireNotNull(sharps[index]);
+      const flat = requireNotNull(flats[index]);
+      trie.addWord(`mks${index + 1}`, () => {
+        staffSystemEditor.setKeySignature(sharp);
+        updateStaffSystemElement();
+      });
+      trie.addWord(`mkf${index + 1}`, () => {
+        staffSystemEditor.setKeySignature(flat);
+        updateStaffSystemElement();
+      });
+    }
+    trie.addWord("mt24", () => {
+      staffSystemEditor.setTimeSignature(TimeSignature.TwoFour);
+      updateStaffSystemElement();
+    });
+    trie.addWord("mt34", () => {
+      staffSystemEditor.setTimeSignature(TimeSignature.ThreeFour);
+      updateStaffSystemElement();
+    });
+    trie.addWord("mt44", () => {
+      staffSystemEditor.setTimeSignature(TimeSignature.FourFour);
       updateStaffSystemElement();
     });
 
