@@ -1,7 +1,13 @@
 import type { GroupingEntry } from "../model/grouping-entry";
-import type { Clef, KeySignature, TimeSignature } from "../model/measure";
+import type {
+  Clef,
+  KeySignature,
+  Measure,
+  TimeSignature,
+} from "../model/measure";
 import { Accidental, type Note } from "../model/note";
 import type { Rest } from "../model/rest";
+import type { Staff } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
 import type { StemType } from "../model/stem";
 import {
@@ -28,6 +34,7 @@ import {
   getPreviousCursor,
   getStaffById,
   getStaffSystemMeasureCount,
+  getWholeRestMeasure,
   insertEmptyMeasure,
   pruneStaffSystem,
   restTypeToStemType,
@@ -127,44 +134,52 @@ export class StaffSystemEditor {
     return getStaffSystemMeasureCount(this.staffSystem);
   }
 
+  public getStaffCount(): number {
+    return this.staffSystem.staves.length;
+  }
+
   public increaseCursorStaff() {
-    this.setCursorHightlight(false);
-    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
-    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
-    nextGroupingEntryId.groupingEntriesOrder = 0;
-    nextGroupingEntryId.groupingId.groupingsOrder = 0;
-    nextGroupingEntryId.groupingId.voiceId.voicesOrder = 0;
-    nextGroupingEntryId.groupingId.voiceId.measureId.staffId.stavesOrder += 1;
-
-    const nextGroupingEntry = getGroupingEntryById(
-      this.staffSystem,
-      nextGroupingEntryId,
-    );
-
-    if (nextGroupingEntry != null) {
-      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    const staff = getCursorStaff(this.staffSystem, this.cursor);
+    const nextStaff = getStaffById(this.staffSystem, {
+      staffSystemId: staff.staffId.staffSystemId,
+      stavesOrder: staff.staffId.stavesOrder + 1,
+    });
+    if (nextStaff == null) {
+      return;
     }
+    this.setCursorHightlight(false);
+    this.setCursorOnGroupingEntry(
+      requireNotNull(
+        nextStaff.measures
+          .at(0)
+          ?.voices.at(0)
+          ?.groupings.at(0)
+          ?.groupingEntries.at(0),
+      ),
+    );
 
     this.setCursorHightlight(true);
   }
 
   public decreaseCursorStaff() {
-    this.setCursorHightlight(false);
-    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
-    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
-    nextGroupingEntryId.groupingEntriesOrder = 0;
-    nextGroupingEntryId.groupingId.groupingsOrder = 0;
-    nextGroupingEntryId.groupingId.voiceId.voicesOrder = 0;
-    nextGroupingEntryId.groupingId.voiceId.measureId.staffId.stavesOrder -= 1;
-
-    const nextGroupingEntry = getGroupingEntryById(
-      this.staffSystem,
-      nextGroupingEntryId,
-    );
-
-    if (nextGroupingEntry != null) {
-      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    const staff = getCursorStaff(this.staffSystem, this.cursor);
+    const prevStaff = getStaffById(this.staffSystem, {
+      staffSystemId: staff.staffId.staffSystemId,
+      stavesOrder: staff.staffId.stavesOrder - 1,
+    });
+    if (prevStaff == null) {
+      return;
     }
+    this.setCursorHightlight(false);
+    this.setCursorOnGroupingEntry(
+      requireNotNull(
+        prevStaff.measures
+          .at(0)
+          ?.voices.at(0)
+          ?.groupings.at(0)
+          ?.groupingEntries.at(0),
+      ),
+    );
 
     this.setCursorHightlight(true);
   }
@@ -712,5 +727,29 @@ export class StaffSystemEditor {
     );
     this.setCursorHightlight(true);
     this.staffSystem.staves.splice(staff.staffId.stavesOrder, 1);
+  }
+
+  static readonly MAX_STAVES = 4;
+
+  public insertStaff(staffIndex: number) {
+    if (this.staffSystem.staves.length >= StaffSystemEditor.MAX_STAVES) {
+      return;
+    }
+    const measureCount = getStaffSystemMeasureCount(this.staffSystem);
+    const staffId = {
+      staffSystemId: this.staffSystem.staffSystemId,
+      stavesOrder: staffIndex,
+    };
+    const measures = [];
+    for (let index = 0; index < measureCount; index++) {
+      measures.push(getWholeRestMeasure(null, staffId));
+    }
+    const staff: Staff = {
+      staffId,
+      metadataJson: "",
+      measures,
+    };
+    this.staffSystem.staves.splice(staffIndex, 0, staff);
+    syncIds(this.staffSystem);
   }
 }

@@ -58,7 +58,7 @@ function getWholeNoteRestInVoice(
 }
 
 // NOTE: `syncIds` after this since the id will be a placeholder
-function getWholeRestMeasure(
+export function getWholeRestMeasure(
   template: Measure | null,
   staffId: StaffId,
 ): Measure {

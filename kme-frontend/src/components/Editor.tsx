@@ -236,6 +236,10 @@ export default function Editor({
       staffSystemEditor.deleteStaff();
       updateStaffSystemElement();
     });
+    trie.addWord("sa", () => {
+      staffSystemEditor.insertStaff(staffSystemEditor.getStaffCount());
+      updateStaffSystemElement();
+    });
     const sharps = [
       KeySignature.Sharp1,
       KeySignature.Sharp2,
