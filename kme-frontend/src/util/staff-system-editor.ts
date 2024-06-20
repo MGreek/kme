@@ -364,6 +364,7 @@ export class StaffSystemEditor {
     }
   }
 
+  // FIX: this should only delete a note not a whole chord
   public deleteNote() {
     const measure = getCursorMeasure(this.staffSystem, this.cursor);
     const groupingEntries = measure.voices
