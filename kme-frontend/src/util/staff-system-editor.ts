@@ -426,53 +426,56 @@ export class StaffSystemEditor {
     }
   }
 
-  // FIX: this should only delete a note not a whole chord
   public deleteNote() {
     const measure = getCursorMeasure(this.staffSystem, this.cursor);
-    const groupingEntries = measure.voices
-      .flatMap((measure) => measure.groupings)
-      .flatMap((grouping) => grouping.groupingEntries);
-    if (groupingEntries.length <= 1) {
+    const prevCursor = getPreviousCursor(this.staffSystem, this.cursor);
+    const nextCursor = getNextCursor(this.staffSystem, this.cursor);
+    if (
+      measure.voices
+        .flatMap((v) => v.groupings)
+        .flatMap((g) => g.groupingEntries).length === 1
+    ) {
       return;
     }
+    this.setCursorHightlight(false);
     const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
-    const grouping = requireNotNull(
-      getGroupingById(
-        this.staffSystem,
-        groupingEntry.groupingEntryId.groupingId,
-      ),
-    );
-    // no measures left and right; no entries left and right in this voice
-    if (!this.moveCursorLeft() && !this.moveCursorRight()) {
-      // find the voice to the left; if nothing is found then search to the right
-      const voiceIndex =
-        groupingEntry.groupingEntryId.groupingId.voiceId.voicesOrder;
-      const nextVoiceIndex =
-        (voiceIndex - 1 + measure.voices.length) % measure.voices.length;
-      if (nextVoiceIndex === voiceIndex) {
-        throw new Error("Cursor should be able to move somewhere.");
-      }
-      // find the first `GroupingEntry` in the newly found voice
-      // set the cursor to this `GroupingEntry`
-      const nextGroupingEntry = requireNotNull(
-        measure.voices
-          .at(nextVoiceIndex)
-          ?.groupings.at(0)
-          ?.groupingEntries.at(0),
+    if ("restId" in this.cursor) {
+      groupingEntry.rest = null;
+    } else {
+      const cursorNote = this.cursor;
+      const chord = requireNotNull(groupingEntry.chord);
+      chord.notes = chord.notes.filter(
+        (note) => note.noteId.position !== cursorNote.noteId.position,
       );
-      this.cursor =
-        nextGroupingEntry.rest ??
-        requireNotNull(
-          nextGroupingEntry.chord?.notes.at(0),
-          "Found empty grouping entry or chord",
-        );
-      this.setCursorHightlight(true);
     }
-    grouping.groupingEntries.splice(
-      groupingEntry.groupingEntryId.groupingEntriesOrder,
-      1,
-    );
     pruneStaffSystem(this.staffSystem);
+    let newGroupingEntry = null;
+    if ("noteId" in this.cursor) {
+      const sameGroupingEntry = getGroupingEntryById(
+        this.staffSystem,
+        this.cursor.noteId.chordId.groupingEntryId,
+      );
+      if (sameGroupingEntry != null) {
+        newGroupingEntry = sameGroupingEntry;
+      }
+    }
+    if (newGroupingEntry == null) {
+      newGroupingEntry = measure.voices
+        .at(0)
+        ?.groupings.at(0)
+        ?.groupingEntries.at(0);
+    }
+    if (newGroupingEntry != null) {
+      this.setCursorOnGroupingEntry(newGroupingEntry);
+    } else {
+      this.cursor =
+        prevCursor ??
+        requireNotNull(
+          nextCursor,
+          "One of prevCursor or nextCursor should exist",
+        );
+    }
+    this.setCursorHightlight(true);
   }
 
   static readonly MAX_CHORD_NOTES = 10;
