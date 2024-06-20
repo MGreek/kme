@@ -10,7 +10,7 @@ import {
 } from "../model/measure";
 import type { Note, NoteId } from "../model/note";
 import { type Rest, RestType } from "../model/rest";
-import type { StaffId } from "../model/staff";
+import type { Staff, StaffId } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
 import { StemType } from "../model/stem";
 import type { Voice, VoiceId } from "../model/voice";
@@ -288,6 +288,10 @@ export function getMeasures(staffSystem: StaffSystem): Measure[] {
   return measures;
 }
 
+export function getStaves(staffSystem: StaffSystem): Staff[] {
+  return staffSystem.staves;
+}
+
 export function getCursorGroupingEntry(
   staffSystem: StaffSystem,
   cursor: Rest | Note,
@@ -336,6 +340,19 @@ export function getCursorMeasure(
       cursor.noteId.chordId.groupingEntryId.groupingId.voiceId.measureId;
   }
   return requireNotNull(getMeasureById(staffSystem, measureId));
+}
+
+export function getCursorStaff(staffSystem: StaffSystem, cursor: Rest | Note) {
+  let staffId = null;
+  if ("restId" in cursor) {
+    staffId =
+      cursor.restId.groupingEntryId.groupingId.voiceId.measureId.staffId;
+  } else {
+    staffId =
+      cursor.noteId.chordId.groupingEntryId.groupingId.voiceId.measureId
+        .staffId;
+  }
+  return requireNotNull(getStaffById(staffSystem, staffId));
 }
 
 export function getCursorFromGroupingEntry(
@@ -454,6 +471,14 @@ export function equalMeasureIds(
   );
 }
 
+export function equalStaffIds(firstId: StaffId, secondId: StaffId): boolean {
+  return (
+    firstId.staffSystemId.staffSystemId ===
+    secondId.staffSystemId.staffSystemId &&
+    firstId.stavesOrder === secondId.stavesOrder
+  );
+}
+
 export function getChords(staffSystem: StaffSystem): Chord[] {
   const chords = staffSystem.staves
     .flatMap((staff) => staff.measures)
@@ -505,6 +530,14 @@ export function getMeasureById(
     measures.filter((m) => equalMeasureIds(m.measureId, measureId)).at(0) ??
     null
   );
+}
+
+export function getStaffById(
+  staffSystem: StaffSystem,
+  staffId: StaffId,
+): Staff | null {
+  const staves = getStaves(staffSystem);
+  return staves.filter((s) => equalStaffIds(s.staffId, staffId)).at(0) ?? null;
 }
 
 export function getVoices(staffSystem: StaffSystem): Voice[] {

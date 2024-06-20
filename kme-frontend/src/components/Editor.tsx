@@ -224,6 +224,18 @@ export default function Editor({
       staffSystemEditor.setKeySignature(KeySignature.None);
       updateStaffSystemElement();
     });
+    trie.addWord("smj", () => {
+      staffSystemEditor.swapStaffDown();
+      updateStaffSystemElement();
+    });
+    trie.addWord("smk", () => {
+      staffSystemEditor.swapStaffUp();
+      updateStaffSystemElement();
+    });
+    trie.addWord("sx", () => {
+      staffSystemEditor.deleteStaff();
+      updateStaffSystemElement();
+    });
     const sharps = [
       KeySignature.Sharp1,
       KeySignature.Sharp2,

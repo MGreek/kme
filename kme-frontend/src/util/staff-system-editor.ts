@@ -16,6 +16,7 @@ import {
   getCursorGrouping,
   getCursorGroupingEntry,
   getCursorMeasure,
+  getCursorStaff,
   getCursorVoice,
   getGroupingById,
   getGroupingEntries,
@@ -25,6 +26,7 @@ import {
   getNextCursor,
   getNoteById,
   getPreviousCursor,
+  getStaffById,
   getStaffSystemMeasureCount,
   insertEmptyMeasure,
   pruneStaffSystem,
@@ -353,6 +355,44 @@ export class StaffSystemEditor {
     syncIds(this.staffSystem);
   }
 
+  public swapStaffDown() {
+    const staff = getCursorStaff(this.staffSystem, this.cursor);
+    const nextStaff = getStaffById(this.staffSystem, {
+      staffSystemId: staff.staffId.staffSystemId,
+      stavesOrder: staff.staffId.stavesOrder + 1,
+    });
+    if (nextStaff == null) {
+      return;
+    }
+    [
+      this.staffSystem.staves[staff.staffId.stavesOrder],
+      this.staffSystem.staves[nextStaff.staffId.stavesOrder],
+    ] = [
+        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+      ];
+    syncIds(this.staffSystem);
+  }
+
+  public swapStaffUp() {
+    const staff = getCursorStaff(this.staffSystem, this.cursor);
+    const nextStaff = getStaffById(this.staffSystem, {
+      staffSystemId: staff.staffId.staffSystemId,
+      stavesOrder: staff.staffId.stavesOrder - 1,
+    });
+    if (nextStaff == null) {
+      return;
+    }
+    [
+      this.staffSystem.staves[staff.staffId.stavesOrder],
+      this.staffSystem.staves[nextStaff.staffId.stavesOrder],
+    ] = [
+        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+      ];
+    syncIds(this.staffSystem);
+  }
+
   public moveCursorPosition(delta: number) {
     if ("restId" in this.cursor) {
       this.cursor.position += delta;
@@ -644,5 +684,33 @@ export class StaffSystemEditor {
       rowLenghts.push(1);
     }
     this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+  }
+
+  public deleteStaff() {
+    if (this.staffSystem.staves.length <= 1) {
+      return;
+    }
+    const staff = getCursorStaff(this.staffSystem, this.cursor);
+    const prevStaff = getStaffById(this.staffSystem, {
+      staffSystemId: staff.staffId.staffSystemId,
+      stavesOrder: staff.staffId.stavesOrder - 1,
+    });
+    const nextStaff = getStaffById(this.staffSystem, {
+      staffSystemId: staff.staffId.staffSystemId,
+      stavesOrder: staff.staffId.stavesOrder + 1,
+    });
+    const newStaff = prevStaff ?? requireNotNull(nextStaff);
+    this.setCursorHightlight(false);
+    this.setCursorOnGroupingEntry(
+      requireNotNull(
+        newStaff.measures
+          .at(0)
+          ?.voices.at(0)
+          ?.groupings.at(0)
+          ?.groupingEntries.at(0),
+      ),
+    );
+    this.setCursorHightlight(true);
+    this.staffSystem.staves.splice(staff.staffId.stavesOrder, 1);
   }
 }
