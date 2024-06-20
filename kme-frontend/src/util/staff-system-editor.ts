@@ -13,6 +13,7 @@ import {
   appendVoice,
   getChordById,
   getCursorFromGroupingEntry,
+  getCursorGrouping,
   getCursorGroupingEntry,
   getCursorMeasure,
   getGroupingById,
@@ -51,13 +52,40 @@ export class StaffSystemEditor {
   }
 
   private setCursorHightlight(highlight: boolean) {
+    const grouping = getCursorGrouping(this.staffSystem, this.cursor);
+    for (const groupingEntry of grouping.groupingEntries) {
+      if (groupingEntry.rest != null) {
+        const restMetadata = parseRestMetadata(groupingEntry.rest);
+        restMetadata.highlight = highlight;
+        if (highlight) {
+          restMetadata.alpha = "44";
+        }
+        groupingEntry.rest.metadataJson = JSON.stringify(restMetadata);
+      } else if (groupingEntry.chord != null) {
+        for (const note of groupingEntry.chord.notes) {
+          const noteMetadata = parseNoteMetadata(requireNotNull(note));
+          noteMetadata.highlight = highlight;
+          if (highlight) {
+            noteMetadata.alpha = "44";
+          }
+          note.metadataJson = JSON.stringify(noteMetadata);
+        }
+      }
+    }
+
     if ("restId" in this.cursor) {
       const restMetadata = parseRestMetadata(this.cursor);
       restMetadata.highlight = highlight;
+      if (highlight) {
+        restMetadata.alpha = "ff";
+      }
       this.cursor.metadataJson = JSON.stringify(restMetadata);
     } else {
       const noteMetadata = parseNoteMetadata(this.cursor);
       noteMetadata.highlight = highlight;
+      if (highlight) {
+        noteMetadata.alpha = "ff";
+      }
       this.cursor.metadataJson = JSON.stringify(noteMetadata);
     }
   }
@@ -427,11 +455,13 @@ export class StaffSystemEditor {
       .map((note) => note.noteId.position)
       .reduce((prev, crt) => Math.min(prev, crt));
     if (chord.notes.length < StaffSystemEditor.MAX_CHORD_NOTES) {
+      this.setCursorHightlight(false);
       chord.notes.push({
         noteId: { chordId: chord.chordId, position: bottomPosition - 1 },
         accidental: Accidental.None,
         metadataJson: "",
       });
+      this.setCursorHightlight(true);
     }
   }
 
@@ -447,11 +477,13 @@ export class StaffSystemEditor {
       .map((note) => note.noteId.position)
       .reduce((prev, crt) => Math.max(prev, crt));
     if (chord.notes.length < StaffSystemEditor.MAX_CHORD_NOTES) {
+      this.setCursorHightlight(false);
       chord.notes.push({
         noteId: { chordId: chord.chordId, position: topPosition + 1 },
         accidental: Accidental.None,
         metadataJson: "",
       });
+      this.setCursorHightlight(true);
     }
   }
 
