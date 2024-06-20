@@ -189,7 +189,7 @@ export function getVexStemmableNotesFromGrouping(
 ): { stemmableNotes: StemmableNote[]; modifiers: Modifier[] } {
   const stemmableNotes = [];
   const modifiers = [];
-  const highlightColor = ["blue", "green", "orange", "red"];
+  const highlightColor = ["#0000ff", "#00ff00", "#f17d08", "#ff0000"];
   for (const groupingEntry of grouping.groupingEntries) {
     if (groupingEntry.rest != null) {
       const rest = groupingEntry.rest;
@@ -204,7 +204,8 @@ export function getVexStemmableNotesFromGrouping(
       if (restMetadata.highlight) {
         staveNote.setStyle({
           fillStyle:
-            highlightColor[Math.min(highlightColor.length - 1, voiceIndex)],
+            highlightColor[Math.min(highlightColor.length - 1, voiceIndex)] +
+            restMetadata.alpha,
         });
       }
       stemmableNotes.push(staveNote);
@@ -225,7 +226,8 @@ export function getVexStemmableNotesFromGrouping(
             note.noteId.chordId.groupingEntryId.groupingId.voiceId.voicesOrder;
           staveNote.setKeyStyle(index, {
             fillStyle:
-              highlightColor[Math.min(highlightColor.length - 1, voiceIndex)],
+              highlightColor[Math.min(highlightColor.length - 1, voiceIndex)] +
+              noteMetadata.alpha,
           });
         }
         const accidental = getAccidentalNameFromAccidental(note.accidental);

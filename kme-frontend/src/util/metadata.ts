@@ -13,7 +13,7 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   let object = null;
   try {
     object = JSON.parse(staffSystem.metadataJson);
-  } catch { }
+  } catch {}
 
   let connectorType = ConnectorType.None;
   if (
@@ -60,7 +60,7 @@ export function parseStaffMetadata(staff: Staff): {
   let object = null;
   try {
     object = JSON.parse(staff.metadataJson);
-  } catch (error) { }
+  } catch (error) {}
 
   let width = 300;
   if (object != null && "width" in object && typeof object.width === "number") {
@@ -77,7 +77,7 @@ export function parseMeasureMetadata(measure: Measure): {
   let object = null;
   try {
     object = JSON.parse(measure.metadataJson);
-  } catch (error) { }
+  } catch (error) {}
 
   let drawClef = false;
   if (
@@ -109,11 +109,14 @@ export function parseMeasureMetadata(measure: Measure): {
   return { drawClef, drawKeySignature, drawTimeSignature };
 }
 
-export function parseNoteMetadata(note: Note): { highlight: boolean } {
+export function parseNoteMetadata(note: Note): {
+  highlight: boolean;
+  alpha: string;
+} {
   let object = null;
   try {
     object = JSON.parse(note.metadataJson);
-  } catch (error) { }
+  } catch (error) {}
 
   let highlight = false;
   if (
@@ -124,14 +127,28 @@ export function parseNoteMetadata(note: Note): { highlight: boolean } {
     highlight = object.highlight;
   }
 
-  return { highlight };
+  const hexRegex = /^[0-9a-fA-F]{2}$/;
+  let alpha = "ff";
+  if (
+    object != null &&
+    "alpha" in object &&
+    typeof object.alpha === "string" &&
+    hexRegex.test(object.alpha)
+  ) {
+    alpha = object.alpha.toLowerCase();
+  }
+
+  return { highlight, alpha };
 }
 
-export function parseRestMetadata(rest: Rest): { highlight: boolean } {
+export function parseRestMetadata(rest: Rest): {
+  highlight: boolean;
+  alpha: string;
+} {
   let object = null;
   try {
     object = JSON.parse(rest.metadataJson);
-  } catch (error) { }
+  } catch (error) {}
 
   let highlight = false;
   if (
@@ -142,5 +159,16 @@ export function parseRestMetadata(rest: Rest): { highlight: boolean } {
     highlight = object.highlight;
   }
 
-  return { highlight };
+  const hexRegex = /^[0-9a-fA-F]{2}$/;
+  let alpha = "ff";
+  if (
+    object != null &&
+    "alpha" in object &&
+    typeof object.alpha === "string" &&
+    hexRegex.test(object.alpha)
+  ) {
+    alpha = object.alpha.toLowerCase();
+  }
+
+  return { highlight, alpha };
 }
