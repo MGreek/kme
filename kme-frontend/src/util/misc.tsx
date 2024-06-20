@@ -293,6 +293,16 @@ export function getCursorGrouping(
   return requireNotNull(getGroupingById(staffSystem, groupingId));
 }
 
+export function getCursorVoice(staffSystem: StaffSystem, cursor: Rest | Note) {
+  let voiceId = null;
+  if ("restId" in cursor) {
+    voiceId = cursor.restId.groupingEntryId.groupingId.voiceId;
+  } else {
+    voiceId = cursor.noteId.chordId.groupingEntryId.groupingId.voiceId;
+  }
+  return requireNotNull(getVoiceById(staffSystem, voiceId));
+}
+
 export function getCursorMeasure(
   staffSystem: StaffSystem,
   cursor: Rest | Note,
@@ -460,6 +470,13 @@ export function getMeasureById(
   );
 }
 
+export function getVoices(staffSystem: StaffSystem): Voice[] {
+  const voices = staffSystem.staves
+    .flatMap((staff) => staff.measures)
+    .flatMap((measure) => measure.voices);
+  return voices;
+}
+
 export function getGroupings(staffSystem: StaffSystem): Grouping[] {
   const groupings = staffSystem.staves
     .flatMap((staff) => staff.measures)
@@ -497,6 +514,17 @@ export function equalGroupingEntryIds(
   );
 }
 
+export function equalVoiceIds(firstId: VoiceId, secondId: VoiceId): boolean {
+  return (
+    firstId.measureId.staffId.staffSystemId.staffSystemId ===
+      secondId.measureId.staffId.staffSystemId.staffSystemId &&
+    firstId.measureId.staffId.stavesOrder ===
+      secondId.measureId.staffId.stavesOrder &&
+    firstId.measureId.measuresOrder === secondId.measureId.measuresOrder &&
+    firstId.voicesOrder === secondId.voicesOrder
+  );
+}
+
 export function equalGroupingIds(
   firstId: GroupingId,
   secondId: GroupingId,
@@ -511,6 +539,14 @@ export function equalGroupingIds(
     firstId.voiceId.voicesOrder === secondId.voiceId.voicesOrder &&
     firstId.groupingsOrder === secondId.groupingsOrder
   );
+}
+
+export function getVoiceById(
+  staffSystem: StaffSystem,
+  voiceId: VoiceId,
+): Voice | null {
+  const voices = getVoices(staffSystem);
+  return voices.filter((v) => equalVoiceIds(v.voiceId, voiceId)).at(0) ?? null;
 }
 
 export function getGroupingById(

@@ -225,6 +225,14 @@ export default function Editor({
       staffSystemEditor.setTimeSignature(TimeSignature.FourFour);
       updateStaffSystemElement();
     });
+    trie.addWord("gs", () => {
+      staffSystemEditor.splitGrouping();
+      updateStaffSystemElement();
+    });
+    trie.addWord("gm", () => {
+      staffSystemEditor.mergeGrouping();
+      updateStaffSystemElement();
+    });
 
     normalTrieRef.current = trie;
   }, [updateStaffSystemElement]);

@@ -16,6 +16,7 @@ import {
   getCursorGrouping,
   getCursorGroupingEntry,
   getCursorMeasure,
+  getCursorVoice,
   getGroupingById,
   getGroupingEntries,
   getGroupingEntryById,
@@ -291,9 +292,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[prevMeasureId.measuresOrder],
     ] = [
-      requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
-      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-    ];
+        requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
+        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+      ];
     syncIds(this.staffSystem);
   }
 
@@ -312,9 +313,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[nextMeasureId.measuresOrder],
     ] = [
-      requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
-      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-    ];
+        requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
+        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+      ];
     syncIds(this.staffSystem);
   }
 
@@ -509,5 +510,62 @@ export class StaffSystemEditor {
   public setTimeSignature(timeSignature: TimeSignature) {
     const measure = getCursorMeasure(this.staffSystem, this.cursor);
     measure.timeSignature = timeSignature;
+  }
+
+  public splitGrouping() {
+    this.setCursorHightlight(false);
+    const voice = getCursorVoice(this.staffSystem, this.cursor);
+    const grouping = getCursorGrouping(this.staffSystem, this.cursor);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const firstHalf = structuredClone(grouping);
+    firstHalf.groupingEntries = firstHalf.groupingEntries.filter(
+      (ge) =>
+        ge.groupingEntryId.groupingEntriesOrder <=
+        groupingEntry.groupingEntryId.groupingEntriesOrder,
+    );
+    const secondHalf = structuredClone(grouping);
+    secondHalf.groupingEntries = secondHalf.groupingEntries.filter(
+      (ge) =>
+        ge.groupingEntryId.groupingEntriesOrder >
+        groupingEntry.groupingEntryId.groupingEntriesOrder,
+    );
+    // Now that the halves are declared set the cursor on the last element
+    // of the first half
+    this.setCursorOnGroupingEntry(
+      requireNotNull(firstHalf.groupingEntries.at(-1)),
+    );
+    voice.groupings.splice(
+      grouping.groupingId.groupingsOrder,
+      1,
+      firstHalf,
+      secondHalf,
+    );
+    pruneStaffSystem(this.staffSystem);
+    this.setCursorHightlight(true);
+  }
+
+  public mergeGrouping() {
+    const voice = getCursorVoice(this.staffSystem, this.cursor);
+    const firstHalf = getCursorGrouping(this.staffSystem, this.cursor);
+    const secondHalf = getGroupingById(this.staffSystem, {
+      voiceId: firstHalf.groupingId.voiceId,
+      groupingsOrder: firstHalf.groupingId.groupingsOrder + 1,
+    });
+    if (secondHalf == null) {
+      return;
+    }
+    this.setCursorHightlight(false);
+    const whole = structuredClone(firstHalf);
+    whole.groupingEntries.push(...secondHalf.groupingEntries);
+    const groupingEntryIndex = getCursorGroupingEntry(
+      this.staffSystem,
+      this.cursor,
+    ).groupingEntryId.groupingEntriesOrder;
+    this.setCursorOnGroupingEntry(
+      requireNotNull(whole.groupingEntries.at(groupingEntryIndex)),
+    );
+    voice.groupings.splice(firstHalf.groupingId.groupingsOrder, 2, whole);
+    syncIds(this.staffSystem);
+    this.setCursorHightlight(true);
   }
 }
