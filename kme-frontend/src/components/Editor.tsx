@@ -120,6 +120,14 @@ export default function Editor({
       );
       updateStaffSystemElement();
     });
+    trie.addWord("mj", () => {
+      staffSystemEditor.join();
+      updateStaffSystemElement();
+    });
+    trie.addWord("mb", () => {
+      staffSystemEditor.break();
+      updateStaffSystemElement();
+    });
     trie.addWord("nc", () => {
       staffSystemEditor.toggleType();
       updateStaffSystemElement();

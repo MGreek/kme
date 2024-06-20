@@ -21,6 +21,7 @@ import {
   getGroupingEntries,
   getGroupingEntryById,
   getMeasureById,
+  getMeasureRowIndex,
   getNextCursor,
   getNoteById,
   getPreviousCursor,
@@ -610,5 +611,38 @@ export class StaffSystemEditor {
       return;
     }
     this.cursor.accidental = accidental;
+  }
+
+  public join() {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    const rowLenghts = staffSystemMetadata.rowLengths;
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    const rowIndex = getMeasureRowIndex(this.staffSystem, measure);
+    if (rowIndex + 1 >= rowLenghts.length) {
+      return;
+    }
+    rowLenghts[rowIndex] += 1;
+    rowLenghts[rowIndex + 1] -= 1;
+    if (rowLenghts[rowIndex + 1] === 0) {
+      rowLenghts.splice(rowIndex + 1, 1);
+    }
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+  }
+
+  public break() {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    const rowLenghts = staffSystemMetadata.rowLengths;
+    const measure = getCursorMeasure(this.staffSystem, this.cursor);
+    const rowIndex = getMeasureRowIndex(this.staffSystem, measure);
+    if (rowLenghts[rowIndex] === 1) {
+      return;
+    }
+    rowLenghts[rowIndex] -= 1;
+    if (rowIndex + 1 < rowLenghts.length) {
+      rowLenghts[rowIndex + 1] += 1;
+    } else {
+      rowLenghts.push(1);
+    }
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
   }
 }

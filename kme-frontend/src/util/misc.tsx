@@ -185,6 +185,27 @@ export function getStaffSystemMeasureCount(staffSystem: StaffSystem) {
   return measureCount;
 }
 
+export function getMeasureRowIndex(
+  staffSystem: StaffSystem,
+  measure: Measure,
+): number {
+  const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
+  let index = 0;
+  for (const [
+    rowIndex,
+    rowLength,
+  ] of staffSystemMetadata.rowLengths.entries()) {
+    if (
+      index <= measure.measureId.measuresOrder &&
+      measure.measureId.measuresOrder < index + rowLength
+    ) {
+      return rowIndex;
+    }
+    index += rowLength;
+  }
+  throw new Error("Measure outside of rows");
+}
+
 export function pruneStaffSystem(staffSystem: StaffSystem) {
   const measures = staffSystem.staves.flatMap((staff) => staff.measures);
   const voices = measures.flatMap((measure) => measure.voices);
