@@ -2820,10 +2820,10 @@ uuid@^9.0.1:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
   integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
-vexflow-kme@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/vexflow-kme/-/vexflow-kme-0.1.0.tgz#318a45b2827feba3494691363b45452fbd006fe6"
-  integrity sha512-7QfErROSSFFOuuq/mPVlsOu0xJEy7NS0UtkTR5x2SAOmLDW5pKWh20MRZxGE55XDbSyk4LBI3WTyUSBt/jzBTA==
+vexflow-kme@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/vexflow-kme/-/vexflow-kme-0.2.0.tgz#0eff2eda65e4472b2b9647f3633a47cf2a1f92de"
+  integrity sha512-b5F94NHi5EIGqxHI+RA5YtKiJ7JeuDGbIyud1ee13NfiYaJftbz8Psb7Om4SttXKEpyADAzbIBtT2IDTASvzlg==
 
 vm-browserify@^1.1.2:
   version "1.1.2"
