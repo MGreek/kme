@@ -209,6 +209,9 @@ export default function Row({
       width: totalWidth,
       spaceBetweenStaves: staffSystemMetadata.gap,
       noPadding: true,
+      formatOptions: {
+        auto_beam: false,
+      },
     });
 
     draw(factory, system);

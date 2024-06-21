@@ -8,10 +8,7 @@ import StaffSystemElement from "./StaffSystemElement";
 import { StemType } from "../model/stem";
 import { Clef, KeySignature, TimeSignature } from "../model/measure";
 import { Accidental } from "../model/note";
-import {
-  DEFAULT_STAFF_SYSTEM_GAP,
-  parseStaffSystemMetadata,
-} from "../util/metadata";
+import { DEFAULT_STAFF_SYSTEM_GAP } from "../util/metadata";
 
 export default function Editor({
   pagePadding,
@@ -304,6 +301,10 @@ export default function Editor({
     });
     trie.addWord("gm", () => {
       staffSystemEditor.mergeGrouping();
+      updateStaffSystemElement();
+    });
+    trie.addWord("gt", () => {
+      staffSystemEditor.toggleGroupStemDirection();
       updateStaffSystemElement();
     });
 

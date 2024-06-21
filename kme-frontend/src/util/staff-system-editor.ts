@@ -6,6 +6,7 @@ import type { Staff } from "../model/staff";
 import type { StaffSystem } from "../model/staff-system";
 import type { StemType } from "../model/stem";
 import {
+  parseGroupingMetadata,
   parseNoteMetadata,
   parseRestMetadata,
   parseStaffSystemMetadata,
@@ -767,5 +768,12 @@ export class StaffSystemEditor {
     const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
     staffSystemMetadata.gap = amount;
     this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+  }
+
+  public toggleGroupStemDirection() {
+    const grouping = getCursorGrouping(this.staffSystem, this.cursor);
+    const groupingMetadata = parseGroupingMetadata(grouping);
+    groupingMetadata.stemUp = !groupingMetadata.stemUp;
+    grouping.metadataJson = JSON.stringify(groupingMetadata);
   }
 }

@@ -19,7 +19,11 @@ import { RestType } from "../model/rest";
 import { ConnectorType } from "../model/staff-system";
 import { StemType } from "../model/stem";
 import type { Voice } from "../model/voice";
-import { parseNoteMetadata, parseRestMetadata } from "./metadata";
+import {
+  parseGroupingMetadata,
+  parseNoteMetadata,
+  parseRestMetadata,
+} from "./metadata";
 import { requireNotNull } from "./require-not-null";
 
 export function getDurationFromRestType(restType: RestType): string {
@@ -190,6 +194,7 @@ export function getVexStemmableNotesFromGrouping(
   const stemmableNotes = [];
   const modifiers = [];
   const highlightColor = ["#0000ff", "#00ff00", "#f17d08", "#ff0000"];
+  const groupingMetadata = parseGroupingMetadata(grouping);
   for (const groupingEntry of grouping.groupingEntries) {
     if (groupingEntry.rest != null) {
       const rest = groupingEntry.rest;
@@ -197,6 +202,8 @@ export function getVexStemmableNotesFromGrouping(
         keys: [getKeyFromPosition(rest.position + noteOffset)],
         type: "r",
         duration: getDurationFromRestType(rest.restType),
+        auto_stem: false,
+        stem_direction: groupingMetadata.stemUp ? Stem.UP : Stem.DOWN,
       });
       const voiceIndex =
         rest.restId.groupingEntryId.groupingId.voiceId.voicesOrder;
@@ -216,7 +223,9 @@ export function getVexStemmableNotesFromGrouping(
           getKeyFromPosition(note.noteId.position + noteOffset),
         ),
         duration: getDurationFromStemType(chord.stem.stemType),
-        auto_stem: true,
+        dots: chord.dotCount,
+        auto_stem: false,
+        stem_direction: groupingMetadata.stemUp ? Stem.UP : Stem.DOWN,
       });
       for (const [index, note] of chord.notes.entries()) {
         const noteMetadata = parseNoteMetadata(note);
@@ -262,7 +271,7 @@ function tryBeamNotes(factory: Factory, notes: StemmableNote[]): Beam[] {
     if ((!isBeamable || index + 1 === notes.length) && last - first + 1 > 1) {
       const beam = factory.Beam({
         notes: notes.slice(first, last + 1),
-        options: { autoStem: true },
+        options: { autoStem: false },
       });
       beams.push(beam);
       [first, last] = [-1, -1];

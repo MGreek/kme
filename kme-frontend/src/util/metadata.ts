@@ -1,3 +1,4 @@
+import type { Grouping } from "../model/grouping";
 import type { Measure } from "../model/measure";
 import type { Note } from "../model/note";
 import type { Rest } from "../model/rest";
@@ -109,6 +110,26 @@ export function parseMeasureMetadata(measure: Measure): {
   }
 
   return { drawClef, drawKeySignature, drawTimeSignature };
+}
+
+export function parseGroupingMetadata(grouping: Grouping): {
+  stemUp: boolean;
+} {
+  let object = null;
+  try {
+    object = JSON.parse(grouping.metadataJson);
+  } catch (error) {}
+
+  let stemUp = grouping.groupingId.voiceId.voicesOrder % 2 === 0;
+  if (
+    object != null &&
+    "stemUp" in object &&
+    typeof object.stemUp === "boolean"
+  ) {
+    stemUp = object.stemUp;
+  }
+
+  return { stemUp };
 }
 
 export function parseNoteMetadata(note: Note): {
