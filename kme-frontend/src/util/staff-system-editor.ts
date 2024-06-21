@@ -157,6 +157,8 @@ export class StaffSystemEditor {
     this.setCursorHightlight(true);
   }
 
+  // FIX: this should teleports the cursor back to the first measure;
+  // instead it should remain on the same row and also cross rows if needed
   public decreaseCursorStaff() {
     const staff = getCursorStaff(this.staffSystem, this.cursor);
     const prevStaff = getStaffById(this.staffSystem, {
