@@ -1,8 +1,8 @@
 import {
-  type Beam,
+  Beam,
   type Factory,
   type Modifier,
-  ModifierPosition,
+  Stem,
   type StemmableNote,
   type StaveConnectorType as VexStaveConnectorType,
   type Voice as VexVoice,
@@ -216,7 +216,8 @@ export function getVexStemmableNotesFromGrouping(
           getKeyFromPosition(note.noteId.position + noteOffset),
         ),
         duration: getDurationFromStemType(chord.stem.stemType),
-        auto_stem: true,
+        auto_stem: false,
+        stem_direction: Stem.DOWN,
       });
       for (const [index, note] of chord.notes.entries()) {
         const noteMetadata = parseNoteMetadata(note);
@@ -249,6 +250,17 @@ export function getVexStemmableNotesFromGrouping(
 function tryBeamNotes(factory: Factory, notes: StemmableNote[]): Beam[] {
   const beamableDurations = ["8", "16", "32", "64"];
 
+  // const beams = Beam.generateBeams(notes, {
+  //   flat_beams: true,
+  //   show_stemlets: true,
+  //   beam_rests: true,
+  //   stem_direction: Stem.UP,
+  // });
+  //
+  // for (const beam of beams) {
+  //   beam.setContext(factory.getContext());
+  // }
+  // return beams;
   const beams = [];
   let [first, last] = [-1, -1];
   for (const [index, note] of notes.entries()) {
@@ -262,7 +274,7 @@ function tryBeamNotes(factory: Factory, notes: StemmableNote[]): Beam[] {
     if ((!isBeamable || index + 1 === notes.length) && last - first + 1 > 1) {
       const beam = factory.Beam({
         notes: notes.slice(first, last + 1),
-        options: { autoStem: true },
+        options: { autoStem: false },
       });
       beams.push(beam);
       [first, last] = [-1, -1];

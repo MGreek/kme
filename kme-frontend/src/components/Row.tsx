@@ -203,8 +203,11 @@ export default function Row({
     const factory = new Factory({
       renderer: { elementId: div.id, width: 0, height: 0 },
     });
+
+    const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
     let system = factory.System({
       width: totalWidth,
+      spaceBetweenStaves: staffSystemMetadata.gap,
       noPadding: true,
     });
 
@@ -213,6 +216,7 @@ export default function Row({
     system = factory.System({
       width: totalWidth,
       noPadding: true,
+      spaceBetweenStaves: staffSystemMetadata.gap,
       // HACK: magic number 10 seems to work lmao
       x: 10 - bounds.x,
       y: 10 - bounds.y,

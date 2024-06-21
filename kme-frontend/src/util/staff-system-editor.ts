@@ -1,10 +1,5 @@
 import type { GroupingEntry } from "../model/grouping-entry";
-import type {
-  Clef,
-  KeySignature,
-  Measure,
-  TimeSignature,
-} from "../model/measure";
+import type { Clef, KeySignature, TimeSignature } from "../model/measure";
 import { Accidental, type Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { Staff } from "../model/staff";
@@ -343,9 +338,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[prevMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -364,9 +359,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[nextMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -383,9 +378,9 @@ export class StaffSystemEditor {
       this.staffSystem.staves[staff.staffId.stavesOrder],
       this.staffSystem.staves[nextStaff.staffId.stavesOrder],
     ] = [
-        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
-        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
-      ];
+      requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+      requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -402,9 +397,9 @@ export class StaffSystemEditor {
       this.staffSystem.staves[staff.staffId.stavesOrder],
       this.staffSystem.staves[nextStaff.staffId.stavesOrder],
     ] = [
-        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
-        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
-      ];
+      requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+      requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -751,5 +746,26 @@ export class StaffSystemEditor {
     };
     this.staffSystem.staves.splice(staffIndex, 0, staff);
     syncIds(this.staffSystem);
+  }
+
+  static readonly MIN_STAFF_SYSTEM_GAP = 4;
+  static readonly MAX_STAFF_SYSTEM_GAP = 32;
+
+  public shiftSpaceBetweenStaves(amount: number) {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    const result = staffSystemMetadata.gap + amount;
+    if (
+      StaffSystemEditor.MIN_STAFF_SYSTEM_GAP <= result &&
+      result <= StaffSystemEditor.MAX_STAFF_SYSTEM_GAP
+    ) {
+      staffSystemMetadata.gap = result;
+    }
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+  }
+
+  public setSpaceBetweenStaves(amount: number) {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    staffSystemMetadata.gap = amount;
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
   }
 }

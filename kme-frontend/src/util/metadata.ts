@@ -5,6 +5,8 @@ import type { Staff } from "../model/staff";
 import { ConnectorType, type StaffSystem } from "../model/staff-system";
 import { getStaffSystemMeasureCount } from "./misc";
 
+export const DEFAULT_STAFF_SYSTEM_GAP = 12;
+
 export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   connectorType: ConnectorType;
   gap: number;
@@ -25,7 +27,7 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
     connectorType = object.connectorType;
   }
 
-  let gap = 20;
+  let gap = DEFAULT_STAFF_SYSTEM_GAP;
   if (
     object != null &&
     "gap" in object &&

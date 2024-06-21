@@ -8,6 +8,10 @@ import StaffSystemElement from "./StaffSystemElement";
 import { StemType } from "../model/stem";
 import { Clef, KeySignature, TimeSignature } from "../model/measure";
 import { Accidental } from "../model/note";
+import {
+  DEFAULT_STAFF_SYSTEM_GAP,
+  parseStaffSystemMetadata,
+} from "../util/metadata";
 
 export default function Editor({
   pagePadding,
@@ -238,6 +242,18 @@ export default function Editor({
     });
     trie.addWord("sa", () => {
       staffSystemEditor.insertStaff(staffSystemEditor.getStaffCount());
+      updateStaffSystemElement();
+    });
+    trie.addWord("sr+", () => {
+      staffSystemEditor.shiftSpaceBetweenStaves(2);
+      updateStaffSystemElement();
+    });
+    trie.addWord("sr-", () => {
+      staffSystemEditor.shiftSpaceBetweenStaves(-2);
+      updateStaffSystemElement();
+    });
+    trie.addWord("sr=", () => {
+      staffSystemEditor.setSpaceBetweenStaves(DEFAULT_STAFF_SYSTEM_GAP);
       updateStaffSystemElement();
     });
     const sharps = [
