@@ -573,6 +573,32 @@ export default function Editor({
     ],
   );
 
+  const onRowDivRendered = useCallback((div: HTMLDivElement, index: number) => {
+    const staffSystemEditor = requireNotNull(
+      staffSystemEditorRef.current,
+      "Expected staffSystemEditorRef to be initialized",
+    );
+    const rowIndex = staffSystemEditor.getCursorRowIndex();
+    if (rowIndex === index) {
+      const divRect = div.getBoundingClientRect();
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      if (
+        0 <= divRect.left &&
+        divRect.right <= width &&
+        0 <= divRect.top &&
+        divRect.bottom <= height
+      ) {
+        return;
+      }
+      div.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "start",
+      });
+    }
+  }, []);
+
   useEffect(() => {
     crtModeRef.current = "normal";
     setMode(crtModeRef.current);
@@ -603,6 +629,7 @@ export default function Editor({
         <StaffSystemElement
           staffSystem={staffSystem}
           pagePadding={pagePadding}
+          onRowDivRendered={onRowDivRendered}
         />
       </div>
       <div className="bg-red-400 fixed bottom-4 left-10">{mode}</div>

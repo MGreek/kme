@@ -12,9 +12,11 @@ const RAW_PAGE_HEIGHT_MM = 297;
 export default function StaffSystemElement({
   staffSystem,
   pagePadding,
+  onRowDivRendered,
 }: {
   staffSystem: StaffSystem;
   pagePadding: { left: number; right: number; top: number; bottom: number };
+  onRowDivRendered?: (div: HTMLDivElement, index: number) => void;
 }) {
   const getPageWidthRef = useCallback(() => {
     return RAW_PAGE_WIDTH_MM * SCALE;
@@ -37,14 +39,13 @@ export default function StaffSystemElement({
   useEffect(() => {
     const measureCount = getStaffSystemMeasureCount(staffSystem);
     if (measureCount === 0) {
-      setRows([]);
       return;
     }
 
     const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
     const newRows = [];
     let crtIndex = 0;
-    for (const length of staffSystemMetadata.rowLengths) {
+    for (const [index, length] of staffSystemMetadata.rowLengths.entries()) {
       const totalWidth = getPageClientWidthRef();
       const startMeasureIndex = crtIndex;
       const stopMeasureIndex = crtIndex + length - 1;
@@ -60,12 +61,17 @@ export default function StaffSystemElement({
           startMeasureIndex={startMeasureIndex}
           stopMeasureIndex={stopMeasureIndex}
           totalWidth={totalWidth}
+          onDivRendered={(div: HTMLDivElement) => {
+            if (onRowDivRendered) {
+              onRowDivRendered(div, index);
+            }
+          }}
         />,
       );
       crtIndex += length;
     }
     setRows(newRows);
-  }, [staffSystem, getPageClientWidthRef]);
+  }, [staffSystem, getPageClientWidthRef, onRowDivRendered]);
 
   return (
     <div

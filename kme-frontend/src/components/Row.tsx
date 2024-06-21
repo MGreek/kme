@@ -25,11 +25,13 @@ export default function Row({
   startMeasureIndex,
   stopMeasureIndex,
   totalWidth,
+  onDivRendered,
 }: {
   staffSystem: StaffSystem;
   startMeasureIndex: number;
   stopMeasureIndex: number;
   totalWidth: number;
+  onDivRendered?: (div: HTMLDivElement) => void;
 }) {
   const prevJsonRef = useRef<string | null>(null);
 
@@ -234,6 +236,10 @@ export default function Row({
     div.style.width = `${width}px`;
     div.style.height = `${height}px`;
     factory.getContext().resize(width, height);
+
+    if (onDivRendered) {
+      onDivRendered(div);
+    }
   };
 
   return <div id={uuidv4()} ref={onDiv} />;

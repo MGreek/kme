@@ -778,4 +778,11 @@ export class StaffSystemEditor {
     groupingMetadata.stemUp = !groupingMetadata.stemUp;
     grouping.metadataJson = JSON.stringify(groupingMetadata);
   }
+
+  public getCursorRowIndex() {
+    return getMeasureRowIndex(
+      this.staffSystem,
+      getCursorMeasure(this.staffSystem, this.cursor),
+    );
+  }
 }
