@@ -42,7 +42,7 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   if (
     object != null &&
     "rowLengths" in object &&
-    typeof Array.isArray(rowLengths)
+    typeof Array.isArray(object.rowLengths)
   ) {
     rowLengths = object.rowLengths;
   } else {
