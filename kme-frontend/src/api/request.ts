@@ -17,6 +17,15 @@ export default function request<T>(
   });
 }
 
+export function onGetAllStaffSystems(
+  callback: (staffSystems: StaffSystem[]) => void,
+) {
+  const url = "/api/staff-system/all";
+  request<StaffSystem[]>("GET", url, {}).then((response) => {
+    callback(response.data);
+  });
+}
+
 export function onGetStaffSystemById(
   staffSystemId: StaffSystemId | null,
   callback: (staffSystem: StaffSystem | null) => void,
