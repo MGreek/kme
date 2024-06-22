@@ -112,6 +112,11 @@ export default function Explorer() {
 
   return (
     <div
+      ref={(div: HTMLDivElement | null) => {
+        if (div != null) {
+          div.focus();
+        }
+      }}
       className="grid place-content-center outline-none p-4"
       // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard events are needed
       tabIndex={0}
