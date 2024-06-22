@@ -5,7 +5,11 @@ import { Trie } from "../util/graph";
 import { parseStaffSystemMetadata } from "../util/metadata";
 import { requireNotNull } from "../util/require-not-null";
 
-export default function Explorer() {
+export default function Explorer({
+  onOpen,
+}: {
+  onOpen: (staffSystem: StaffSystem) => void;
+}) {
   const [staffSystems, setStaffSystems] = useState<StaffSystem[]>([]);
   const crtIndexRef = useRef<number>(0);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -23,17 +27,25 @@ export default function Explorer() {
 
     const trie = new Trie<() => void>();
     trie.addWord("n", () => {
+      clampCrtIndex();
       crtIndexRef.current += 1;
       clampCrtIndex();
       setSelectedIndex(crtIndexRef.current);
     });
     trie.addWord("p", () => {
+      clampCrtIndex();
       crtIndexRef.current -= 1;
       clampCrtIndex();
       setSelectedIndex(crtIndexRef.current);
     });
+    trie.addWord("o", () => {
+      clampCrtIndex();
+      if (staffSystems.length > 0) {
+        onOpen(requireNotNull(staffSystems[crtIndexRef.current]));
+      }
+    });
     trieRef.current = trie;
-  }, [staffSystems]);
+  }, [staffSystems, onOpen]);
 
   const handleInput = useCallback(
     (word: string) => {

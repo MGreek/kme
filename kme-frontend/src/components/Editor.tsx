@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { onGetStaffSystemById } from "../api/request";
 import type { StaffSystem } from "../model/staff-system";
 import { Trie } from "../util/graph";
 import { requireNotNull } from "../util/require-not-null";
@@ -12,8 +11,10 @@ import { DEFAULT_STAFF_SYSTEM_GAP } from "../util/metadata";
 
 export default function Editor({
   pagePadding,
+  initialStaffSystem,
 }: {
   pagePadding: { left: number; right: number; top: number; bottom: number };
+  initialStaffSystem: StaffSystem;
 }) {
   const staffSystemEditorRef = useRef<StaffSystemEditor | null>(null);
 
@@ -622,14 +623,9 @@ export default function Editor({
     crtCommandRef.current = "";
     setCommand(crtCommandRef.current);
 
-    onGetStaffSystemById(null, (staffSystem: StaffSystem | null) => {
-      if (staffSystem == null) {
-        return;
-      }
-      staffSystemEditorRef.current = new StaffSystemEditor(staffSystem);
-      updateStaffSystemElement();
-    });
-  }, [updateStaffSystemElement]);
+    staffSystemEditorRef.current = new StaffSystemEditor(initialStaffSystem);
+    updateStaffSystemElement();
+  }, [updateStaffSystemElement, initialStaffSystem]);
 
   if (staffSystem == null) {
     return <div />;
