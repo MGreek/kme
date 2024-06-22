@@ -12,6 +12,7 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   connectorType: ConnectorType;
   gap: number;
   rowLengths: number[];
+  name?: string;
 } {
   let object = null;
   try {
@@ -54,7 +55,12 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
     }
   }
 
-  return { connectorType, gap, rowLengths };
+  let name = null;
+  if (object != null && "name" in object && typeof object.name === "string") {
+    name = object.name;
+  }
+
+  return { connectorType, gap, rowLengths, name };
 }
 
 export function parseStaffMetadata(staff: Staff): {
