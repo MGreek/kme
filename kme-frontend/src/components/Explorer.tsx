@@ -5,11 +5,6 @@ import { Trie } from "../util/graph";
 import { parseStaffSystemMetadata } from "../util/metadata";
 import { requireNotNull } from "../util/require-not-null";
 
-interface Entry {
-  entryName: string;
-  staffSystem: StaffSystem;
-}
-
 export default function Explorer() {
   const [staffSystems, setStaffSystems] = useState<StaffSystem[]>([]);
   const crtIndexRef = useRef<number>(0);
