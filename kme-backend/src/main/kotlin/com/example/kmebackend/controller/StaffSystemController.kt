@@ -64,6 +64,15 @@ class StaffSystemController(
         }
     }
 
+    @RequestMapping("/all")
+    fun findAllStaffSystems(): ResponseEntity<List<StaffSystemDTO>> {
+        return try {
+            ResponseEntity.ok(staffSystemService.findAll().map(staffSystemConverter::staffSystemToDto).toList())
+        } catch (_: Exception) {
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
     @RequestMapping("/sample")
     fun getSampleStaffSystem(): ResponseEntity<StaffSystemDTO> {
         try {
