@@ -14,6 +14,7 @@ import {
 import {
   appendVoice,
   getChordById,
+  getCursorChord,
   getCursorFromGroupingEntry,
   getCursorGrouping,
   getCursorGroupingEntry,
@@ -784,5 +785,79 @@ export class StaffSystemEditor {
       this.staffSystem,
       getCursorMeasure(this.staffSystem, this.cursor),
     );
+  }
+
+  public insertNoteRelativeToCursor(offset: number, keepGrouping = true) {
+    this.setCursorHightlight(false);
+    let groupingEntry: GroupingEntry | null = null;
+    const cursorGrouping = getCursorGrouping(this.staffSystem, this.cursor);
+    const cursorGroupingEntry = getCursorGroupingEntry(
+      this.staffSystem,
+      this.cursor,
+    );
+    if (keepGrouping) {
+      groupingEntry = {
+        groupingEntryId: {
+          groupingId: cursorGrouping.groupingId,
+          groupingEntriesOrder: 0,
+        },
+        chord: null,
+        rest: null,
+      };
+      cursorGrouping.groupingEntries.splice(
+        cursorGroupingEntry.groupingEntryId.groupingEntriesOrder + 1,
+        0,
+        groupingEntry,
+      );
+    } else {
+      // NOTE: use methods from this class
+      // sparingly since the performance cost increases fast
+      this.splitGrouping();
+      this.setCursorHightlight(false);
+      const cursorVoice = getCursorVoice(this.staffSystem, this.cursor);
+      const newGrouping = structuredClone(cursorGrouping);
+      newGrouping.metadataJson = "";
+      cursorVoice.groupings.splice(
+        cursorGrouping.groupingId.groupingsOrder + 1,
+        0,
+        newGrouping,
+      );
+      groupingEntry = {
+        groupingEntryId: {
+          groupingId: newGrouping.groupingId,
+          groupingEntriesOrder: 0,
+        },
+        chord: null,
+        rest: null,
+      };
+      newGrouping.groupingEntries = [groupingEntry];
+    }
+    if ("restId" in this.cursor) {
+      const newRest: Rest = {
+        restId: { groupingEntryId: groupingEntry.groupingEntryId },
+        restType: this.cursor.restType,
+        position: this.cursor.position + offset,
+        metadataJson: "",
+      };
+      groupingEntry.rest = newRest;
+    } else {
+      const newNote: Note = {
+        noteId: {
+          chordId: this.cursor.noteId.chordId,
+          position: this.cursor.noteId.position + offset,
+        },
+        accidental: Accidental.None,
+        metadataJson: "",
+      };
+      const newChord = structuredClone(
+        requireNotNull(getCursorChord(this.staffSystem, this.cursor)),
+      );
+      newChord.metadataJson = "";
+      newChord.notes = [newNote];
+      groupingEntry.chord = newChord;
+    }
+    syncIds(this.staffSystem);
+    this.setCursorOnGroupingEntry(groupingEntry);
+    this.setCursorHightlight(true);
   }
 }

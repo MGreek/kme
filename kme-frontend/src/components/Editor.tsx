@@ -321,13 +321,30 @@ export default function Editor({
   }, []);
 
   const initInsertTrie = useCallback(() => {
+    const staffSystemEditor = requireNotNull(
+      staffSystemEditorRef.current,
+      "Expected staffSystemEditorRef to be initialized",
+    );
     const trie = new Trie<() => void>();
-    trie.addWord("ji", () => {
-      console.log("ji");
+    for (const [index, word] of ["f", "d", "s", "a"].entries()) {
+      trie.addWord(word, () => {
+        staffSystemEditor.insertNoteRelativeToCursor(-(index + 1));
+        updateStaffSystemElement();
+      });
+    }
+    for (const [index, word] of ["j", "k", "l", ";"].entries()) {
+      trie.addWord(word, () => {
+        staffSystemEditor.insertNoteRelativeToCursor(index + 1);
+        updateStaffSystemElement();
+      });
+    }
+    trie.addWord(" ", () => {
+      staffSystemEditor.insertNoteRelativeToCursor(0);
+      updateStaffSystemElement();
     });
 
     insertTrieRef.current = trie;
-  }, []);
+  }, [updateStaffSystemElement]);
 
   const onCommandEnter = useCallback((command: string) => {
     console.log("COMMAND", command);
