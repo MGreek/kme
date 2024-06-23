@@ -42,6 +42,8 @@ import { requireNotNull } from "./require-not-null";
 
 export class StaffSystemEditor {
   private staffSystem: StaffSystem;
+  // FIX: cursor should be part of staffSystem metadata
+  // to avoid highlighting bugs
   private cursor: Rest | Note;
 
   public getStaffSystem(): StaffSystem {

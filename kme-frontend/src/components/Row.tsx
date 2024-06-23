@@ -314,6 +314,8 @@ function removeElements(div: HTMLDivElement) {
   }
 }
 
+// FIX: getRowJson should include the previous clef/timesig/keysig
+// because they affect the current row
 export function getRowJson(
   totalWidth: number,
   startMeasureIndex: number,
