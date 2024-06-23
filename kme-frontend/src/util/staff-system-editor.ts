@@ -22,7 +22,6 @@ import {
   getCursorStaff,
   getCursorVoice,
   getGroupingById,
-  getGroupingEntries,
   getGroupingEntryById,
   getMeasureById,
   getMeasureRowIndex,
@@ -42,9 +41,23 @@ import { requireNotNull } from "./require-not-null";
 
 export class StaffSystemEditor {
   private staffSystem: StaffSystem;
-  // FIX: cursor should be part of staffSystem metadata
-  // to avoid highlighting bugs
-  private cursor: Rest | Note;
+
+  private _cursor: Rest | Note | null = null;
+
+  private get cursor(): Rest | Note {
+    if (this._cursor == null) {
+      const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+      this._cursor = staffSystemMetadata.cursor;
+    }
+    return this._cursor;
+  }
+
+  private set cursor(value: Rest | Note) {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    staffSystemMetadata.cursor = value;
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+    this._cursor = value;
+  }
 
   public getStaffSystem(): StaffSystem {
     return structuredClone(this.staffSystem);
@@ -103,29 +116,6 @@ export class StaffSystemEditor {
 
   constructor(staffSystem: StaffSystem) {
     this.staffSystem = structuredClone(staffSystem);
-    // NOTE: this was used to test performance
-    // for (const staff of this.staffSystem.staves) {
-    //   for (let index = 0; index < 100; index++) {
-    //     staff.measures = [
-    //       ...staff.measures,
-    //       requireNotNull(staff.measures.at(-1)),
-    //     ];
-    //   }
-    // }
-    const groupingEntries = getGroupingEntries(this.staffSystem);
-    if (groupingEntries.length === 0) {
-      throw new Error("staffSystem must not be empty");
-    }
-    const groupingEntry = requireNotNull(groupingEntries.at(0));
-    if (groupingEntry.rest != null) {
-      this.cursor = groupingEntry.rest;
-    } else {
-      const chord = requireNotNull(
-        groupingEntry.chord,
-        "found an empty GroupingEntry",
-      );
-      this.cursor = requireNotNull(chord.notes.at(0), "found an empty Chord");
-    }
     this.setCursorHightlight(true);
   }
 
