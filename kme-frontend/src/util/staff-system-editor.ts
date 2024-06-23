@@ -862,4 +862,10 @@ export class StaffSystemEditor {
     this.setCursorOnGroupingEntry(groupingEntry);
     this.setCursorHightlight(true);
   }
+
+  public setStaffSystemName(name: string) {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    staffSystemMetadata.name = name;
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+  }
 }
