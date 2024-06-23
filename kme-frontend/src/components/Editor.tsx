@@ -366,36 +366,36 @@ export default function Editor({
         onSuccess?: (matches: RegExpMatchArray) => void;
         onError?: () => void;
       }[] = [
-        // write command
-        {
-          weakRegex: /^w(rite)?\s*(\s.*)?$/,
-          regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
-          onSuccess: (matches: RegExpMatchArray) => {
-            if (matches.groups?.name) {
-              staffSystemEditor.setStaffSystemName(matches.groups?.name);
-              updateStaffSystemElement();
-            }
-            if (onWrite != null) {
-              onWrite(staffSystemEditor.getStaffSystem());
-            }
+          // write command
+          {
+            weakRegex: /^w(rite)?\s*(\s.*)?$/,
+            regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
+            onSuccess: (matches: RegExpMatchArray) => {
+              if (matches.groups?.name) {
+                staffSystemEditor.setStaffSystemName(matches.groups?.name);
+                updateStaffSystemElement();
+              }
+              if (onWrite != null) {
+                onWrite(staffSystemEditor.getStaffSystem());
+              }
+            },
+            onError: () => {
+              alert(
+                "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
+              );
+            },
           },
-          onError: () => {
-            alert(
-              "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
-            );
+          {
+            // explore command
+            weakRegex: /^ex(plore)?\s*$/,
+            regex: /^ex(plore)?\s*$/,
+            onSuccess: () => {
+              if (onExplore) {
+                onExplore();
+              }
+            },
           },
-        },
-        {
-          // explore command
-          weakRegex: /^ex(plore)?\s*$/,
-          regex: /^ex(plore)?\s*$/,
-          onSuccess: () => {
-            if (onExplore) {
-              onExplore();
-            }
-          },
-        },
-      ];
+        ];
 
       for (const command of commands) {
         if (command.weakRegex.test(commandString)) {
