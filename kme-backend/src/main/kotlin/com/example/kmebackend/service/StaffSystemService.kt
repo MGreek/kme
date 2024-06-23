@@ -121,52 +121,51 @@ data class StaffSystemService(
     /**
      * Overrides the data of an existing [StaffSystem] with the data of a [StaffSystemDTO].
      * @param staffSystemDTO the DTO from where data is saved.
-     * @throws NoSuchElementException if the ID provided by [staffSystemDTO] is not found.
      */
     fun saveDTO(staffSystemDTO: StaffSystemDTO) {
         val staffSystemId = staffSystemDTO.staffSystemId
 
-        if (staffSystemRepository.findById(staffSystemId).isEmpty) {
-            throw NoSuchElementException("StaffSystem with ID $staffSystemId not found")
+        if (staffSystemRepository.findById(staffSystemId).isPresent) {
+            val staves = staffSystemRepository.getChildren(staffSystemId)
+            val measures = staves.map { staffRepository.getChildren(requireNotNull(it.staffId)) }.flatten()
+            val voices = measures.map { measureRepository.getChildren(requireNotNull(it.measureId)) }.flatten()
+            val groupings = voices.map { voiceRepository.getChildren(requireNotNull(it.voiceId)) }.flatten()
+            val groupingEntries =
+                groupings.map {
+                    groupingRepository.getGroupingEntries(
+                        requireNotNull(it.groupingId),
+                    )
+                }.flatten()
+            val rests =
+                groupingEntries.filter { groupingEntryRepository.getRest(requireNotNull(it.groupingEntryId)) != null }
+                    .map {
+                        requireNotNull(
+                            groupingEntryRepository.getRest(
+                                requireNotNull(it.groupingEntryId),
+                            ),
+                        )
+                    }
+            val chords =
+                groupingEntries.filter { groupingEntryRepository.getChord(requireNotNull(it.groupingEntryId)) != null }
+                    .map {
+                        requireNotNull(
+                            groupingEntryRepository.getChord(
+                                requireNotNull(it.groupingEntryId),
+                            ),
+                        )
+                    }
+            val notes = chords.map { chordRepository.getChildren(requireNotNull(it.chordId)) }.flatten()
+
+            notes.map { requireNotNull(it.noteId) }.forEach(noteRepository::deleteById)
+            chords.map { requireNotNull(it.chordId) }.forEach(chordRepository::deleteById)
+            rests.map { requireNotNull(it.restId) }.forEach(restRepository::deleteById)
+            groupingEntries.map { requireNotNull(it.groupingEntryId) }.forEach(groupingEntryRepository::deleteById)
+            groupings.map { requireNotNull(it.groupingId) }.forEach(groupingRepository::deleteById)
+            voices.map { requireNotNull(it.voiceId) }.forEach(voiceRepository::deleteById)
+            measures.map { requireNotNull(it.measureId) }.forEach(measureRepository::deleteById)
+            staves.map { requireNotNull(it.staffId) }.forEach(staffRepository::deleteById)
+            deleteById(staffSystemId)
         }
-
-        val staves = staffSystemRepository.getChildren(staffSystemId)
-        val measures = staves.map { staffRepository.getChildren(requireNotNull(it.staffId)) }.flatten()
-        val voices = measures.map { measureRepository.getChildren(requireNotNull(it.measureId)) }.flatten()
-        val groupings = voices.map { voiceRepository.getChildren(requireNotNull(it.voiceId)) }.flatten()
-        val groupingEntries =
-            groupings.map {
-                groupingRepository.getGroupingEntries(
-                    requireNotNull(it.groupingId),
-                )
-            }.flatten()
-        val rests =
-            groupingEntries.filter { groupingEntryRepository.getRest(requireNotNull(it.groupingEntryId)) != null }.map {
-                requireNotNull(
-                    groupingEntryRepository.getRest(
-                        requireNotNull(it.groupingEntryId),
-                    ),
-                )
-            }
-        val chords =
-            groupingEntries.filter { groupingEntryRepository.getChord(requireNotNull(it.groupingEntryId)) != null }.map {
-                requireNotNull(
-                    groupingEntryRepository.getChord(
-                        requireNotNull(it.groupingEntryId),
-                    ),
-                )
-            }
-        val notes = chords.map { chordRepository.getChildren(requireNotNull(it.chordId)) }.flatten()
-
-        notes.map { requireNotNull(it.noteId) }.forEach(noteRepository::deleteById)
-        chords.map { requireNotNull(it.chordId) }.forEach(chordRepository::deleteById)
-        rests.map { requireNotNull(it.restId) }.forEach(restRepository::deleteById)
-        groupingEntries.map { requireNotNull(it.groupingEntryId) }.forEach(groupingEntryRepository::deleteById)
-        groupings.map { requireNotNull(it.groupingId) }.forEach(groupingRepository::deleteById)
-        voices.map { requireNotNull(it.voiceId) }.forEach(voiceRepository::deleteById)
-        measures.map { requireNotNull(it.measureId) }.forEach(measureRepository::deleteById)
-        staves.map { requireNotNull(it.staffId) }.forEach(staffRepository::deleteById)
-        deleteById(staffSystemId)
 
         val staffDTOs = staffSystemDTO.staffDTOs
         val measureDTOs = staffDTOs.flatMap { it.measureDTOs }
