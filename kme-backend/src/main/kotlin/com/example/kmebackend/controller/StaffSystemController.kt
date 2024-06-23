@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -60,6 +61,18 @@ class StaffSystemController(
             staffSystemService.saveDTO(staffSystemDTO)
             return ResponseEntity.ok().build()
         } catch (_: Exception) {
+            return ResponseEntity.internalServerError().build()
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    fun deleteStaffSystemById(
+        @PathVariable("id") id: String,
+    ): ResponseEntity<Void> {
+        try {
+            staffSystemService.deleteById(StaffSystemId(staffSystemId = id))
+            return ResponseEntity.ok().build()
+        } catch (ex: Exception) {
             return ResponseEntity.internalServerError().build()
         }
     }
