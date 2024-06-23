@@ -28,6 +28,7 @@ import {
   getNextCursor,
   getNoteById,
   getPreviousCursor,
+  getRestById,
   getStaffById,
   getStaffSystemMeasureCount,
   getWholeRestMeasure,
@@ -47,14 +48,26 @@ export class StaffSystemEditor {
   private get cursor(): Rest | Note {
     if (this._cursor == null) {
       const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
-      this._cursor = staffSystemMetadata.cursor;
+      if ("groupingEntryId" in staffSystemMetadata.cursorId) {
+        this._cursor = requireNotNull(
+          getRestById(this.staffSystem, staffSystemMetadata.cursorId),
+        );
+      } else {
+        this._cursor = requireNotNull(
+          getNoteById(this.staffSystem, staffSystemMetadata.cursorId),
+        );
+      }
     }
     return this._cursor;
   }
 
   private set cursor(value: Rest | Note) {
     const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
-    staffSystemMetadata.cursor = value;
+    if ("restId" in value) {
+      staffSystemMetadata.cursorId = value.restId;
+    } else {
+      staffSystemMetadata.cursorId = value.noteId;
+    }
     this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
     this._cursor = value;
   }

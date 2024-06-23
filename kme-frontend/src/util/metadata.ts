@@ -1,7 +1,7 @@
 import type { Grouping } from "../model/grouping";
 import type { Measure } from "../model/measure";
-import type { Note } from "../model/note";
-import type { Rest } from "../model/rest";
+import type { Note, NoteId } from "../model/note";
+import type { Rest, RestId } from "../model/rest";
 import type { Staff } from "../model/staff";
 import { ConnectorType, type StaffSystem } from "../model/staff-system";
 import { getStaffSystemMeasureCount } from "./misc";
@@ -13,7 +13,7 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   connectorType: ConnectorType;
   gap: number;
   rowLengths: number[];
-  cursor: Rest | Note;
+  cursorId: RestId | NoteId;
   name?: string;
 } {
   let object = null;
@@ -57,13 +57,13 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
     }
   }
 
-  let cursor = null;
+  let cursorId: RestId | NoteId | null = null;
   if (
     object != null &&
-    "cursor" in object &&
-    typeof object.cursor === "object"
+    "cursorId" in object &&
+    typeof object.cursorId === "object"
   ) {
-    cursor = object.cursor;
+    cursorId = object.cursorId;
   } else {
     const groupingEntry = requireNotNull(
       staffSystem.staves
@@ -75,12 +75,12 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
       "Found an empty staff system",
     );
     if (groupingEntry.rest != null) {
-      cursor = groupingEntry.rest;
+      cursorId = groupingEntry.rest.restId;
     } else {
-      cursor = requireNotNull(
+      cursorId = requireNotNull(
         groupingEntry.chord?.notes.at(0),
         "Found an empty chord",
-      );
+      ).noteId;
     }
   }
 
@@ -89,7 +89,13 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
     name = object.name;
   }
 
-  return { connectorType, gap, cursor, rowLengths, name };
+  return {
+    connectorType,
+    gap,
+    cursorId: requireNotNull(cursorId),
+    rowLengths,
+    name,
+  };
 }
 
 export function parseStaffMetadata(staff: Staff): {

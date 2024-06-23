@@ -10,7 +10,7 @@ import {
   TimeSignature,
 } from "../model/measure";
 import type { Note, NoteId } from "../model/note";
-import { type Rest, RestType } from "../model/rest";
+import { type Rest, RestType, RestId } from "../model/rest";
 import type { Staff, StaffId } from "../model/staff";
 import type { StaffSystem, StaffSystemId } from "../model/staff-system";
 import { StemType } from "../model/stem";
@@ -520,8 +520,21 @@ export function getChords(staffSystem: StaffSystem): Chord[] {
   return chords;
 }
 
+export function getRests(staffSystem: StaffSystem): Rest[] {
+  return getGroupingEntries(staffSystem)
+    .filter((groupingEntry) => groupingEntry.rest != null)
+    .map((groupingEntry) => requireNotNull(groupingEntry.rest));
+}
+
 export function getNotes(staffSystem: StaffSystem): Note[] {
   return getChords(staffSystem).flatMap((chord) => chord.notes);
+}
+
+export function equalRestIds(firstId: RestId, secondId: RestId) {
+  return equalGroupingEntryIds(
+    firstId.groupingEntryId,
+    secondId.groupingEntryId,
+  );
 }
 
 export function equalNoteIds(firstId: NoteId, secondId: NoteId) {
@@ -536,6 +549,14 @@ export function equalChordIds(firstId: ChordId, secondId: ChordId) {
     firstId.groupingEntryId,
     secondId.groupingEntryId,
   );
+}
+
+export function getRestById(
+  staffSystem: StaffSystem,
+  restId: RestId,
+): Rest | null {
+  const rests = getRests(staffSystem);
+  return rests.filter((r) => equalRestIds(r.restId, restId)).at(0) ?? null;
 }
 
 export function getNoteById(staffSystem: StaffSystem, noteId: NoteId) {
