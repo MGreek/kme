@@ -62,8 +62,13 @@ data class GroupingEntryService(
         if (!existsById(groupingEntryId)) {
             throw NoSuchElementException("Grouping with ID $groupingEntryId not found")
         }
-        getRest(groupingEntryId).ifPresent { restService.deleteById(requireNotNull(it.restId)) }
-        getChord(groupingEntryId).ifPresent { chordService.deleteById(requireNotNull(it.chordId)) }
+        val rest = getRest(groupingEntryId)
+        val chord = getChord(groupingEntryId)
+        if (rest.isPresent) {
+            restService.deleteById(requireNotNull(rest.orElseThrow().restId))
+        } else {
+            chordService.deleteById(requireNotNull(chord.orElseThrow().chordId))
+        }
         groupingEntryRepository.deleteById(groupingEntryId)
     }
 }
