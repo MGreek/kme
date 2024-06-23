@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { onGetAllStaffSystems } from "../api/request";
-import type { StaffSystem } from "../model/staff-system";
+import type { StaffSystem, StaffSystemId } from "../model/staff-system";
 import { Trie } from "../util/graph";
 import { parseStaffSystemMetadata } from "../util/metadata";
 import { requireNotNull } from "../util/require-not-null";
+import { getNewStaffSystem } from "../util/misc";
 
 export default function Explorer({
   onOpen,
+  onDelete,
 }: {
   onOpen: (staffSystem: StaffSystem) => void;
+  onDelete?: (staffSystemId: StaffSystemId) => void;
 }) {
+  const crtStaffSystems = useRef<StaffSystem[]>([]);
   const [staffSystems, setStaffSystems] = useState<StaffSystem[]>([]);
   const crtIndexRef = useRef<number>(0);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -20,32 +24,61 @@ export default function Explorer({
     const clampCrtIndex = () => {
       crtIndexRef.current = Math.max(
         0,
-        Math.min(Math.max(crtIndexRef.current, 0), staffSystems.length - 1),
+        Math.min(
+          Math.max(crtIndexRef.current, 0),
+          crtStaffSystems.current.length - 1,
+        ),
       );
     };
     clampCrtIndex();
 
     const trie = new Trie<() => void>();
-    trie.addWord("n", () => {
-      clampCrtIndex();
+    trie.addWord("j", () => {
+      if (crtStaffSystems.current.length === 0) {
+        return;
+      }
       crtIndexRef.current += 1;
       clampCrtIndex();
       setSelectedIndex(crtIndexRef.current);
     });
-    trie.addWord("p", () => {
-      clampCrtIndex();
+    trie.addWord("k", () => {
+      if (crtStaffSystems.current.length === 0) {
+        return;
+      }
       crtIndexRef.current -= 1;
       clampCrtIndex();
       setSelectedIndex(crtIndexRef.current);
     });
     trie.addWord("o", () => {
+      if (crtStaffSystems.current.length > 0) {
+        onOpen(requireNotNull(crtStaffSystems.current[crtIndexRef.current]));
+      }
+    });
+    trie.addWord("n", () => {
+      const newStaffSystem = getNewStaffSystem();
+      crtStaffSystems.current = [...crtStaffSystems.current, newStaffSystem];
+      setStaffSystems(crtStaffSystems.current);
+      onOpen(newStaffSystem);
+    });
+    trie.addWord("x", () => {
+      if (crtStaffSystems.current.length === 0) {
+        return;
+      }
+      const crtStaffSystem = requireNotNull(
+        crtStaffSystems.current[crtIndexRef.current],
+      );
+      crtStaffSystems.current = crtStaffSystems.current.filter(
+        (_staffSystem, index) => index !== crtIndexRef.current,
+      );
+      setStaffSystems(crtStaffSystems.current);
       clampCrtIndex();
-      if (staffSystems.length > 0) {
-        onOpen(requireNotNull(staffSystems[crtIndexRef.current]));
+      setSelectedIndex(crtIndexRef.current);
+      if (onDelete) {
+        onDelete(structuredClone(crtStaffSystem.staffSystemId));
       }
     });
     trieRef.current = trie;
-  }, [staffSystems, onOpen]);
+  }, [onOpen, onDelete]);
 
   const handleInput = useCallback(
     (word: string) => {
@@ -68,10 +101,6 @@ export default function Explorer({
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (staffSystems.length === 0) {
-        return;
-      }
-
       if (
         event.key !== "Escape" &&
         event.key !== "Enter" &&
@@ -88,18 +117,16 @@ export default function Explorer({
 
       handleInput(event.key);
     },
-    [staffSystems, handleInput],
+    [handleInput],
   );
 
   useEffect(() => {
     onGetAllStaffSystems((staffSystems) => {
-      setStaffSystems(staffSystems);
+      crtStaffSystems.current = staffSystems;
+      setStaffSystems(crtStaffSystems.current);
     });
   }, []);
 
-  if (staffSystems.length === 0) {
-    return <div>No staff systems.</div>;
-  }
   const divEntries = [];
   for (const [index, staffSystem] of staffSystems.entries()) {
     const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
@@ -124,7 +151,7 @@ export default function Explorer({
           div.focus();
         }
       }}
-      className="grid place-content-center outline-none p-4"
+      className="grid place-content-center outline-none p-4 bg-zinc-200"
       // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard events are needed
       tabIndex={0}
       onKeyDown={onKeyDown}
