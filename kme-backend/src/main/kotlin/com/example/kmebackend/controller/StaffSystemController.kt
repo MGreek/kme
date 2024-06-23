@@ -5,6 +5,7 @@ import com.example.kmebackend.model.dto.StaffSystemDTO
 import com.example.kmebackend.service.*
 import com.example.kmebackend.service.builder.StaffSystemBuilder
 import com.example.kmebackend.service.converter.StaffSystemConverter
+import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -38,7 +39,10 @@ class StaffSystemController(
     @Autowired
     val staffSystemConverter: StaffSystemConverter,
 ) {
+    // HACK: all operations are transactional so there's no need to worry
+    // about the database
     @RequestMapping("/{id}")
+    @Transactional
     fun getStaffSystemById(
         @PathVariable("id") id: String,
     ): ResponseEntity<StaffSystemDTO> {
@@ -54,6 +58,7 @@ class StaffSystemController(
     }
 
     @PostMapping("/set")
+    @Transactional
     fun setStaffSystemById(
         @RequestBody staffSystemDTO: StaffSystemDTO,
     ): ResponseEntity<Void> {
@@ -66,6 +71,7 @@ class StaffSystemController(
     }
 
     @DeleteMapping("/delete/{id}")
+    @Transactional
     fun deleteStaffSystemById(
         @PathVariable("id") id: String,
     ): ResponseEntity<Void> {
@@ -78,6 +84,7 @@ class StaffSystemController(
     }
 
     @RequestMapping("/all")
+    @Transactional
     fun findAllStaffSystems(): ResponseEntity<List<StaffSystemDTO>> {
         return try {
             ResponseEntity.ok(staffSystemService.findAll().map(staffSystemConverter::staffSystemToDto).toList())
@@ -87,6 +94,7 @@ class StaffSystemController(
     }
 
     @RequestMapping("/sample")
+    @Transactional
     fun getSampleStaffSystem(): ResponseEntity<StaffSystemDTO> {
         try {
             val staffSystemBuilder =
