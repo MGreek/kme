@@ -1,9 +1,9 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { onDeleteStaffSystemById, onSetStaffSystemById } from "./api/request";
 import Editor from "./components/Editor";
 import Explorer from "./components/Explorer";
 import type { StaffSystem } from "./model/staff-system";
 import { requireNotNull } from "./util/require-not-null";
-import { onSetStaffSystemById } from "./api/request";
 
 enum ComponentType {
   Explorer = "Explorer",
@@ -24,6 +24,13 @@ export default function App() {
           onOpen={(staffSystem) => {
             staffSystemRef.current = staffSystem;
             setComponentType(ComponentType.Editor);
+          }}
+          onDelete={(staffSystemId) => {
+            onDeleteStaffSystemById(staffSystemId, (success) => {
+              if (!success) {
+                alert("Failed to delete staff system");
+              }
+            });
           }}
         />
       );
