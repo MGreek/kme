@@ -5,6 +5,7 @@ import type { Rest } from "../model/rest";
 import type { Staff } from "../model/staff";
 import { ConnectorType, type StaffSystem } from "../model/staff-system";
 import { getStaffSystemMeasureCount } from "./misc";
+import { requireNotNull } from "./require-not-null";
 
 export const DEFAULT_STAFF_SYSTEM_GAP = 12;
 
@@ -12,12 +13,13 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
   connectorType: ConnectorType;
   gap: number;
   rowLengths: number[];
+  cursor: Rest | Note;
   name?: string;
 } {
   let object = null;
   try {
     object = JSON.parse(staffSystem.metadataJson);
-  } catch {}
+  } catch { }
 
   let connectorType = ConnectorType.None;
   if (
@@ -55,12 +57,39 @@ export function parseStaffSystemMetadata(staffSystem: StaffSystem): {
     }
   }
 
+  let cursor = null;
+  if (
+    object != null &&
+    "cursor" in object &&
+    typeof object.cursor === "object"
+  ) {
+    cursor = object.cursor;
+  } else {
+    const groupingEntry = requireNotNull(
+      staffSystem.staves
+        .at(0)
+        ?.measures.at(0)
+        ?.voices.at(0)
+        ?.groupings.at(0)
+        ?.groupingEntries.at(0),
+      "Found an empty staff system",
+    );
+    if (groupingEntry.rest != null) {
+      cursor = groupingEntry.rest;
+    } else {
+      cursor = requireNotNull(
+        groupingEntry.chord?.notes.at(0),
+        "Found an empty chord",
+      );
+    }
+  }
+
   let name = null;
   if (object != null && "name" in object && typeof object.name === "string") {
     name = object.name;
   }
 
-  return { connectorType, gap, rowLengths, name };
+  return { connectorType, gap, cursor, rowLengths, name };
 }
 
 export function parseStaffMetadata(staff: Staff): {
@@ -69,7 +98,7 @@ export function parseStaffMetadata(staff: Staff): {
   let object = null;
   try {
     object = JSON.parse(staff.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let width = 300;
   if (object != null && "width" in object && typeof object.width === "number") {
@@ -86,7 +115,7 @@ export function parseMeasureMetadata(measure: Measure): {
   let object = null;
   try {
     object = JSON.parse(measure.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let drawClef = false;
   if (
@@ -124,7 +153,7 @@ export function parseGroupingMetadata(grouping: Grouping): {
   let object = null;
   try {
     object = JSON.parse(grouping.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let stemUp = grouping.groupingId.voiceId.voicesOrder % 2 === 0;
   if (
@@ -145,7 +174,7 @@ export function parseNoteMetadata(note: Note): {
   let object = null;
   try {
     object = JSON.parse(note.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let highlight = false;
   if (
@@ -177,7 +206,7 @@ export function parseRestMetadata(rest: Rest): {
   let object = null;
   try {
     object = JSON.parse(rest.metadataJson);
-  } catch (error) {}
+  } catch (error) { }
 
   let highlight = false;
   if (
