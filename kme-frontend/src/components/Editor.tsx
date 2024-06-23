@@ -7,14 +7,21 @@ import StaffSystemElement from "./StaffSystemElement";
 import { StemType } from "../model/stem";
 import { Clef, KeySignature, TimeSignature } from "../model/measure";
 import { Accidental } from "../model/note";
-import { DEFAULT_STAFF_SYSTEM_GAP } from "../util/metadata";
+import {
+  DEFAULT_STAFF_SYSTEM_GAP,
+  parseStaffSystemMetadata,
+} from "../util/metadata";
 
 export default function Editor({
   pagePadding,
   initialStaffSystem,
+  onExplore,
+  onWrite,
 }: {
   pagePadding: { left: number; right: number; top: number; bottom: number };
   initialStaffSystem: StaffSystem;
+  onExplore?: () => void;
+  onWrite?: (staffSystem: StaffSystem) => void;
 }) {
   const staffSystemEditorRef = useRef<StaffSystemEditor | null>(null);
 
@@ -347,9 +354,65 @@ export default function Editor({
     insertTrieRef.current = trie;
   }, [updateStaffSystemElement]);
 
-  const onCommandEnter = useCallback((command: string) => {
-    console.log("COMMAND", command);
-  }, []);
+  const onCommandEnter = useCallback(
+    (commandString: string) => {
+      const staffSystemEditor = requireNotNull(
+        staffSystemEditorRef.current,
+        "Expected staffSystemEditorRef to be initialized",
+      );
+      const commands: {
+        weakRegex: RegExp;
+        regex: RegExp;
+        onSuccess?: (matches: RegExpMatchArray) => void;
+        onError?: () => void;
+      }[] = [
+        // write command
+        {
+          weakRegex: /^w(rite)?\s*(\s.*)?$/,
+          regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
+          onSuccess: (matches: RegExpMatchArray) => {
+            if (matches.groups?.name) {
+              staffSystemEditor.setStaffSystemName(matches.groups?.name);
+              updateStaffSystemElement();
+            }
+            if (onWrite != null) {
+              onWrite(staffSystemEditor.getStaffSystem());
+            }
+          },
+          onError: () => {
+            alert(
+              "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
+            );
+          },
+        },
+        {
+          // explore command
+          weakRegex: /^ex(plore)?\s*$/,
+          regex: /^ex(plore)?\s*$/,
+          onSuccess: () => {
+            if (onExplore) {
+              onExplore();
+            }
+          },
+        },
+      ];
+
+      for (const command of commands) {
+        if (command.weakRegex.test(commandString)) {
+          const matches = commandString.match(command.regex);
+          if (matches != null && command.onSuccess != null) {
+            command.onSuccess(matches);
+          }
+          if (matches == null && command.onError != null) {
+            command.onError();
+          }
+          return;
+        }
+      }
+      alert("Unknown command.");
+    },
+    [onExplore, updateStaffSystemElement, onWrite],
+  );
 
   const normalHandleInput = useCallback(
     (word: string) => {
