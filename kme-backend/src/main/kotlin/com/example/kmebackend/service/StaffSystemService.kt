@@ -149,7 +149,7 @@ data class StaffSystemService(
                 )
             }
         val chords =
-            groupingEntries.filter { groupingEntryRepository.getRest(requireNotNull(it.groupingEntryId)) != null }.map {
+            groupingEntries.filter { groupingEntryRepository.getChord(requireNotNull(it.groupingEntryId)) != null }.map {
                 requireNotNull(
                     groupingEntryRepository.getChord(
                         requireNotNull(it.groupingEntryId),
