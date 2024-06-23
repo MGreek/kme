@@ -314,15 +314,39 @@ function removeElements(div: HTMLDivElement) {
   }
 }
 
-// FIX: getRowJson should include the previous clef/timesig/keysig
-// because they affect the current row
 export function getRowJson(
   totalWidth: number,
   startMeasureIndex: number,
   stopMeasureIndex: number,
   staffSystem: StaffSystem,
 ) {
+  const previousMeasures = [];
+  const nextMeasures = [];
+  for (const staff of staffSystem.staves) {
+    const previousMeasure =
+      startMeasureIndex === 0 ? null : staff.measures.at(startMeasureIndex - 1);
+    const previousClef = previousMeasure?.clef;
+    const previousKeySignature = previousMeasure?.keySignature;
+    const previousTimeSignature = previousMeasure?.timeSignature;
+    previousMeasures.push({
+      clef: previousClef,
+      keySignature: previousKeySignature,
+      timeSignature: previousTimeSignature,
+    });
+    const nextMeasure = staff.measures.at(stopMeasureIndex + 1);
+    const nextClef = nextMeasure?.clef;
+    const nextKeySignature = nextMeasure?.keySignature;
+    const nextTimeSignature = nextMeasure?.timeSignature;
+    nextMeasures.push({
+      clef: nextClef,
+      keySignature: nextKeySignature,
+      timeSignature: nextTimeSignature,
+    });
+  }
+
   return JSON.stringify({
+    previousMeasures,
+    nextMeasures,
     totalWidth,
     startMeasureIndex,
     stopMeasureIndex,
