@@ -37,5 +37,6 @@ data class Voice(
         ),
     )
     val measure: Measure? = null,
+    @Lob
     val metadataJson: String = "",
 )

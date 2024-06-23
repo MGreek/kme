@@ -66,5 +66,6 @@ data class Rest(
     @Enumerated(EnumType.STRING)
     val restType: RestType,
     val position: Int,
+    @Lob
     val metadataJson: String = "",
 )

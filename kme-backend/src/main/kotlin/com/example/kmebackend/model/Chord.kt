@@ -59,5 +59,6 @@ data class Chord(
     @AttributeOverride(name = "metadataJson", column = Column(name = "stemMetadataJson"))
     val stem: Stem,
     @field:[Min(0) Max(4)] val dotCount: Long,
+    @Lob
     val metadataJson: String = "",
 )

@@ -13,5 +13,6 @@ data class StaffSystemId(
 data class StaffSystem(
     @EmbeddedId
     val staffSystemId: StaffSystemId? = null,
+    @Lob
     val metadataJson: String = "",
 )

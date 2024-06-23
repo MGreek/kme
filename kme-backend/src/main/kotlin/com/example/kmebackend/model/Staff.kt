@@ -22,5 +22,6 @@ data class Staff(
         updatable = false,
     )
     val staffSystem: StaffSystem? = null,
+    @Lob
     val metadataJson: String = "",
 )

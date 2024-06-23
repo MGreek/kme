@@ -43,5 +43,6 @@ data class Grouping(
         ),
     )
     val voice: Voice? = null,
+    @Lob
     val metadataJson: String = "",
 )

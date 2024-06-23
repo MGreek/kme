@@ -68,5 +68,6 @@ data class Measure(
     val timeSignature: TimeSignature,
     @Enumerated(EnumType.STRING)
     val clef: Clef,
+    @Lob
     val metadataJson: String = "",
 )

@@ -16,5 +16,6 @@ enum class StemType {
 data class Stem(
     @Enumerated(EnumType.STRING)
     val stemType: StemType,
+    @Lob
     val metadataJson: String = "",
 )

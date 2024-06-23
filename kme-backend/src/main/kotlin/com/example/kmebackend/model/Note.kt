@@ -65,5 +65,6 @@ data class Note(
     val chord: Chord? = null,
     @Enumerated(EnumType.STRING)
     val accidental: Accidental,
+    @Lob
     val metadataJson: String = "",
 )
