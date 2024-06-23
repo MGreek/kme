@@ -56,3 +56,14 @@ export function onSetStaffSystemById(
     .then(() => callback(true))
     .catch(() => callback(false));
 }
+
+export function onDeleteStaffSystemById(
+  staffSystemId: StaffSystemId,
+  callback: (success: boolean) => void,
+) {
+  const url = `api/staff-system/delete/${staffSystemId.staffSystemId}`;
+  api
+    .delete(url)
+    .then(() => callback(true))
+    .catch(() => callback(false));
+}
