@@ -631,6 +631,9 @@ export default function Editor({
     return <div />;
   }
 
+  const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
+  const name = `${staffSystemMetadata.name ?? "No Name"} ${staffSystem.staffSystemId.staffSystemId.slice(0, 5)}`;
+
   return (
     <div>
       <div
@@ -650,6 +653,7 @@ export default function Editor({
           onRowDivRendered={onRowDivRendered}
         />
       </div>
+      <div className="bg-red-400 fixed top-4 left-10">{name}</div>
       <div className="bg-red-400 fixed bottom-4 left-10">{mode}</div>
       <div className="bg-red-400 fixed bottom-4 right-10 whitespace-pre">
         {command}
