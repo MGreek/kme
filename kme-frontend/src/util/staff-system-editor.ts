@@ -3,7 +3,7 @@ import type { Clef, KeySignature, TimeSignature } from "../model/measure";
 import { Accidental, type Note } from "../model/note";
 import type { Rest } from "../model/rest";
 import type { Staff } from "../model/staff";
-import type { StaffSystem } from "../model/staff-system";
+import type { ConnectorType, StaffSystem } from "../model/staff-system";
 import type { StemType } from "../model/stem";
 import {
   parseGroupingMetadata,
@@ -897,6 +897,12 @@ export class StaffSystemEditor {
   public setStaffSystemName(name: string) {
     const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
     staffSystemMetadata.name = name;
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+  }
+
+  public setStaffSystemConnector(connectorType: ConnectorType) {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    staffSystemMetadata.connectorType = connectorType;
     this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
   }
 }

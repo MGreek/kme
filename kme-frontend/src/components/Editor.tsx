@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { StaffSystem } from "../model/staff-system";
-import { Trie } from "../util/graph";
-import { requireNotNull } from "../util/require-not-null";
-import { StaffSystemEditor } from "../util/staff-system-editor";
-import StaffSystemElement from "./StaffSystemElement";
-import { StemType } from "../model/stem";
 import { Clef, KeySignature, TimeSignature } from "../model/measure";
 import { Accidental } from "../model/note";
+import { ConnectorType, type StaffSystem } from "../model/staff-system";
+import { StemType } from "../model/stem";
+import { Trie } from "../util/graph";
 import {
   DEFAULT_STAFF_SYSTEM_GAP,
   parseStaffSystemMetadata,
 } from "../util/metadata";
+import { requireNotNull } from "../util/require-not-null";
+import { StaffSystemEditor } from "../util/staff-system-editor";
+import StaffSystemElement from "./StaffSystemElement";
 
 export default function Editor({
   pagePadding,
@@ -261,6 +261,18 @@ export default function Editor({
       staffSystemEditor.setSpaceBetweenStaves(DEFAULT_STAFF_SYSTEM_GAP);
       updateStaffSystemElement();
     });
+    trie.addWord("Scx", () => {
+      staffSystemEditor.setStaffSystemConnector(ConnectorType.None);
+      updateStaffSystemElement();
+    });
+    trie.addWord("Sc[", () => {
+      staffSystemEditor.setStaffSystemConnector(ConnectorType.Bracket);
+      updateStaffSystemElement();
+    });
+    trie.addWord("Sc{", () => {
+      staffSystemEditor.setStaffSystemConnector(ConnectorType.Brace);
+      updateStaffSystemElement();
+    });
     const sharps = [
       KeySignature.Sharp1,
       KeySignature.Sharp2,
@@ -366,36 +378,36 @@ export default function Editor({
         onSuccess?: (matches: RegExpMatchArray) => void;
         onError?: () => void;
       }[] = [
-          // write command
-          {
-            weakRegex: /^w(rite)?\s*(\s.*)?$/,
-            regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
-            onSuccess: (matches: RegExpMatchArray) => {
-              if (matches.groups?.name) {
-                staffSystemEditor.setStaffSystemName(matches.groups?.name);
-                updateStaffSystemElement();
-              }
-              if (onWrite != null) {
-                onWrite(staffSystemEditor.getStaffSystem());
-              }
-            },
-            onError: () => {
-              alert(
-                "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
-              );
-            },
+        // write command
+        {
+          weakRegex: /^w(rite)?\s*(\s.*)?$/,
+          regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
+          onSuccess: (matches: RegExpMatchArray) => {
+            if (matches.groups?.name) {
+              staffSystemEditor.setStaffSystemName(matches.groups?.name);
+              updateStaffSystemElement();
+            }
+            if (onWrite != null) {
+              onWrite(staffSystemEditor.getStaffSystem());
+            }
           },
-          {
-            // explore command
-            weakRegex: /^ex(plore)?\s*$/,
-            regex: /^ex(plore)?\s*$/,
-            onSuccess: () => {
-              if (onExplore) {
-                onExplore();
-              }
-            },
+          onError: () => {
+            alert(
+              "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
+            );
           },
-        ];
+        },
+        {
+          // explore command
+          weakRegex: /^ex(plore)?\s*$/,
+          regex: /^ex(plore)?\s*$/,
+          onSuccess: () => {
+            if (onExplore) {
+              onExplore();
+            }
+          },
+        },
+      ];
 
       for (const command of commands) {
         if (command.weakRegex.test(commandString)) {
