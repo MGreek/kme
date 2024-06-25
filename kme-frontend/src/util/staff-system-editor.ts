@@ -93,12 +93,13 @@ export class StaffSystemEditor {
 
   private setCursorHightlight(highlight: boolean) {
     const grouping = getCursorGrouping(this.staffSystem, this.cursor);
+    const groupingAlpha = "32";
     for (const groupingEntry of grouping.groupingEntries) {
       if (groupingEntry.rest != null) {
         const restMetadata = parseRestMetadata(groupingEntry.rest);
         restMetadata.highlight = highlight;
         if (highlight) {
-          restMetadata.alpha = "44";
+          restMetadata.alpha = groupingAlpha;
         }
         groupingEntry.rest.metadataJson = JSON.stringify(restMetadata);
       } else if (groupingEntry.chord != null) {
@@ -106,7 +107,7 @@ export class StaffSystemEditor {
           const noteMetadata = parseNoteMetadata(requireNotNull(note));
           noteMetadata.highlight = highlight;
           if (highlight) {
-            noteMetadata.alpha = "44";
+            noteMetadata.alpha = groupingAlpha;
           }
           note.metadataJson = JSON.stringify(noteMetadata);
         }
