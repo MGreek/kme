@@ -22,7 +22,9 @@ import {
   getCursorStaff,
   getCursorVoice,
   getGroupingById,
+  getGroupingEntryByDurationShift,
   getGroupingEntryById,
+  getGroupingEntryDurationShift,
   getMeasureById,
   getMeasureRowIndex,
   getNextCursor,
@@ -31,6 +33,7 @@ import {
   getRestById,
   getStaffById,
   getStaffSystemMeasureCount,
+  getVoiceById,
   getWholeRestMeasure,
   insertEmptyMeasure,
   pruneStaffSystem,
@@ -221,42 +224,46 @@ export class StaffSystemEditor {
   }
 
   public increaseCursorVoice() {
-    this.setCursorHightlight(false);
     const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
-    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
-    nextGroupingEntryId.groupingEntriesOrder = 0;
-    nextGroupingEntryId.groupingId.groupingsOrder = 0;
-    nextGroupingEntryId.groupingId.voiceId.voicesOrder += 1;
-
-    const nextGroupingEntry = getGroupingEntryById(
-      this.staffSystem,
-      nextGroupingEntryId,
+    const nextVoiceId = structuredClone(
+      groupingEntry.groupingEntryId.groupingId.voiceId,
     );
+    nextVoiceId.voicesOrder += 1;
+    const nextVoice = getVoiceById(this.staffSystem, nextVoiceId);
 
-    if (nextGroupingEntry != null) {
-      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    if (nextVoice == null) {
+      return;
     }
 
+    const nextGroupingEntry = getGroupingEntryByDurationShift(
+      nextVoice,
+      getGroupingEntryDurationShift(this.staffSystem, groupingEntry),
+    );
+
+    this.setCursorHightlight(false);
+    this.setCursorOnGroupingEntry(nextGroupingEntry);
     this.setCursorHightlight(true);
   }
 
   public decreaseCursorVoice() {
-    this.setCursorHightlight(false);
     const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
-    const nextGroupingEntryId = structuredClone(groupingEntry.groupingEntryId);
-    nextGroupingEntryId.groupingEntriesOrder = 0;
-    nextGroupingEntryId.groupingId.groupingsOrder = 0;
-    nextGroupingEntryId.groupingId.voiceId.voicesOrder -= 1;
-
-    const nextGroupingEntry = getGroupingEntryById(
-      this.staffSystem,
-      nextGroupingEntryId,
+    const previousVoiceId = structuredClone(
+      groupingEntry.groupingEntryId.groupingId.voiceId,
     );
+    previousVoiceId.voicesOrder -= 1;
+    const nextVoice = getVoiceById(this.staffSystem, previousVoiceId);
 
-    if (nextGroupingEntry != null) {
-      this.setCursorOnGroupingEntry(nextGroupingEntry);
+    if (nextVoice == null) {
+      return;
     }
 
+    const nextGroupingEntry = getGroupingEntryByDurationShift(
+      nextVoice,
+      getGroupingEntryDurationShift(this.staffSystem, groupingEntry),
+    );
+
+    this.setCursorHightlight(false);
+    this.setCursorOnGroupingEntry(nextGroupingEntry);
     this.setCursorHightlight(true);
   }
 
@@ -347,9 +354,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[prevMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -368,9 +375,9 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[nextMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -387,9 +394,9 @@ export class StaffSystemEditor {
       this.staffSystem.staves[staff.staffId.stavesOrder],
       this.staffSystem.staves[nextStaff.staffId.stavesOrder],
     ] = [
-        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
-        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
-      ];
+      requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+      requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 
@@ -406,9 +413,9 @@ export class StaffSystemEditor {
       this.staffSystem.staves[staff.staffId.stavesOrder],
       this.staffSystem.staves[nextStaff.staffId.stavesOrder],
     ] = [
-        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
-        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
-      ];
+      requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+      requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+    ];
     syncIds(this.staffSystem);
   }
 

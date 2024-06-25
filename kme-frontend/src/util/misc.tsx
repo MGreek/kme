@@ -10,7 +10,7 @@ import {
   TimeSignature,
 } from "../model/measure";
 import type { Note, NoteId } from "../model/note";
-import { type Rest, RestType, RestId } from "../model/rest";
+import { type Rest, RestType, type RestId } from "../model/rest";
 import type { Staff, StaffId } from "../model/staff";
 import type { StaffSystem, StaffSystemId } from "../model/staff-system";
 import { StemType } from "../model/stem";
@@ -97,6 +97,83 @@ export function getWholeRestMeasure(
     ],
   };
   return newMeasure;
+}
+
+export function getDurationFromStemType(stemType: StemType) {
+  switch (stemType) {
+    case StemType.Whole:
+      return 1;
+    case StemType.Half:
+      return 1 / 2;
+    case StemType.Quarter:
+      return 1 / 4;
+    case StemType.Eight:
+      return 1 / 8;
+    case StemType.Sixteenth:
+      return 1 / 16;
+    case StemType.Thirtysecond:
+      return 1 / 32;
+    case StemType.Sixtyfourth:
+      return 1 / 64;
+    default:
+      throw new Error("Unknown stem type");
+  }
+}
+
+export function getGroupingEntryDurationShift(
+  staffSystem: StaffSystem,
+  groupingEntry: GroupingEntry,
+) {
+  const voice = requireNotNull(
+    getVoiceById(staffSystem, groupingEntry.groupingEntryId.groupingId.voiceId),
+  );
+  let total = 0;
+  for (const otherEntry of voice.groupings.flatMap(
+    (grouping) => grouping.groupingEntries,
+  )) {
+    if (
+      equalGroupingEntryIds(
+        otherEntry.groupingEntryId,
+        groupingEntry.groupingEntryId,
+      )
+    ) {
+      break;
+    }
+    if (otherEntry.rest != null) {
+      total += getDurationFromStemType(
+        restTypeToStemType(otherEntry.rest.restType),
+      );
+    } else {
+      const chord = requireNotNull(otherEntry.chord);
+      total += getDurationFromStemType(chord.stem.stemType);
+    }
+  }
+  return total;
+}
+
+export function getGroupingEntryByDurationShift(
+  voice: Voice,
+  durationShift: number,
+) {
+  let total = 0;
+  const groupingEntries = voice.groupings.flatMap(
+    (grouping) => grouping.groupingEntries,
+  );
+  for (const [index, groupingEntry] of groupingEntries.entries()) {
+    const previousEntry = index === 0 ? null : groupingEntries.at(index - 1);
+    if (total > durationShift) {
+      return previousEntry ?? groupingEntry;
+    }
+    if (groupingEntry.rest != null) {
+      total += getDurationFromStemType(
+        restTypeToStemType(groupingEntry.rest.restType),
+      );
+    } else {
+      const chord = requireNotNull(groupingEntry.chord);
+      total += getDurationFromStemType(chord.stem.stemType);
+    }
+  }
+  return requireNotNull(groupingEntries.at(-1), "Found an empty voice");
 }
 
 export function getNewStaffSystem(): StaffSystem {
@@ -495,7 +572,7 @@ export function equalMeasureIds(
 ): boolean {
   return (
     firstId.staffId.staffSystemId.staffSystemId ===
-    secondId.staffId.staffSystemId.staffSystemId &&
+      secondId.staffId.staffSystemId.staffSystemId &&
     firstId.staffId.stavesOrder === secondId.staffId.stavesOrder &&
     firstId.measuresOrder === secondId.measuresOrder
   );
@@ -504,7 +581,7 @@ export function equalMeasureIds(
 export function equalStaffIds(firstId: StaffId, secondId: StaffId): boolean {
   return (
     firstId.staffSystemId.staffSystemId ===
-    secondId.staffSystemId.staffSystemId &&
+      secondId.staffSystemId.staffSystemId &&
     firstId.stavesOrder === secondId.stavesOrder
   );
 }
@@ -622,14 +699,14 @@ export function equalGroupingEntryIds(
   // PERF: don't use deepCopy because it's too slow!!!
   return (
     firstId.groupingId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
-    secondId.groupingId.voiceId.measureId.staffId.staffSystemId
-      .staffSystemId &&
+      secondId.groupingId.voiceId.measureId.staffId.staffSystemId
+        .staffSystemId &&
     firstId.groupingId.voiceId.measureId.staffId.stavesOrder ===
-    secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
+      secondId.groupingId.voiceId.measureId.staffId.stavesOrder &&
     firstId.groupingId.voiceId.measureId.measuresOrder ===
-    secondId.groupingId.voiceId.measureId.measuresOrder &&
+      secondId.groupingId.voiceId.measureId.measuresOrder &&
     firstId.groupingId.voiceId.voicesOrder ===
-    secondId.groupingId.voiceId.voicesOrder &&
+      secondId.groupingId.voiceId.voicesOrder &&
     firstId.groupingId.groupingsOrder === secondId.groupingId.groupingsOrder &&
     firstId.groupingEntriesOrder === secondId.groupingEntriesOrder
   );
@@ -638,9 +715,9 @@ export function equalGroupingEntryIds(
 export function equalVoiceIds(firstId: VoiceId, secondId: VoiceId): boolean {
   return (
     firstId.measureId.staffId.staffSystemId.staffSystemId ===
-    secondId.measureId.staffId.staffSystemId.staffSystemId &&
+      secondId.measureId.staffId.staffSystemId.staffSystemId &&
     firstId.measureId.staffId.stavesOrder ===
-    secondId.measureId.staffId.stavesOrder &&
+      secondId.measureId.staffId.stavesOrder &&
     firstId.measureId.measuresOrder === secondId.measureId.measuresOrder &&
     firstId.voicesOrder === secondId.voicesOrder
   );
@@ -652,11 +729,11 @@ export function equalGroupingIds(
 ): boolean {
   return (
     firstId.voiceId.measureId.staffId.staffSystemId.staffSystemId ===
-    secondId.voiceId.measureId.staffId.staffSystemId.staffSystemId &&
+      secondId.voiceId.measureId.staffId.staffSystemId.staffSystemId &&
     firstId.voiceId.measureId.staffId.stavesOrder ===
-    secondId.voiceId.measureId.staffId.stavesOrder &&
+      secondId.voiceId.measureId.staffId.stavesOrder &&
     firstId.voiceId.measureId.measuresOrder ===
-    secondId.voiceId.measureId.measuresOrder &&
+      secondId.voiceId.measureId.measuresOrder &&
     firstId.voiceId.voicesOrder === secondId.voiceId.voicesOrder &&
     firstId.groupingsOrder === secondId.groupingsOrder
   );
