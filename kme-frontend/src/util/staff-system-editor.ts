@@ -144,50 +144,70 @@ export class StaffSystemEditor {
   }
 
   public increaseCursorStaff() {
-    const staff = getCursorStaff(this.staffSystem, this.cursor);
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
     const nextStaff = getStaffById(this.staffSystem, {
-      staffSystemId: staff.staffId.staffSystemId,
-      stavesOrder: staff.staffId.stavesOrder + 1,
+      staffSystemId:
+        groupingEntry.groupingEntryId.groupingId.voiceId.measureId.staffId
+          .staffSystemId,
+      stavesOrder:
+        groupingEntry.groupingEntryId.groupingId.voiceId.measureId.staffId
+          .stavesOrder + 1,
     });
     if (nextStaff == null) {
       return;
     }
-    this.setCursorHightlight(false);
-    this.setCursorOnGroupingEntry(
-      requireNotNull(
-        nextStaff.measures
-          .at(0)
-          ?.voices.at(0)
-          ?.groupings.at(0)
-          ?.groupingEntries.at(0),
-      ),
+    const measureIndex =
+      groupingEntry.groupingEntryId.groupingId.voiceId.measureId.measuresOrder;
+    const nextMeasure = requireNotNull(
+      nextStaff.measures.at(measureIndex),
+      "Found staves with different number of measures",
     );
-
+    const voiceIndex =
+      groupingEntry.groupingEntryId.groupingId.voiceId.voicesOrder;
+    const nextVoice = requireNotNull(
+      nextMeasure.voices.at(voiceIndex) ?? nextMeasure.voices.at(-1),
+      "Found an empty measure",
+    );
+    const nextGroupingEntry = getGroupingEntryByDurationShift(
+      nextVoice,
+      getGroupingEntryDurationShift(this.staffSystem, groupingEntry),
+    );
+    this.setCursorHightlight(false);
+    this.setCursorOnGroupingEntry(nextGroupingEntry);
     this.setCursorHightlight(true);
   }
 
-  // FIX: this should teleports the cursor back to the first measure;
-  // instead it should remain on the same row and also cross rows if needed
   public decreaseCursorStaff() {
-    const staff = getCursorStaff(this.staffSystem, this.cursor);
-    const prevStaff = getStaffById(this.staffSystem, {
-      staffSystemId: staff.staffId.staffSystemId,
-      stavesOrder: staff.staffId.stavesOrder - 1,
+    const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
+    const previousStaff = getStaffById(this.staffSystem, {
+      staffSystemId:
+        groupingEntry.groupingEntryId.groupingId.voiceId.measureId.staffId
+          .staffSystemId,
+      stavesOrder:
+        groupingEntry.groupingEntryId.groupingId.voiceId.measureId.staffId
+          .stavesOrder - 1,
     });
-    if (prevStaff == null) {
+    if (previousStaff == null) {
       return;
     }
-    this.setCursorHightlight(false);
-    this.setCursorOnGroupingEntry(
-      requireNotNull(
-        prevStaff.measures
-          .at(0)
-          ?.voices.at(0)
-          ?.groupings.at(0)
-          ?.groupingEntries.at(0),
-      ),
+    const measureIndex =
+      groupingEntry.groupingEntryId.groupingId.voiceId.measureId.measuresOrder;
+    const previousMeasure = requireNotNull(
+      previousStaff.measures.at(measureIndex),
+      "Found staves with different number of measures",
     );
-
+    const voiceIndex =
+      groupingEntry.groupingEntryId.groupingId.voiceId.voicesOrder;
+    const previousVoice = requireNotNull(
+      previousMeasure.voices.at(voiceIndex) ?? previousMeasure.voices.at(-1),
+      "Found an empty measure",
+    );
+    const previousGroupingEntry = getGroupingEntryByDurationShift(
+      previousVoice,
+      getGroupingEntryDurationShift(this.staffSystem, groupingEntry),
+    );
+    this.setCursorHightlight(false);
+    this.setCursorOnGroupingEntry(previousGroupingEntry);
     this.setCursorHightlight(true);
   }
 
