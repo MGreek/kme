@@ -181,7 +181,7 @@ export default function Editor({
       staffSystemEditor.insertNoteTop();
       updateStaffSystemElement();
     });
-    trie.addWord("nv", () => {
+    trie.addWord("wa", () => {
       staffSystemEditor.appendVoice();
       updateStaffSystemElement();
     });
@@ -229,7 +229,7 @@ export default function Editor({
       staffSystemEditor.setClef(Clef.Treble);
       updateStaffSystemElement();
     });
-    trie.addWord("mkn", () => {
+    trie.addWord("mkx", () => {
       staffSystemEditor.setKeySignature(KeySignature.None);
       updateStaffSystemElement();
     });
