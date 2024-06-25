@@ -179,9 +179,6 @@ export function getKeyFromPosition(position: number): string {
     notes.at(((position % notes.length) + notes.length) % notes.length),
   );
   const octave = position / notes.length + octaveOffset;
-  if (octave < 0) {
-    throw new Error("Octave must be non-negative");
-  }
 
   return [name, octave.toString()].join("/");
 }
