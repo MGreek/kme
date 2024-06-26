@@ -131,16 +131,18 @@ export default function Explorer({
   for (const [index, staffSystem] of staffSystems.entries()) {
     const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
     const stringEntry = `${staffSystemMetadata.name ?? "No Name"} ${staffSystem.staffSystemId.staffSystemId.slice(0, 5)}`;
-    let newDiv = null;
-    if (index === selectedIndex) {
-      newDiv = (
-        <div key={stringEntry} className="text-red-500">
+    const newDiv = (
+      <div className="flex flex-row items-start">
+        <div className="text-teal-400 ml-1">
+          {selectedIndex === index ? ">" : ""}
+        </div>
+        <div
+          className={`${selectedIndex === index ? "text-amber-500" : "text-amber-900"} ml-1`}
+        >
           {stringEntry}
         </div>
-      );
-    } else {
-      newDiv = <div key={stringEntry}>{stringEntry}</div>;
-    }
+      </div>
+    );
     divEntries.push(newDiv);
   }
 
@@ -151,12 +153,20 @@ export default function Explorer({
           div.focus();
         }
       }}
-      className="grid place-content-center outline-none p-4 bg-zinc-200"
+      className="grid place-content-center outline-none p-4"
       // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard events are needed
       tabIndex={0}
       onKeyDown={onKeyDown}
     >
-      {divEntries}
+      <div className="flex flex-col gap-4 justify-between bg-slate-900 min-w-96 min-h-96 rounded border-2 border-amber-300">
+        <div className="text-yellow-500 font-semibold text-l self-center mt-4">
+          SELECT A STAFF SYSTEM
+        </div>
+        {divEntries}
+        <div className="text-yellow-500 self-center font-semibold">
+          {"k - Up, j - Down, o - Open, n - New"}
+        </div>
+      </div>
     </div>
   );
 }
