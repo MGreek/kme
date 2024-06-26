@@ -378,36 +378,36 @@ export default function Editor({
         onSuccess?: (matches: RegExpMatchArray) => void;
         onError?: () => void;
       }[] = [
-        // write command
-        {
-          weakRegex: /^w(rite)?\s*(\s.*)?$/,
-          regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
-          onSuccess: (matches: RegExpMatchArray) => {
-            if (matches.groups?.name) {
-              staffSystemEditor.setStaffSystemName(matches.groups?.name);
-              updateStaffSystemElement();
-            }
-            if (onWrite != null) {
-              onWrite(staffSystemEditor.getStaffSystem());
-            }
+          // write command
+          {
+            weakRegex: /^w(rite)?\s*(\s.*)?$/,
+            regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
+            onSuccess: (matches: RegExpMatchArray) => {
+              if (matches.groups?.name) {
+                staffSystemEditor.setStaffSystemName(matches.groups?.name);
+                updateStaffSystemElement();
+              }
+              if (onWrite != null) {
+                onWrite(staffSystemEditor.getStaffSystem());
+              }
+            },
+            onError: () => {
+              alert(
+                "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
+              );
+            },
           },
-          onError: () => {
-            alert(
-              "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
-            );
+          {
+            // explore command
+            weakRegex: /^ex(plore)?\s*$/,
+            regex: /^ex(plore)?\s*$/,
+            onSuccess: () => {
+              if (onExplore) {
+                onExplore();
+              }
+            },
           },
-        },
-        {
-          // explore command
-          weakRegex: /^ex(plore)?\s*$/,
-          regex: /^ex(plore)?\s*$/,
-          onSuccess: () => {
-            if (onExplore) {
-              onExplore();
-            }
-          },
-        },
-      ];
+        ];
 
       for (const command of commands) {
         if (command.weakRegex.test(commandString)) {
@@ -728,9 +728,13 @@ export default function Editor({
           onRowDivRendered={onRowDivRendered}
         />
       </div>
-      <div className="bg-red-400 fixed top-4 left-10">{name}</div>
-      <div className="bg-red-400 fixed bottom-4 left-10">{mode}</div>
-      <div className="bg-red-400 fixed bottom-4 right-10 whitespace-pre">
+      <div className="bg-slate-900 fixed rounded top-4 left-10 text-amber-500 px-2">
+        {name}
+      </div>
+      <div className="bg-slate-900 fixed rounded bottom-4 left-10 text-amber-500 px-2">
+        {mode}
+      </div>
+      <div className="bg-slate-900 fixed rounded bottom-4 right-10 whitespace-pre text-amber-500 px-2">
         {command}
       </div>
     </div>
