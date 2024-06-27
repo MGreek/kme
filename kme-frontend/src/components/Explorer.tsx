@@ -177,7 +177,7 @@ export default function Explorer({
       onKeyDown={onKeyDown}
     >
       <div className="flex flex-col gap-4 justify-between bg-slate-900 min-w-96 min-h-96 rounded border-2 border-amber-300">
-        <div className="text-yellow-500 font-semibold text-l self-center mt-4">
+        <div className="text-yellow-500 font-semibold self-center mt-4">
           SELECT A STAFF SYSTEM
         </div>
         {divEntries}
