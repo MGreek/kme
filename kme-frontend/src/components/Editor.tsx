@@ -56,7 +56,7 @@ export default function Editor({
     setStaffSystem(staffSystemEditor.getStaffSystem());
   }, []);
 
-  const navigationBindsRef = useRef<Bind[]>([
+  const normalNavigationBindsRef = useRef<Bind[]>([
     {
       word: "h",
       description: "cursor left",
@@ -137,7 +137,7 @@ export default function Editor({
       "Expected staffSystemEditorRef to be initialized",
     );
     const trie = new Trie<() => void>();
-    for (const navigationBind of navigationBindsRef.current) {
+    for (const navigationBind of normalNavigationBindsRef.current) {
       trie.addWord(navigationBind.word, navigationBind.callback);
     }
     // TODO: make a list of binds like navigationBinds for the rest
@@ -832,7 +832,7 @@ export default function Editor({
   let helpDiv = null;
   if (mode === "help") {
     const helpEntries = [];
-    for (const bind of [navigationBindsRef.current].flat()) {
+    for (const bind of [normalNavigationBindsRef.current].flat()) {
       helpEntries.push(
         <div>
           <span className="italic font-bold text-xl text-blue-500">
