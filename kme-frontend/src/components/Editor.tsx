@@ -12,6 +12,12 @@ import { requireNotNull } from "../util/require-not-null";
 import { StaffSystemEditor } from "../util/staff-system-editor";
 import StaffSystemElement from "./StaffSystemElement";
 
+interface Bind {
+  word: string;
+  callback: () => void;
+  description?: string;
+}
+
 export default function Editor({
   pagePadding,
   initialStaffSystem,
@@ -50,36 +56,91 @@ export default function Editor({
     setStaffSystem(staffSystemEditor.getStaffSystem());
   }, []);
 
+  const navigationBindsRef = useRef<Bind[]>([
+    {
+      word: "h",
+      description: "cursor left",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorLeft();
+        updateStaffSystemElement();
+      },
+    },
+    {
+      word: "l",
+      description: "cursor right",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorRight();
+        updateStaffSystemElement();
+      },
+    },
+    {
+      word: "j",
+      description: "increase voice",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.increaseCursorVoice();
+        updateStaffSystemElement();
+      },
+    },
+    {
+      word: "k",
+      description: "decrease voice",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.decreaseCursorVoice();
+        updateStaffSystemElement();
+      },
+    },
+    {
+      word: "gj",
+      description: "next staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.increaseCursorStaff();
+        updateStaffSystemElement();
+      },
+    },
+    {
+      word: "gk",
+      description: "previous staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.decreaseCursorStaff();
+        updateStaffSystemElement();
+      },
+    },
+  ]);
+
   const initNormalTrie = useCallback(() => {
     const staffSystemEditor = requireNotNull(
       staffSystemEditorRef.current,
       "Expected staffSystemEditorRef to be initialized",
     );
     const trie = new Trie<() => void>();
-    trie.addWord("h", () => {
-      staffSystemEditor.moveCursorLeft();
-      updateStaffSystemElement();
-    });
-    trie.addWord("l", () => {
-      staffSystemEditor.moveCursorRight();
-      updateStaffSystemElement();
-    });
-    trie.addWord("j", () => {
-      staffSystemEditor.increaseCursorVoice();
-      updateStaffSystemElement();
-    });
-    trie.addWord("k", () => {
-      staffSystemEditor.decreaseCursorVoice();
-      updateStaffSystemElement();
-    });
-    trie.addWord("gj", () => {
-      staffSystemEditor.increaseCursorStaff();
-      updateStaffSystemElement();
-    });
-    trie.addWord("gk", () => {
-      staffSystemEditor.decreaseCursorStaff();
-      updateStaffSystemElement();
-    });
+    for (const navigationBind of navigationBindsRef.current) {
+      trie.addWord(navigationBind.word, navigationBind.callback);
+    }
+    // TODO: make a list of binds like navigationBinds for the rest
     trie.addWord("mx", () => {
       staffSystemEditor.removeMeasures();
       updateStaffSystemElement();
@@ -768,16 +829,34 @@ export default function Editor({
   const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
   const name = `${staffSystemMetadata.name ?? "No Name"} ${staffSystem.staffSystemId.staffSystemId.slice(0, 5)}`;
 
-  const helpDiv =
-    mode === "help" ? (
+  let helpDiv = null;
+  if (mode === "help") {
+    const helpEntries = [];
+    for (const bind of [navigationBindsRef.current].flat()) {
+      helpEntries.push(
+        <div>
+          <span className="italic font-bold text-xl text-blue-500">
+            {bind.word}
+          </span>
+          <span className="text-yellow-500 text-xs ml-2">
+            {bind.description}
+          </span>
+        </div>,
+      );
+    }
+    helpDiv = (
       <div
-        className="rounded p-4 fixed inset-0 top-10 mx-auto max-w-96 max-h-96 opacity-75 min-w-96 min-h-96 bg-slate-900 z-10 text-yellow-500 font-semibold text-xl"
+        className="flex flex-col items-start justify-start rounded p-4 fixed inset-0 top-10 mx-auto max-w-96 max-h-96 opacity-90 min-w-96 min-h-96 bg-slate-900 z-10 text-yellow-500 font-semibold text-xl"
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
-        Help me
+        <span className="self-center text-amber-600 text-2xl border-red-500 font-bold">
+          Key binds
+        </span>
+        {helpEntries}
       </div>
-    ) : null;
+    );
+  }
 
   return (
     <div>
