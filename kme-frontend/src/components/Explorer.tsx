@@ -20,6 +20,25 @@ export default function Explorer({
 
   const trieRef = useRef<Trie<() => void> | null>(null);
 
+  const setSortedStaffSystems = useCallback((unsorted: StaffSystem[]) => {
+    setStaffSystems(
+      unsorted.sort((first, second) => {
+        const firstMeta = parseStaffSystemMetadata(first);
+        const secondMeta = parseStaffSystemMetadata(second);
+        const firstComp = (firstMeta.name ?? "No Name").localeCompare(
+          secondMeta.name ?? "No Name",
+        );
+        const secondComp = first.staffSystemId.staffSystemId.localeCompare(
+          second.staffSystemId.staffSystemId,
+        );
+        if (firstComp !== 0) {
+          return firstComp;
+        }
+        return secondComp;
+      }),
+    );
+  }, []);
+
   const initTrie = useCallback(() => {
     const clampCrtIndex = () => {
       crtIndexRef.current = Math.max(
@@ -57,7 +76,7 @@ export default function Explorer({
     trie.addWord("n", () => {
       const newStaffSystem = getNewStaffSystem();
       crtStaffSystems.current = [...crtStaffSystems.current, newStaffSystem];
-      setStaffSystems(crtStaffSystems.current);
+      setSortedStaffSystems(crtStaffSystems.current);
       onOpen(newStaffSystem);
     });
     trie.addWord("x", () => {
@@ -70,7 +89,7 @@ export default function Explorer({
       crtStaffSystems.current = crtStaffSystems.current.filter(
         (_staffSystem, index) => index !== crtIndexRef.current,
       );
-      setStaffSystems(crtStaffSystems.current);
+      setSortedStaffSystems(crtStaffSystems.current);
       clampCrtIndex();
       setSelectedIndex(crtIndexRef.current);
       if (onDelete) {
@@ -78,7 +97,7 @@ export default function Explorer({
       }
     });
     trieRef.current = trie;
-  }, [onOpen, onDelete]);
+  }, [onOpen, onDelete, setSortedStaffSystems]);
 
   const handleInput = useCallback(
     (word: string) => {
@@ -123,16 +142,16 @@ export default function Explorer({
   useEffect(() => {
     onGetAllStaffSystems((staffSystems) => {
       crtStaffSystems.current = staffSystems;
-      setStaffSystems(crtStaffSystems.current);
+      setSortedStaffSystems(crtStaffSystems.current);
     });
-  }, []);
+  }, [setSortedStaffSystems]);
 
   const divEntries = [];
   for (const [index, staffSystem] of staffSystems.entries()) {
     const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
     const stringEntry = `${staffSystemMetadata.name ?? "No Name"} ${staffSystem.staffSystemId.staffSystemId.slice(0, 5)}`;
     const newDiv = (
-      <div className="flex flex-row items-start">
+      <div key={stringEntry} className="flex flex-row items-start">
         <div className="text-teal-400 ml-1">
           {selectedIndex === index ? ">" : ""}
         </div>
