@@ -27,12 +27,12 @@ export default function Editor({
 
   const [staffSystem, setStaffSystem] = useState<StaffSystem | null>(null);
 
-  const crtModeRef = useRef<"normal" | "visual" | "insert" | "command">(
-    "normal",
-  );
-  const [mode, setMode] = useState<"normal" | "visual" | "insert" | "command">(
-    "normal",
-  );
+  const crtModeRef = useRef<
+    "normal" | "visual" | "insert" | "command" | "help"
+  >("normal");
+  const [mode, setMode] = useState<
+    "normal" | "visual" | "insert" | "command" | "help"
+  >("normal");
 
   const crtCommandRef = useRef<string>("");
   const [command, setCommand] = useState<string>("");
@@ -40,6 +40,7 @@ export default function Editor({
   const normalTrieRef = useRef<Trie<() => void> | null>(null);
   const visualTrieRef = useRef<Trie<() => void> | null>(null);
   const insertTrieRef = useRef<Trie<() => void> | null>(null);
+  const helpTrieRef = useRef<Trie<() => void> | null>(null);
 
   const updateStaffSystemElement = useCallback(() => {
     const staffSystemEditor = requireNotNull(
@@ -366,6 +367,17 @@ export default function Editor({
     insertTrieRef.current = trie;
   }, [updateStaffSystemElement]);
 
+  const initHelpTrie = useCallback(() => {
+    const trie = new Trie<() => void>();
+    trie.addWord("?", () => {
+      crtModeRef.current = "normal";
+      setMode(crtModeRef.current);
+      crtCommandRef.current = "";
+      setCommand(crtCommandRef.current);
+    });
+    helpTrieRef.current = trie;
+  }, []);
+
   const onCommandEnter = useCallback(
     (commandString: string) => {
       const staffSystemEditor = requireNotNull(
@@ -435,7 +447,7 @@ export default function Editor({
       }
       if (
         crtCommandRef.current === "" &&
-        (word === "i" || word === "v" || word === ":")
+        (word === "i" || word === "v" || word === ":" || word === "?")
       ) {
         switch (word) {
           case "i":
@@ -446,6 +458,9 @@ export default function Editor({
             break;
           case ":":
             crtModeRef.current = "command";
+            break;
+          case "?":
+            crtModeRef.current = "help";
             break;
         }
         setMode(crtModeRef.current);
@@ -620,6 +635,46 @@ export default function Editor({
     [onCommandEnter],
   );
 
+  const helpHandleInput = useCallback(
+    (word: string) => {
+      if (word === "Escape") {
+        crtModeRef.current = "normal";
+        setMode(crtModeRef.current);
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      crtCommandRef.current += word;
+      setCommand(crtCommandRef.current);
+
+      if (helpTrieRef.current == null) {
+        initHelpTrie();
+      }
+
+      const trie = requireNotNull(
+        helpTrieRef.current,
+        "Expected helpTrieRef to be initialized",
+      );
+
+      const data = trie.getDataByWord(crtCommandRef.current);
+      if (data != null) {
+        data();
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+
+      const isPrefix = trie.isPrefix(crtCommandRef.current);
+      if (!isPrefix) {
+        crtCommandRef.current = "";
+        setCommand(crtCommandRef.current);
+        return;
+      }
+    },
+    [initHelpTrie],
+  );
+
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (staffSystem == null) {
@@ -653,6 +708,9 @@ export default function Editor({
         case "command":
           commandHandleInput(event.key);
           break;
+        case "help":
+          helpHandleInput(event.key);
+          break;
         default:
           throw new Error("Unknown mode");
       }
@@ -663,6 +721,7 @@ export default function Editor({
       visualHandleInput,
       insertHandleInput,
       commandHandleInput,
+      helpHandleInput,
     ],
   );
 
@@ -709,8 +768,20 @@ export default function Editor({
   const staffSystemMetadata = parseStaffSystemMetadata(staffSystem);
   const name = `${staffSystemMetadata.name ?? "No Name"} ${staffSystem.staffSystemId.staffSystemId.slice(0, 5)}`;
 
+  const helpDiv =
+    mode === "help" ? (
+      <div
+        className="rounded p-4 fixed inset-0 top-10 mx-auto max-w-96 max-h-96 opacity-75 min-w-96 min-h-96 bg-slate-900 z-10 text-yellow-500 font-semibold text-xl"
+        tabIndex={-1}
+        onKeyDown={onKeyDown}
+      >
+        Help me
+      </div>
+    ) : null;
+
   return (
     <div>
+      {helpDiv}
       <div
         ref={(div: HTMLDivElement | null) => {
           if (div != null) {
@@ -729,6 +800,10 @@ export default function Editor({
       </div>
       <div className="bg-slate-900 fixed rounded top-4 left-10 text-amber-500 px-2">
         {name}
+      </div>
+      <div className="bg-slate-900 fixed rounded top-4 right-10 text-amber-500 px-2">
+        Press <span className="italic font-bold text-xl text-blue-500">?</span>{" "}
+        to toggle help
       </div>
       <div className="bg-slate-900 fixed rounded bottom-4 left-10 text-amber-500 px-2">
         {mode}
