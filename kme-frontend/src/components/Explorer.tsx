@@ -173,8 +173,7 @@ export default function Explorer({
         }
       }}
       className="grid place-content-center outline-none p-4"
-      // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard events are needed
-      tabIndex={0}
+      tabIndex={-1}
       onKeyDown={onKeyDown}
     >
       <div className="flex flex-col gap-4 justify-between bg-slate-900 min-w-96 min-h-96 rounded border-2 border-amber-300">

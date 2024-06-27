@@ -718,8 +718,7 @@ export default function Editor({
           }
         }}
         className="grid place-content-center outline-none p-4"
-        // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard events are needed
-        tabIndex={0}
+        tabIndex={-1}
         onKeyDown={onKeyDown}
       >
         <StaffSystemElement
