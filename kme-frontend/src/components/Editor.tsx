@@ -501,6 +501,10 @@ export default function Editor({
 
   const normalHandleInput = useCallback(
     (word: string) => {
+      if (word === "v") {
+        // HACK: disable visual mode until it is implemented
+        return;
+      }
       if (word === "Escape" || word === "Backspace") {
         crtCommandRef.current = "";
         setCommand(crtCommandRef.current);
