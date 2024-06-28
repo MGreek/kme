@@ -41,6 +41,10 @@ export default function Editor({
     "normal" | "visual" | "insert" | "command" | "help"
   >("normal");
 
+  const [selectedHelpMode, setSelectedHelpMode] = useState<
+    "normal" | "insert" | "help"
+  >("help");
+
   const crtCommandRef = useRef<string>("");
   const [command, setCommand] = useState<string>("");
 
@@ -48,6 +52,8 @@ export default function Editor({
   const visualTrieRef = useRef<Trie<() => void> | null>(null);
   const insertTrieRef = useRef<Trie<() => void> | null>(null);
   const helpTrieRef = useRef<Trie<() => void> | null>(null);
+
+  const helpDivRef = useRef<HTMLDivElement | null>(null);
 
   const updateStaffSystemElement = useCallback(() => {
     const staffSystemEditor = requireNotNull(
@@ -945,6 +951,54 @@ export default function Editor({
       mode: "normal",
     },
     ...getNoteInsertBinds(),
+    {
+      word: "n",
+      description: "see normal mode binds",
+      callback: () => {
+        setSelectedHelpMode("normal");
+      },
+      mode: "help",
+    },
+    {
+      word: "i",
+      description: "see insert mode binds",
+      callback: () => {
+        setSelectedHelpMode("insert");
+      },
+      mode: "help",
+    },
+    {
+      word: "h",
+      description: "see help mode binds",
+      callback: () => {
+        setSelectedHelpMode("help");
+      },
+      mode: "help",
+    },
+    {
+      word: "f",
+      description: "scroll down",
+      callback: () => {
+        const helpDiv = requireNotNull(
+          helpDivRef.current,
+          "Expected helpDivRef to be initialized",
+        );
+        helpDiv.scrollBy({ top: 100, behavior: "instant" });
+      },
+      mode: "help",
+    },
+    {
+      word: "b",
+      description: "scroll up",
+      callback: () => {
+        const helpDiv = requireNotNull(
+          helpDivRef.current,
+          "Expected helpDivRef to be initialized",
+        );
+        helpDiv.scrollBy({ top: -100, behavior: "instant" });
+      },
+      mode: "help",
+    },
   ]);
 
   const initNormalTrie = useCallback(() => {
@@ -1072,6 +1126,7 @@ export default function Editor({
             break;
           case "?":
             crtModeRef.current = "help";
+            setSelectedHelpMode("help");
             break;
         }
         setMode(crtModeRef.current);
@@ -1344,18 +1399,12 @@ export default function Editor({
     const rowIndex = staffSystemEditor.getCursorRowIndex();
     if (rowIndex === index) {
       const divRect = div.getBoundingClientRect();
-      const width = window.innerWidth;
       const height = window.innerHeight;
-      if (
-        0 <= divRect.left &&
-        divRect.right <= width &&
-        0 <= divRect.top &&
-        divRect.bottom <= height
-      ) {
+      if (0 <= divRect.top && divRect.bottom <= height) {
         return;
       }
       div.scrollIntoView({
-        behavior: "smooth",
+        behavior: "instant",
         block: "center",
         inline: "start",
       });
@@ -1382,9 +1431,17 @@ export default function Editor({
   let helpDiv = null;
   if (mode === "help") {
     const helpEntries = [];
-    for (const bind of binds.current) {
+    for (const bind of binds.current.filter(
+      (bind) => bind.mode === selectedHelpMode,
+    )) {
       helpEntries.push(
-        <div>
+        <div
+          key={JSON.stringify({
+            word: bind.word,
+            description: bind.description,
+            mode: bind.mode,
+          })}
+        >
           <span className="italic font-bold text-xl text-blue-500">
             {bind.word}
           </span>
@@ -1396,12 +1453,13 @@ export default function Editor({
     }
     helpDiv = (
       <div
+        ref={helpDivRef}
         className="flex flex-col items-start justify-start rounded p-4 fixed inset-0 top-10 mx-auto overflow-y-scroll opacity-90 w-96 h-96 bg-slate-900 z-10 text-yellow-500 font-semibold text-xl"
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
         <span className="self-center text-amber-600 text-2xl border-red-500 font-bold">
-          Key binds
+          {selectedHelpMode} key binds
         </span>
         {helpEntries}
       </div>
