@@ -75,6 +75,17 @@ export class StaffSystemEditor {
     this._cursor = value;
   }
 
+  private saveCursor() {
+    const staffSystemMetadata = parseStaffSystemMetadata(this.staffSystem);
+    if ("restId" in this.cursor) {
+      staffSystemMetadata.cursorId = this.cursor.restId;
+    } else {
+      staffSystemMetadata.cursorId = this.cursor.noteId;
+    }
+    this.staffSystem.metadataJson = JSON.stringify(staffSystemMetadata);
+    this._cursor = this.cursor;
+  }
+
   public getStaffSystem(): StaffSystem {
     return structuredClone(this.staffSystem);
   }
@@ -112,6 +123,7 @@ export class StaffSystemEditor {
           note.metadataJson = JSON.stringify(noteMetadata);
         }
       }
+      this.saveCursor();
     }
 
     if ("restId" in this.cursor) {
@@ -216,10 +228,13 @@ export class StaffSystemEditor {
     if ("restId" in this.cursor) {
       return;
     }
-    const nextNote = getNoteById(this.staffSystem, {
-      chordId: this.cursor.noteId.chordId,
-      position: this.cursor.noteId.position + 1,
-    });
+    const chord = requireNotNull(
+      getChordById(this.staffSystem, this.cursor.noteId.chordId),
+    );
+    const cursorPosition = this.cursor.noteId.position;
+    const nextNote = chord.notes
+      .filter((note) => note.noteId.position > cursorPosition)
+      .at(0);
     if (nextNote == null) {
       return;
     }
@@ -232,10 +247,13 @@ export class StaffSystemEditor {
     if ("restId" in this.cursor) {
       return;
     }
-    const prevNote = getNoteById(this.staffSystem, {
-      chordId: this.cursor.noteId.chordId,
-      position: this.cursor.noteId.position - 1,
-    });
+    const chord = requireNotNull(
+      getChordById(this.staffSystem, this.cursor.noteId.chordId),
+    );
+    const cursorPosition = this.cursor.noteId.position;
+    const prevNote = chord.notes
+      .filter((note) => note.noteId.position < cursorPosition)
+      .at(-1);
     if (prevNote == null) {
       return;
     }
@@ -375,10 +393,11 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[prevMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[prevMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
+    this.saveCursor();
   }
 
   public swapMeasureRight() {
@@ -396,10 +415,11 @@ export class StaffSystemEditor {
       staff.measures[measure.measureId.measuresOrder],
       staff.measures[nextMeasureId.measuresOrder],
     ] = [
-        requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
-        requireNotNull(staff.measures[measure.measureId.measuresOrder]),
-      ];
+      requireNotNull(staff.measures[nextMeasureId.measuresOrder]),
+      requireNotNull(staff.measures[measure.measureId.measuresOrder]),
+    ];
     syncIds(this.staffSystem);
+    this.saveCursor();
   }
 
   public swapStaffDown() {
@@ -415,10 +435,11 @@ export class StaffSystemEditor {
       this.staffSystem.staves[staff.staffId.stavesOrder],
       this.staffSystem.staves[nextStaff.staffId.stavesOrder],
     ] = [
-        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
-        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
-      ];
+      requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+      requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+    ];
     syncIds(this.staffSystem);
+    this.saveCursor();
   }
 
   public swapStaffUp() {
@@ -434,10 +455,11 @@ export class StaffSystemEditor {
       this.staffSystem.staves[staff.staffId.stavesOrder],
       this.staffSystem.staves[nextStaff.staffId.stavesOrder],
     ] = [
-        requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
-        requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
-      ];
+      requireNotNull(this.staffSystem.staves[nextStaff.staffId.stavesOrder]),
+      requireNotNull(this.staffSystem.staves[staff.staffId.stavesOrder]),
+    ];
     syncIds(this.staffSystem);
+    this.saveCursor();
   }
 
   public moveCursorPosition(delta: number) {
@@ -445,21 +467,23 @@ export class StaffSystemEditor {
       this.cursor.position += delta;
     } else {
       const cursorPosition = this.cursor.noteId.position;
-      const prevPosition = cursorPosition + delta;
+      const nextPosition = cursorPosition + delta;
       const cursorChord = requireNotNull(
         getChordById(this.staffSystem, this.cursor.noteId.chordId),
       );
       if (
-        cursorChord.notes.some((note) => note.noteId.position === prevPosition)
+        cursorChord.notes.some((note) => note.noteId.position === nextPosition)
       ) {
         return;
       }
-      this.cursor.noteId.position = prevPosition;
+      this.cursor.noteId.position = nextPosition;
     }
+    this.saveCursor();
   }
 
   public insertMeasure(measureIndex: number) {
     insertEmptyMeasure(this.staffSystem, measureIndex);
+    this.saveCursor();
   }
 
   public toggleType() {
@@ -501,6 +525,7 @@ export class StaffSystemEditor {
       this.cursor = groupingEntry.rest;
       this.setCursorHightlight(true);
     }
+    this.saveCursor();
   }
 
   public setDuration(stemType: StemType) {
@@ -512,6 +537,7 @@ export class StaffSystemEditor {
       );
       chord.stem.stemType = stemType;
     }
+    this.saveCursor();
   }
 
   public deleteNote() {
@@ -564,6 +590,7 @@ export class StaffSystemEditor {
         );
     }
     this.setCursorHightlight(true);
+    this.saveCursor();
   }
 
   static readonly MAX_CHORD_NOTES = 10;
@@ -588,6 +615,7 @@ export class StaffSystemEditor {
       });
       this.setCursorHightlight(true);
     }
+    this.saveCursor();
   }
 
   public insertNoteTop() {
@@ -610,6 +638,7 @@ export class StaffSystemEditor {
       });
       this.setCursorHightlight(true);
     }
+    this.saveCursor();
   }
 
   static readonly MAX_VOICES = 4;
@@ -619,6 +648,7 @@ export class StaffSystemEditor {
     if (measure.voices.length < StaffSystemEditor.MAX_VOICES) {
       appendVoice(measure);
     }
+    this.saveCursor();
   }
 
   public setClef(clef: Clef) {
@@ -759,6 +789,7 @@ export class StaffSystemEditor {
     );
     this.setCursorHightlight(true);
     this.staffSystem.staves.splice(staff.staffId.stavesOrder, 1);
+    this.saveCursor();
   }
 
   static readonly MAX_STAVES = 4;
@@ -783,6 +814,7 @@ export class StaffSystemEditor {
     };
     this.staffSystem.staves.splice(staffIndex, 0, staff);
     syncIds(this.staffSystem);
+    this.saveCursor();
   }
 
   static readonly MIN_STAFF_SYSTEM_GAP = 4;
