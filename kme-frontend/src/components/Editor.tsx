@@ -16,6 +16,7 @@ interface Bind {
   word: string;
   callback: () => void;
   description?: string;
+  mode: "normal" | "insert" | "visual" | "help";
 }
 
 export default function Editor({
@@ -56,285 +57,7 @@ export default function Editor({
     setStaffSystem(staffSystemEditor.getStaffSystem());
   }, []);
 
-  const normalNavigationBindsRef = useRef<Bind[]>([
-    {
-      word: "h",
-      description: "cursor left",
-      callback: () => {
-        const staffSystemEditor = requireNotNull(
-          staffSystemEditorRef.current,
-          "Expected staffSystemEditorRef to be initialized",
-        );
-        staffSystemEditor.moveCursorLeft();
-        updateStaffSystemElement();
-      },
-    },
-    {
-      word: "l",
-      description: "cursor right",
-      callback: () => {
-        const staffSystemEditor = requireNotNull(
-          staffSystemEditorRef.current,
-          "Expected staffSystemEditorRef to be initialized",
-        );
-        staffSystemEditor.moveCursorRight();
-        updateStaffSystemElement();
-      },
-    },
-    {
-      word: "j",
-      description: "increase voice",
-      callback: () => {
-        const staffSystemEditor = requireNotNull(
-          staffSystemEditorRef.current,
-          "Expected staffSystemEditorRef to be initialized",
-        );
-        staffSystemEditor.increaseCursorVoice();
-        updateStaffSystemElement();
-      },
-    },
-    {
-      word: "k",
-      description: "decrease voice",
-      callback: () => {
-        const staffSystemEditor = requireNotNull(
-          staffSystemEditorRef.current,
-          "Expected staffSystemEditorRef to be initialized",
-        );
-        staffSystemEditor.decreaseCursorVoice();
-        updateStaffSystemElement();
-      },
-    },
-    {
-      word: "gj",
-      description: "next staff",
-      callback: () => {
-        const staffSystemEditor = requireNotNull(
-          staffSystemEditorRef.current,
-          "Expected staffSystemEditorRef to be initialized",
-        );
-        staffSystemEditor.increaseCursorStaff();
-        updateStaffSystemElement();
-      },
-    },
-    {
-      word: "gk",
-      description: "previous staff",
-      callback: () => {
-        const staffSystemEditor = requireNotNull(
-          staffSystemEditorRef.current,
-          "Expected staffSystemEditorRef to be initialized",
-        );
-        staffSystemEditor.decreaseCursorStaff();
-        updateStaffSystemElement();
-      },
-    },
-  ]);
-
-  const initNormalTrie = useCallback(() => {
-    const staffSystemEditor = requireNotNull(
-      staffSystemEditorRef.current,
-      "Expected staffSystemEditorRef to be initialized",
-    );
-    const trie = new Trie<() => void>();
-    for (const navigationBind of normalNavigationBindsRef.current) {
-      trie.addWord(navigationBind.word, navigationBind.callback);
-    }
-    // TODO: make a list of binds like navigationBinds for the rest
-    trie.addWord("mx", () => {
-      staffSystemEditor.removeMeasures();
-      updateStaffSystemElement();
-    });
-    trie.addWord("ml", () => {
-      staffSystemEditor.swapMeasureRight();
-      updateStaffSystemElement();
-    });
-    trie.addWord("mh", () => {
-      staffSystemEditor.swapMeasureLeft();
-      updateStaffSystemElement();
-    });
-    trie.addWord("na", () => {
-      staffSystemEditor.moveCursorPosition(-4);
-      updateStaffSystemElement();
-    });
-    trie.addWord("ns", () => {
-      staffSystemEditor.moveCursorPosition(-3);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nd", () => {
-      staffSystemEditor.moveCursorPosition(-2);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nf", () => {
-      staffSystemEditor.moveCursorPosition(-1);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nj", () => {
-      staffSystemEditor.moveCursorPosition(1);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nk", () => {
-      staffSystemEditor.moveCursorPosition(2);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nl", () => {
-      staffSystemEditor.moveCursorPosition(3);
-      updateStaffSystemElement();
-    });
-    trie.addWord("n;", () => {
-      staffSystemEditor.moveCursorPosition(4);
-      updateStaffSystemElement();
-    });
-    trie.addWord("ma", () => {
-      staffSystemEditor.insertMeasure(
-        staffSystemEditor.getStaffSystemMeasureCount(),
-      );
-      updateStaffSystemElement();
-    });
-    trie.addWord("mj", () => {
-      staffSystemEditor.join();
-      updateStaffSystemElement();
-    });
-    trie.addWord("mb", () => {
-      staffSystemEditor.break();
-      updateStaffSystemElement();
-    });
-    trie.addWord("nc", () => {
-      staffSystemEditor.toggleType();
-      updateStaffSystemElement();
-    });
-    trie.addWord("n1", () => {
-      staffSystemEditor.setDuration(StemType.Whole);
-      updateStaffSystemElement();
-    });
-    trie.addWord("n2", () => {
-      staffSystemEditor.setDuration(StemType.Half);
-      updateStaffSystemElement();
-    });
-    trie.addWord("n3", () => {
-      staffSystemEditor.setDuration(StemType.Quarter);
-      updateStaffSystemElement();
-    });
-    trie.addWord("n4", () => {
-      staffSystemEditor.setDuration(StemType.Eight);
-      updateStaffSystemElement();
-    });
-    trie.addWord("n5", () => {
-      staffSystemEditor.setDuration(StemType.Sixteenth);
-      updateStaffSystemElement();
-    });
-    trie.addWord("n6", () => {
-      staffSystemEditor.setDuration(StemType.Thirtysecond);
-      updateStaffSystemElement();
-    });
-    trie.addWord("n7", () => {
-      staffSystemEditor.setDuration(StemType.Sixtyfourth);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nx", () => {
-      staffSystemEditor.deleteNote();
-      updateStaffSystemElement();
-    });
-    trie.addWord("nb", () => {
-      staffSystemEditor.insertNoteBottom();
-      updateStaffSystemElement();
-    });
-    trie.addWord("nt", () => {
-      staffSystemEditor.insertNoteTop();
-      updateStaffSystemElement();
-    });
-    trie.addWord("wa", () => {
-      staffSystemEditor.appendVoice();
-      updateStaffSystemElement();
-    });
-    trie.addWord("nqdf", () => {
-      staffSystemEditor.setAccidental(Accidental.DoubleFlat);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nqf", () => {
-      staffSystemEditor.setAccidental(Accidental.Flat);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nqx", () => {
-      staffSystemEditor.setAccidental(Accidental.None);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nqn", () => {
-      staffSystemEditor.setAccidental(Accidental.Natural);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nqs", () => {
-      staffSystemEditor.setAccidental(Accidental.Sharp);
-      updateStaffSystemElement();
-    });
-    trie.addWord("nqds", () => {
-      staffSystemEditor.setAccidental(Accidental.DoubleSharp);
-      updateStaffSystemElement();
-    });
-    trie.addWord("ck", () => {
-      staffSystemEditor.increaseCursorNote();
-      updateStaffSystemElement();
-    });
-    trie.addWord("cj", () => {
-      staffSystemEditor.decreaseCursorNote();
-      updateStaffSystemElement();
-    });
-    trie.addWord("mcb", () => {
-      staffSystemEditor.setClef(Clef.Bass);
-      updateStaffSystemElement();
-    });
-    trie.addWord("mca", () => {
-      staffSystemEditor.setClef(Clef.Alto);
-      updateStaffSystemElement();
-    });
-    trie.addWord("mct", () => {
-      staffSystemEditor.setClef(Clef.Treble);
-      updateStaffSystemElement();
-    });
-    trie.addWord("mkx", () => {
-      staffSystemEditor.setKeySignature(KeySignature.None);
-      updateStaffSystemElement();
-    });
-    trie.addWord("smj", () => {
-      staffSystemEditor.swapStaffDown();
-      updateStaffSystemElement();
-    });
-    trie.addWord("smk", () => {
-      staffSystemEditor.swapStaffUp();
-      updateStaffSystemElement();
-    });
-    trie.addWord("sx", () => {
-      staffSystemEditor.deleteStaff();
-      updateStaffSystemElement();
-    });
-    trie.addWord("sa", () => {
-      staffSystemEditor.insertStaff(staffSystemEditor.getStaffCount());
-      updateStaffSystemElement();
-    });
-    trie.addWord("sr+", () => {
-      staffSystemEditor.shiftSpaceBetweenStaves(2);
-      updateStaffSystemElement();
-    });
-    trie.addWord("sr-", () => {
-      staffSystemEditor.shiftSpaceBetweenStaves(-2);
-      updateStaffSystemElement();
-    });
-    trie.addWord("sr=", () => {
-      staffSystemEditor.setSpaceBetweenStaves(DEFAULT_STAFF_SYSTEM_GAP);
-      updateStaffSystemElement();
-    });
-    trie.addWord("Scx", () => {
-      staffSystemEditor.setStaffSystemConnector(ConnectorType.None);
-      updateStaffSystemElement();
-    });
-    trie.addWord("Sc[", () => {
-      staffSystemEditor.setStaffSystemConnector(ConnectorType.Bracket);
-      updateStaffSystemElement();
-    });
-    trie.addWord("Sc{", () => {
-      staffSystemEditor.setStaffSystemConnector(ConnectorType.Brace);
-      updateStaffSystemElement();
-    });
+  const getMeasureKeySignatureNormalBinds = useCallback(() => {
     const sharps = [
       KeySignature.Sharp1,
       KeySignature.Sharp2,
@@ -353,83 +76,906 @@ export default function Editor({
       KeySignature.Flat6,
       KeySignature.Flat7,
     ];
+    const measureBinds: Bind[] = [
+      {
+        word: "mx",
+        description: "remove measure",
+        callback: () => {
+          const staffSystemEditor = requireNotNull(
+            staffSystemEditorRef.current,
+            "Expected staffSystemEditorRef to be initialized",
+          );
+          staffSystemEditor.removeMeasures();
+          updateStaffSystemElement();
+        },
+        mode: "normal",
+      },
+    ];
     for (let index = 0; index < sharps.length; index++) {
       const sharp = requireNotNull(sharps[index]);
       const flat = requireNotNull(flats[index]);
-      trie.addWord(`mks${index + 1}`, () => {
-        staffSystemEditor.setKeySignature(sharp);
-        updateStaffSystemElement();
+      measureBinds.push({
+        word: `mks${index + 1}`,
+        description: `set key signature with ${index + 1} sharp(s)`,
+        callback: () => {
+          const staffSystemEditor = requireNotNull(
+            staffSystemEditorRef.current,
+            "Expected staffSystemEditorRef to be initialized",
+          );
+          staffSystemEditor.setKeySignature(sharp);
+          updateStaffSystemElement();
+        },
+        mode: "normal",
       });
-      trie.addWord(`mkf${index + 1}`, () => {
-        staffSystemEditor.setKeySignature(flat);
-        updateStaffSystemElement();
+      measureBinds.push({
+        word: `mkf${index + 1}`,
+        description: `set key signature with ${index + 1} flat(s)`,
+        callback: () => {
+          const staffSystemEditor = requireNotNull(
+            staffSystemEditorRef.current,
+            "Expected staffSystemEditorRef to be initialized",
+          );
+          staffSystemEditor.setKeySignature(flat);
+          updateStaffSystemElement();
+        },
+        mode: "normal",
       });
     }
-    trie.addWord("mt24", () => {
-      staffSystemEditor.setTimeSignature(TimeSignature.TwoFour);
-      updateStaffSystemElement();
-    });
-    trie.addWord("mt34", () => {
-      staffSystemEditor.setTimeSignature(TimeSignature.ThreeFour);
-      updateStaffSystemElement();
-    });
-    trie.addWord("mt44", () => {
-      staffSystemEditor.setTimeSignature(TimeSignature.FourFour);
-      updateStaffSystemElement();
-    });
-    trie.addWord("gs", () => {
-      staffSystemEditor.splitGrouping();
-      updateStaffSystemElement();
-    });
-    trie.addWord("gm", () => {
-      staffSystemEditor.mergeGrouping();
-      updateStaffSystemElement();
-    });
-    trie.addWord("gt", () => {
-      staffSystemEditor.toggleGroupStemDirection();
-      updateStaffSystemElement();
-    });
-
-    normalTrieRef.current = trie;
+    return measureBinds;
   }, [updateStaffSystemElement]);
+
+  const getNoteInsertBinds = useCallback(() => {
+    const insertBinds: Bind[] = [
+      {
+        word: "g",
+        description: "duplicate note",
+        callback: () => {
+          const staffSystemEditor = requireNotNull(
+            staffSystemEditorRef.current,
+            "Expected staffSystemEditorRef to be initialized",
+          );
+          staffSystemEditor.insertNoteRelativeToCursor(0);
+          updateStaffSystemElement();
+        },
+        mode: "insert",
+      },
+    ];
+    for (const [index, word] of ["f", "d", "s", "a"].entries()) {
+      insertBinds.push({
+        word: word,
+        description: `insert relative note (offset: ${-(index + 1)})`,
+        callback: () => {
+          const staffSystemEditor = requireNotNull(
+            staffSystemEditorRef.current,
+            "Expected staffSystemEditorRef to be initialized",
+          );
+          staffSystemEditor.insertNoteRelativeToCursor(-(index + 1));
+          updateStaffSystemElement();
+        },
+        mode: "insert",
+      });
+    }
+    for (const [index, word] of ["j", "k", "l", ";"].entries()) {
+      insertBinds.push({
+        word: word,
+        description: `insert relative note (offset: ${index + 1})`,
+        callback: () => {
+          const staffSystemEditor = requireNotNull(
+            staffSystemEditorRef.current,
+            "Expected staffSystemEditorRef to be initialized",
+          );
+          staffSystemEditor.insertNoteRelativeToCursor(index + 1);
+          updateStaffSystemElement();
+        },
+        mode: "insert",
+      });
+    }
+    return insertBinds;
+  }, [updateStaffSystemElement]);
+
+  const binds = useRef<Bind[]>([
+    {
+      word: "h",
+      description: "cursor left",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorLeft();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "l",
+      description: "cursor right",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorRight();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "j",
+      description: "increase voice",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.increaseCursorVoice();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "k",
+      description: "decrease voice",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.decreaseCursorVoice();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sj",
+      description: "next staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.increaseCursorStaff();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sk",
+      description: "previous staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.decreaseCursorStaff();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "na",
+      description: "decrease note position by 4",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(-4);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "ns",
+      description: "decrease note position by 3",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(-3);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nd",
+      description: "decrease note position by 2",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(-2);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nf",
+      description: "decrease note position by 1",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(-1);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nj",
+      description: "increase note position by 1",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(1);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nk",
+      description: "increase note position by 2",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(2);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nl",
+      description: "increase note position by 3",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(3);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n;",
+      description: "increase note position by 4",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.moveCursorPosition(4);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nc",
+      description: "convert note to rest or rest to note",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.toggleType();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n1",
+      description: "set whole stem type",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setDuration(StemType.Whole);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n2",
+      description: "set half stem type",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setDuration(StemType.Half);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n3",
+      description: "set quarter stem type",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setDuration(StemType.Quarter);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n4",
+      description: "set eight stem type",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setDuration(StemType.Eight);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n5",
+      description: "set sixteenth stem type",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setDuration(StemType.Sixteenth);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n6",
+      description: "set thirty-sixth stem type",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setDuration(StemType.Thirtysecond);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "n7",
+      description: "set sixty-fourth stem type",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setDuration(StemType.Sixtyfourth);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nx",
+      description: "remove note",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.deleteNote();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nqdf",
+      description: "set accidental to double flat",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setAccidental(Accidental.DoubleFlat);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nqf",
+      description: "set accidental to flat",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setAccidental(Accidental.Flat);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nqx",
+      description: "remove accidental",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setAccidental(Accidental.None);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nqn",
+      description: "set accidental to natural",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setAccidental(Accidental.Natural);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nqs",
+      description: "set accidental to sharp",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setAccidental(Accidental.Sharp);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "nqds",
+      description: "set accidental to double sharp",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.setAccidental(Accidental.DoubleSharp);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "cb",
+      description: "insert bottom note in chord",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.insertNoteBottom();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "ct",
+      description: "insert top note in chord",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.insertNoteTop();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "ck",
+      description: "move up in chord",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.increaseCursorNote();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "cj",
+      description: "move down in chord",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.decreaseCursorNote();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    ...getMeasureKeySignatureNormalBinds(),
+    {
+      word: "mh",
+      description: "move measure to the left",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.swapMeasureLeft();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "ml",
+      description: "move measure to the right",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditorRef to be initialized",
+        );
+        staffSystemEditor.swapMeasureRight();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "ma",
+      description: "append measure",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.insertMeasure(
+          staffSystemEditor.getStaffSystemMeasureCount(),
+        );
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mj",
+      description: "join measure",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.join();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mb",
+      description: "break measure",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.break();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mcb",
+      description: "set cleff to bass",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setClef(Clef.Bass);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mca",
+      description: "set cleff to alto",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setClef(Clef.Alto);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mct",
+      description: "set cleff to treble",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setClef(Clef.Treble);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mkx",
+      description: "remove key signature",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setKeySignature(KeySignature.None);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mt24",
+      description: "set time signature to 2/4",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setTimeSignature(TimeSignature.TwoFour);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mt34",
+      description: "set time signature to 3/4",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setTimeSignature(TimeSignature.ThreeFour);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "mt44",
+      description: "set time signature to 4/4",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setTimeSignature(TimeSignature.FourFour);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "wa",
+      description: "append voice",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.appendVoice();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "gs",
+      description: "split group",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.splitGrouping();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "gm",
+      description: "merge group",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.mergeGrouping();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "gt",
+      description: "toggle stem direction for group",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.toggleGroupStemDirection();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sj",
+      description: "move to lower staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.swapStaffDown();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sk",
+      description: "move to upper staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.swapStaffUp();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sx",
+      description: "remove staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.deleteStaff();
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sa",
+      description: "append staff",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.insertStaff(staffSystemEditor.getStaffCount());
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sr+",
+      description: "increase staves gap",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.shiftSpaceBetweenStaves(2);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sr-",
+      description: "decrease staves gap",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.shiftSpaceBetweenStaves(-2);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "sr=",
+      description: "reset staves gap",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setSpaceBetweenStaves(DEFAULT_STAFF_SYSTEM_GAP);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "Scx",
+      description: "remove staff system connector",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setStaffSystemConnector(ConnectorType.None);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "Sc[",
+      description: "set staff system connector to bracket",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setStaffSystemConnector(ConnectorType.Bracket);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    {
+      word: "Sc{",
+      description: "set staff system connector to brace",
+      callback: () => {
+        const staffSystemEditor = requireNotNull(
+          staffSystemEditorRef.current,
+          "Expected staffSystemEditoRef to be initialized",
+        );
+        staffSystemEditor.setStaffSystemConnector(ConnectorType.Brace);
+        updateStaffSystemElement();
+      },
+      mode: "normal",
+    },
+    ...getNoteInsertBinds(),
+  ]);
+
+  const initNormalTrie = useCallback(() => {
+    const trie = new Trie<() => void>();
+    for (const bind of binds.current.filter((bind) => bind.mode === "normal")) {
+      trie.addWord(bind.word, bind.callback);
+    }
+    normalTrieRef.current = trie;
+  }, []);
 
   const initVisualTrie = useCallback(() => {
     const trie = new Trie<() => void>();
-    trie.addWord("jv", () => {
-      console.log("jv");
-    });
-
+    for (const bind of binds.current.filter((bind) => bind.mode === "visual")) {
+      trie.addWord(bind.word, bind.callback);
+    }
     visualTrieRef.current = trie;
   }, []);
 
   const initInsertTrie = useCallback(() => {
-    const staffSystemEditor = requireNotNull(
-      staffSystemEditorRef.current,
-      "Expected staffSystemEditorRef to be initialized",
-    );
     const trie = new Trie<() => void>();
-    for (const [index, word] of ["f", "d", "s", "a"].entries()) {
-      trie.addWord(word, () => {
-        staffSystemEditor.insertNoteRelativeToCursor(-(index + 1));
-        updateStaffSystemElement();
-      });
+    for (const bind of binds.current.filter((bind) => bind.mode === "insert")) {
+      trie.addWord(bind.word, bind.callback);
     }
-    for (const [index, word] of ["j", "k", "l", ";"].entries()) {
-      trie.addWord(word, () => {
-        staffSystemEditor.insertNoteRelativeToCursor(index + 1);
-        updateStaffSystemElement();
-      });
-    }
-    trie.addWord(" ", () => {
-      staffSystemEditor.insertNoteRelativeToCursor(0);
-      updateStaffSystemElement();
-    });
-
     insertTrieRef.current = trie;
-  }, [updateStaffSystemElement]);
+  }, []);
 
   const initHelpTrie = useCallback(() => {
     const trie = new Trie<() => void>();
+    for (const bind of binds.current.filter((bind) => bind.mode === "help")) {
+      trie.addWord(bind.word, bind.callback);
+    }
     trie.addWord("?", () => {
       crtModeRef.current = "normal";
       setMode(crtModeRef.current);
@@ -451,36 +997,36 @@ export default function Editor({
         onSuccess?: (matches: RegExpMatchArray) => void;
         onError?: () => void;
       }[] = [
-          // write command
-          {
-            weakRegex: /^w(rite)?\s*(\s.*)?$/,
-            regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
-            onSuccess: (matches: RegExpMatchArray) => {
-              if (matches.groups?.name) {
-                staffSystemEditor.setStaffSystemName(matches.groups?.name);
-                updateStaffSystemElement();
-              }
-              if (onWrite != null) {
-                onWrite(staffSystemEditor.getStaffSystem());
-              }
-            },
-            onError: () => {
-              alert(
-                "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
-              );
-            },
+        // write command
+        {
+          weakRegex: /^w(rite)?\s*(\s.*)?$/,
+          regex: /^w(rite)?\s*(\s(?<name>[a-zA-Z0-9\-\_\.]+))?$/,
+          onSuccess: (matches: RegExpMatchArray) => {
+            if (matches.groups?.name) {
+              staffSystemEditor.setStaffSystemName(matches.groups?.name);
+              updateStaffSystemElement();
+            }
+            if (onWrite != null) {
+              onWrite(staffSystemEditor.getStaffSystem());
+            }
           },
-          {
-            // explore command
-            weakRegex: /^ex(plore)?\s*$/,
-            regex: /^ex(plore)?\s*$/,
-            onSuccess: () => {
-              if (onExplore) {
-                onExplore();
-              }
-            },
+          onError: () => {
+            alert(
+              "Invalid usage of the write command.\nUsage: w[rite] [name]?\n[name] is made up of alphanumerical characters and the symbols '-', '_' and '.'",
+            );
           },
-        ];
+        },
+        {
+          // explore command
+          weakRegex: /^ex(plore)?\s*$/,
+          regex: /^ex(plore)?\s*$/,
+          onSuccess: () => {
+            if (onExplore) {
+              onExplore();
+            }
+          },
+        },
+      ];
 
       for (const command of commands) {
         if (command.weakRegex.test(commandString)) {
@@ -836,7 +1382,7 @@ export default function Editor({
   let helpDiv = null;
   if (mode === "help") {
     const helpEntries = [];
-    for (const bind of [normalNavigationBindsRef.current].flat()) {
+    for (const bind of binds.current) {
       helpEntries.push(
         <div>
           <span className="italic font-bold text-xl text-blue-500">
@@ -850,7 +1396,7 @@ export default function Editor({
     }
     helpDiv = (
       <div
-        className="flex flex-col items-start justify-start rounded p-4 fixed inset-0 top-10 mx-auto max-w-96 max-h-96 opacity-90 min-w-96 min-h-96 bg-slate-900 z-10 text-yellow-500 font-semibold text-xl"
+        className="flex flex-col items-start justify-start rounded p-4 fixed inset-0 top-10 mx-auto overflow-y-scroll opacity-90 w-96 h-96 bg-slate-900 z-10 text-yellow-500 font-semibold text-xl"
         tabIndex={-1}
         onKeyDown={onKeyDown}
       >
