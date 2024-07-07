@@ -629,6 +629,7 @@ export class StaffSystemEditor {
       });
       this.setCursorHightlight(true);
     }
+    syncIds(this.staffSystem);
     this.saveCursor();
   }
 

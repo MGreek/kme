@@ -374,6 +374,7 @@ export function syncIds(staffSystem: StaffSystem) {
               for (const note of chord.notes) {
                 note.noteId.chordId = chord.chordId;
               }
+              chord.notes.sort((a, b) => a.noteId.position - b.noteId.position);
             }
           }
         }
