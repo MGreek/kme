@@ -464,10 +464,24 @@ export class StaffSystemEditor {
 
   public moveCursorPosition(delta: number) {
     if ("restId" in this.cursor) {
+      const cursorPosition = this.cursor.position;
+      const nextPosition = cursorPosition + delta;
+      if (
+        nextPosition < StaffSystemEditor.MIN_NOTE_REST_POSITION ||
+        nextPosition > StaffSystemEditor.MAX_NOTE_REST_POSITION
+      ) {
+        return;
+      }
       this.cursor.position += delta;
     } else {
       const cursorPosition = this.cursor.noteId.position;
       const nextPosition = cursorPosition + delta;
+      if (
+        nextPosition < StaffSystemEditor.MIN_NOTE_REST_POSITION ||
+        nextPosition > StaffSystemEditor.MAX_NOTE_REST_POSITION
+      ) {
+        return;
+      }
       const cursorChord = requireNotNull(
         getChordById(this.staffSystem, this.cursor.noteId.chordId),
       );
@@ -853,10 +867,12 @@ export class StaffSystemEditor {
     );
   }
 
-  static readonly MIN_NOTE_REST_POSITION = -30;
+  static readonly MIN_NOTE_REST_POSITION = -20;
   static readonly MAX_NOTE_REST_POSITION = 50;
+  static readonly MAX_GROUPING_ENTRIES_IN_VOICE = 32;
 
   public insertNoteRelativeToCursor(offset: number, keepGrouping = true) {
+    let voice = null;
     if ("restId" in this.cursor) {
       const finalPosition = this.cursor.position + offset;
       if (
@@ -865,6 +881,32 @@ export class StaffSystemEditor {
       ) {
         return;
       }
+      voice = requireNotNull(
+        getVoiceById(
+          this.staffSystem,
+          this.cursor.restId.groupingEntryId.groupingId.voiceId,
+        ),
+      );
+    } else {
+      const finalPosition = this.cursor.noteId.position + offset;
+      if (
+        finalPosition < StaffSystemEditor.MIN_NOTE_REST_POSITION ||
+        finalPosition > StaffSystemEditor.MAX_NOTE_REST_POSITION
+      ) {
+        return;
+      }
+      voice = requireNotNull(
+        getVoiceById(
+          this.staffSystem,
+          this.cursor.noteId.chordId.groupingEntryId.groupingId.voiceId,
+        ),
+      );
+    }
+    if (
+      voice.groupings.flatMap((grouping) => grouping.groupingEntries).length >=
+      StaffSystemEditor.MAX_GROUPING_ENTRIES_IN_VOICE
+    ) {
+      return;
     }
     this.setCursorHightlight(false);
     let groupingEntry: GroupingEntry | null = null;
