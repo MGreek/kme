@@ -563,7 +563,16 @@ export class StaffSystemEditor {
         .flatMap((v) => v.groupings)
         .flatMap((g) => g.groupingEntries).length === 1
     ) {
-      return;
+      if ("noteId" in this.cursor) {
+        const chord = requireNotNull(
+          getChordById(this.staffSystem, this.cursor.noteId.chordId),
+        );
+        if (chord.notes.length === 1) {
+          return;
+        }
+      } else {
+        return;
+      }
     }
     this.setCursorHightlight(false);
     const groupingEntry = getCursorGroupingEntry(this.staffSystem, this.cursor);
