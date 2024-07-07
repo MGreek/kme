@@ -789,6 +789,7 @@ export class StaffSystemEditor {
     );
     this.setCursorHightlight(true);
     this.staffSystem.staves.splice(staff.staffId.stavesOrder, 1);
+    syncIds(this.staffSystem);
     this.saveCursor();
   }
 
