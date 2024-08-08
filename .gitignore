@@ -1,2 +1,4 @@
 # ignore drawio backups
 *.bkp
+
+kme-backend/kls_database.db
