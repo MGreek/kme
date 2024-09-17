@@ -2,3 +2,4 @@
 *.bkp
 
 kme-backend/kls_database.db
+.password-store/
